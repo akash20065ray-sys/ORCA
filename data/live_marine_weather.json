@@ -1,6 +1,6 @@
 {
   "source": "Open-Meteo & ECMWF Marine Service",
-  "ingested_at": "2026-09-03T17:20:49.636456+00:00",
+  "ingested_at": "2026-09-03T17:27:56.618141+00:00",
   "harbors": {
     "Kochi": {
       "harbor_meta": {
@@ -13,7 +13,7 @@
       "telemetry": {
         "latitude": 9.958336,
         "longitude": 76.20836,
-        "generationtime_ms": 0.27370452880859375,
+        "generationtime_ms": 0.21195411682128906,
         "utc_offset_seconds": 0,
         "timezone": "GMT",
         "timezone_abbreviation": "GMT",
@@ -257,7 +257,7 @@
       "telemetry": {
         "latitude": 13.041664,
         "longitude": 80.375015,
-        "generationtime_ms": 0.15974044799804688,
+        "generationtime_ms": 0.32508373260498047,
         "utc_offset_seconds": 0,
         "timezone": "GMT",
         "timezone_abbreviation": "GMT",
@@ -501,7 +501,7 @@
       "telemetry": {
         "latitude": 18.958336,
         "longitude": 72.875015,
-        "generationtime_ms": 0.3675222396850586,
+        "generationtime_ms": 0.12409687042236328,
         "utc_offset_seconds": 0,
         "timezone": "GMT",
         "timezone_abbreviation": "GMT",
@@ -745,7 +745,7 @@
       "telemetry": {
         "latitude": 17.625,
         "longitude": 83.29167,
-        "generationtime_ms": 0.164031982421875,
+        "generationtime_ms": 0.14638900756835938,
         "utc_offset_seconds": 0,
         "timezone": "GMT",
         "timezone_abbreviation": "GMT",
@@ -989,7 +989,7 @@
       "telemetry": {
         "latitude": 15.458336,
         "longitude": 73.79167,
-        "generationtime_ms": 0.17309188842773438,
+        "generationtime_ms": 0.19621849060058594,
         "utc_offset_seconds": 0,
         "timezone": "GMT",
         "timezone_abbreviation": "GMT",
@@ -1233,7 +1233,7 @@
       "telemetry": {
         "latitude": 12.958336,
         "longitude": 74.79167,
-        "generationtime_ms": 0.3554821014404297,
+        "generationtime_ms": 0.24819374084472656,
         "utc_offset_seconds": 0,
         "timezone": "GMT",
         "timezone_abbreviation": "GMT",
@@ -1477,7 +1477,7 @@
       "telemetry": {
         "latitude": 8.791664,
         "longitude": 78.29167,
-        "generationtime_ms": 0.247955322265625,
+        "generationtime_ms": 0.1951456069946289,
         "utc_offset_seconds": 0,
         "timezone": "GMT",
         "timezone_abbreviation": "GMT",
@@ -1721,7 +1721,7 @@
       "telemetry": {
         "latitude": 20.875,
         "longitude": 70.375015,
-        "generationtime_ms": 0.38254261016845703,
+        "generationtime_ms": 0.2199411392211914,
         "utc_offset_seconds": 0,
         "timezone": "GMT",
         "timezone_abbreviation": "GMT",
@@ -1965,7 +1965,7 @@
       "telemetry": {
         "latitude": 20.208336,
         "longitude": 86.70836,
-        "generationtime_ms": 0.38242340087890625,
+        "generationtime_ms": 0.3427267074584961,
         "utc_offset_seconds": 0,
         "timezone": "GMT",
         "timezone_abbreviation": "GMT",
@@ -2209,7 +2209,7 @@
       "telemetry": {
         "latitude": 22.541664,
         "longitude": 88.375015,
-        "generationtime_ms": 0.2053976058959961,
+        "generationtime_ms": 0.16498565673828125,
         "utc_offset_seconds": 0,
         "timezone": "GMT",
         "timezone_abbreviation": "GMT",
