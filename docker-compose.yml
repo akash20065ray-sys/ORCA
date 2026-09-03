@@ -1,0 +1,10 @@
+services:
+  orca-app:
+    build: .
+    container_name: orca_ocean_intelligence
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped

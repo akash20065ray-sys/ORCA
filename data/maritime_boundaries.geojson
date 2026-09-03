@@ -1,0 +1,116 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MPA-GOM",
+        "name": "Gulf of Mannar Marine National Park",
+        "type": "MPA",
+        "authority": "MoEFCC & Tamil Nadu Forest Dept",
+        "restriction": "Commercial trawling strictly prohibited. Coral reef protected ecosystem."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.9,
+              9.15
+            ],
+            [
+              79.25,
+              9.25
+            ],
+            [
+              79.35,
+              9.1
+            ],
+            [
+              79.05,
+              8.95
+            ],
+            [
+              78.9,
+              9.15
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "IMBL-PALK",
+        "name": "International Maritime Boundary Line (IMBL) India-Sri Lanka",
+        "type": "IMBL_GEOFENCE",
+        "authority": "Indian Coast Guard / Sri Lanka Navy",
+        "restriction": "Border zone. Maintain minimum 5 NM safety margin."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.25,
+              9.0
+            ],
+            [
+              79.85,
+              9.5
+            ],
+            [
+              80.3,
+              10.3
+            ],
+            [
+              79.8,
+              10.4
+            ],
+            [
+              79.25,
+              9.0
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "RESTRICTED-KOC",
+        "name": "Kochi Coastal Defense & Shipping Fairway",
+        "type": "RESTRICTED_ZONE",
+        "authority": "Southern Naval Command & Cochin Port Trust",
+        "restriction": "Naval testing corridor and commercial deep-draft vessel channel."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              76.24,
+              9.9
+            ],
+            [
+              76.32,
+              9.85
+            ],
+            [
+              76.35,
+              9.68
+            ],
+            [
+              76.2,
+              9.74
+            ],
+            [
+              76.24,
+              9.9
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

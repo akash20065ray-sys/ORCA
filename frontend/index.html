@@ -16,6 +16,10 @@
   <!-- Custom Design System Stylesheet -->
   <link rel="stylesheet" href="/static/css/style.css">
   <link rel="icon" type="image/svg+xml" href="/static/assets/orca_logo.svg">
+  
+  <!-- Progressive Web App Manifest & Offline Marine Service Worker -->
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0b2545">
 </head>
 <body>
 
@@ -821,6 +825,17 @@
   <script src="/static/js/agents_ui.js"></script>
   <script src="/static/js/charts.js"></script>
   <script src="/static/js/app.js"></script>
+
+  <!-- PWA Offline Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/sw.js').catch(err => {
+          console.warn('PWA service worker registration note:', err);
+        });
+      });
+    }
+  </script>
 
 </body>
 </html>
