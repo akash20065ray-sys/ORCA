@@ -363,17 +363,18 @@ function refreshOceanData() {
   }
 }
 
-function setMapLayerType(type) {
-  document.querySelectorAll('.map-layer-switcher .layer-tab-btn').forEach(b => {
-    if (b.getAttribute('data-map-layer') === type) b.classList.add('active');
-    else if (!b.classList.contains('layer-dropdown-btn')) b.classList.remove('active');
-  });
+function setMapLayerType(type, btnEl) {
+  if (typeof window.switchBaseMap === 'function') {
+    window.switchBaseMap(type, btnEl);
+  }
 }
 
-function toggleOverlayLayer(layerName) {
-  const btn = document.querySelector(`.map-layer-switcher [data-map-layer="${layerName}"]`);
-  if (btn) btn.classList.toggle('active');
+function toggleOverlayLayer(layerName, btnEl) {
+  if (typeof window.toggleMapOverlay === 'function') {
+    window.toggleMapOverlay(layerName, btnEl);
+  }
 }
+
 
 // Navigation View Switcher
 function setupNavigation() {

@@ -942,43 +942,284 @@ body.theme-dark .source-badge {
 }
 
 /* Layer Switcher Pills */
+.map-layer-switcher-container {
+  position: relative;
+}
+
 .map-layer-switcher {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   background: var(--bg-card-subtle);
   border: 1px solid var(--border-light);
   border-radius: 8px;
   padding: 3px;
+  flex-wrap: wrap;
+}
+
+.layer-switcher-separator {
+  width: 1px;
+  height: 16px;
+  background: var(--border-light);
+  margin: 0 3px;
 }
 
 .layer-tab-btn {
   background: transparent;
   border: none;
-  padding: 4px 10px;
+  padding: 4px 8px;
   border-radius: 6px;
-  font-size: 0.75rem;
+  font-size: 0.73rem;
   font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
+  user-select: none;
 }
 
 .layer-tab-btn:hover {
   color: var(--text-main);
+  background: var(--bg-card-hover);
 }
 
 .layer-tab-btn.active {
   background-color: #0b2545;
   color: #ffffff;
   font-weight: 700;
+  box-shadow: 0 2px 4px rgba(11, 37, 69, 0.15);
 }
 
 body.theme-dark .layer-tab-btn.active {
   background-color: #0284c7;
+}
+
+.overlay-tab-btn.active {
+  background-color: #0369a1;
+  color: #ffffff;
+}
+
+body.theme-dark .overlay-tab-btn.active {
+  background-color: #0284c7;
+}
+
+.layer-dropdown-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  font-weight: 700;
+}
+
+/* Floating Glassmorphism Layers Dropdown */
+.map-layers-floating-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 290px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  z-index: 1050;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.18s ease-out;
+}
+
+.map-layers-floating-dropdown.hidden {
+  display: none;
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background: var(--bg-card-subtle);
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.dropdown-close-btn {
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 0 4px;
+}
+
+.dropdown-close-btn:hover {
+  color: var(--text-main);
+}
+
+.dropdown-scroll-body {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dropdown-group-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 6px 4px 2px 4px;
+}
+
+.dropdown-layer-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.dropdown-layer-row:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-main);
+}
+
+.dropdown-layer-row input {
+  cursor: pointer;
+  accent-color: #0284c7;
+}
+
+.row-icon {
+  font-size: 0.85rem;
+}
+
+.row-text {
+  flex: 1;
+}
+
+/* ---------------------------------------------------
+   Dynamic Map Overlay Markers & Streamlines HUD
+   --------------------------------------------------- */
+/* Wind Vectors HUD */
+.wind-hud-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.wind-arrow-wrapper {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  transition: transform 0.3s ease;
+}
+
+.wind-tag-badge {
+  background: rgba(11, 37, 69, 0.85);
+  color: #38bdf8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+  margin-top: -2px;
+}
+
+/* Wave Swell HUD */
+.wave-hud-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.wave-pulse-ring {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #10b981;
+  background: rgba(16, 185, 129, 0.2);
+  animation: wavePulseAnim 2.2s infinite ease-out;
+}
+
+.wave-pulse-ring.moderate {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.25);
+}
+
+.wave-pulse-ring.rough {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.25);
+}
+
+@keyframes wavePulseAnim {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  70% { transform: scale(1.4); opacity: 0.3; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.wave-tag-badge {
+  background: rgba(11, 37, 69, 0.88);
+  color: #10b981;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.64rem;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+  margin-top: 2px;
+}
+
+/* Ocean Currents HUD */
+.current-hud-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.current-arrow-wrapper {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00f2fe;
+  font-size: 1.1rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+}
+
+.current-tag-badge {
+  background: rgba(2, 44, 80, 0.88);
+  color: #00f2fe;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.63rem;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  white-space: nowrap;
 }
 
 /* Map Canvas Wrapper */

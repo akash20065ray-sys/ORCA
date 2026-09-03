@@ -274,16 +274,107 @@
                     </div>
                   </div>
 
-                  <!-- Layer Switcher Pills -->
-                  <div class="map-layer-switcher">
-                    <button type="button" class="layer-tab-btn active" data-map-layer="satellite" onclick="setMapLayerType('satellite')">Satellite</button>
-                    <button type="button" class="layer-tab-btn" data-map-layer="weather" onclick="toggleOverlayLayer('weather')">Weather</button>
-                    <button type="button" class="layer-tab-btn" data-map-layer="wind" onclick="toggleOverlayLayer('wind')">Wind</button>
-                    <button type="button" class="layer-tab-btn" data-map-layer="wave" onclick="toggleOverlayLayer('wave')">Wave</button>
-                    <button type="button" class="layer-tab-btn" data-map-layer="currents" onclick="toggleOverlayLayer('currents')">Currents</button>
-                    <button type="button" class="layer-tab-btn layer-dropdown-btn" onclick="switchView('map')">
-                      <span>📑</span> Layers
-                    </button>
+                  <!-- Layer Switcher Pills & Interactive Dropdown -->
+                  <div class="map-layer-switcher-container">
+                    <div class="map-layer-switcher">
+                      <!-- Base Map Options -->
+                      <button type="button" class="layer-tab-btn active" data-base-layer="satellite" onclick="switchBaseMap('satellite', this)" title="High-Resolution Satellite Imagery">🛰️ Satellite</button>
+                      <button type="button" class="layer-tab-btn" data-base-layer="ocean" onclick="switchBaseMap('ocean', this)" title="Bathymetric Ocean Nautical Chart">🌊 Ocean</button>
+                      <button type="button" class="layer-tab-btn" data-base-layer="dark" onclick="switchBaseMap('dark', this)" title="Tactical Night Operations Mode">🌑 Dark</button>
+                      
+                      <span class="layer-switcher-separator"></span>
+
+                      <!-- Dynamic Live Overlays -->
+                      <button type="button" class="layer-tab-btn overlay-tab-btn" data-overlay="wind" onclick="toggleMapOverlay('wind', this)" title="Live Wind Direction & Speed">💨 Wind</button>
+                      <button type="button" class="layer-tab-btn overlay-tab-btn" data-overlay="waves" onclick="toggleMapOverlay('waves', this)" title="Live Wave Swell Contours">🌊 Waves</button>
+                      <button type="button" class="layer-tab-btn overlay-tab-btn" data-overlay="currents" onclick="toggleMapOverlay('currents', this)" title="Live Surface Ocean Currents">🌀 Currents</button>
+                      <button type="button" class="layer-tab-btn overlay-tab-btn" data-overlay="weather" onclick="toggleMapOverlay('weather', this)" title="Real-Time Precipitation Radar">🌦️ Radar</button>
+                      
+                      <!-- All Layers Dropdown Trigger -->
+                      <button type="button" id="layerDropdownToggleBtn" class="layer-tab-btn layer-dropdown-btn" onclick="toggleLayerDropdown(event)" title="All Layers & Overlays">
+                        <span>📑</span> Layers ▾
+                      </button>
+                    </div>
+
+                    <!-- Floating Glassmorphism Layers Dropdown Menu -->
+                    <div id="mapLayersDropdown" class="map-layers-floating-dropdown hidden" onclick="event.stopPropagation()">
+                      <div class="dropdown-header-bar">
+                        <span>Oceanic & Satellite Overlays</span>
+                        <span class="dropdown-close-btn" onclick="toggleLayerDropdown(event)">✕</span>
+                      </div>
+                      <div class="dropdown-scroll-body">
+                        <div class="dropdown-group-label">Base Maps</div>
+                        <label class="dropdown-layer-row">
+                          <input type="radio" name="basemap_radio" value="satellite" checked onchange="switchBaseMap('satellite')">
+                          <span class="row-icon">🛰️</span>
+                          <span class="row-text">Satellite (Esri High-Res)</span>
+                        </label>
+                        <label class="dropdown-layer-row">
+                          <input type="radio" name="basemap_radio" value="ocean" onchange="switchBaseMap('ocean')">
+                          <span class="row-icon">🌊</span>
+                          <span class="row-text">Nautical Ocean & Bathymetry</span>
+                        </label>
+                        <label class="dropdown-layer-row">
+                          <input type="radio" name="basemap_radio" value="dark" onchange="switchBaseMap('dark')">
+                          <span class="row-icon">🌑</span>
+                          <span class="row-text">Tactical Dark Mode (CartoDB)</span>
+                        </label>
+                        <label class="dropdown-layer-row">
+                          <input type="radio" name="basemap_radio" value="streets" onchange="switchBaseMap('streets')">
+                          <span class="row-icon">🗺️</span>
+                          <span class="row-text">Coastal Topographic (OSM)</span>
+                        </label>
+
+                        <div class="dropdown-group-label">Dynamic Live Overlays</div>
+                        <label class="dropdown-layer-row">
+                          <input type="checkbox" id="chkOverlayWind" onchange="toggleMapOverlayCheckbox('wind', this.checked)">
+                          <span class="row-icon">💨</span>
+                          <span class="row-text">Live Wind Vectors & Speed</span>
+                        </label>
+                        <label class="dropdown-layer-row">
+                          <input type="checkbox" id="chkOverlayWaves" onchange="toggleMapOverlayCheckbox('waves', this.checked)">
+                          <span class="row-icon">🌊</span>
+                          <span class="row-text">Live Swell Wave Heatmap</span>
+                        </label>
+                        <label class="dropdown-layer-row">
+                          <input type="checkbox" id="chkOverlayCurrents" onchange="toggleMapOverlayCheckbox('currents', this.checked)">
+                          <span class="row-icon">🌀</span>
+                          <span class="row-text">Surface Ocean Current Flow</span>
+                        </label>
+                        <label class="dropdown-layer-row">
+                          <input type="checkbox" id="chkOverlayRadar" onchange="toggleMapOverlayCheckbox('weather', this.checked)">
+                          <span class="row-icon">🌦️</span>
+                          <span class="row-text">Real-Time Rain & Cloud Radar</span>
+                        </label>
+
+                        <div class="dropdown-group-label">Fisheries & Maritime GIS</div>
+                        <label class="dropdown-layer-row">
+                          <input type="checkbox" id="chkOverlayPfz" checked onchange="toggleMapOverlayCheckbox('pfz', this.checked)">
+                          <span class="row-icon">🐟</span>
+                          <span class="row-text">Potential Fishing Zones (PFZ)</span>
+                        </label>
+                        <label class="dropdown-layer-row">
+                          <input type="checkbox" id="chkOverlayRestricted" checked onchange="toggleMapOverlayCheckbox('restricted', this.checked)">
+                          <span class="row-icon">🛡️</span>
+                          <span class="row-text">Restricted Defense Corridors</span>
+                        </label>
+                        <label class="dropdown-layer-row">
+                          <input type="checkbox" id="chkOverlayRoute" checked onchange="toggleMapOverlayCheckbox('route', this.checked)">
+                          <span class="row-icon">🧭</span>
+                          <span class="row-text">Suggested Navigation Route</span>
+                        </label>
+                        <label class="dropdown-layer-row">
+                          <input type="checkbox" id="chkOverlaySst" onchange="toggleMapOverlayCheckbox('sst', this.checked)">
+                          <span class="row-icon">🌡️</span>
+                          <span class="row-text">ISRO/NOAA SST Thermal Fronts</span>
+                        </label>
+                        <label class="dropdown-layer-row">
+                          <input type="checkbox" id="chkOverlaySeamarks" onchange="toggleMapOverlayCheckbox('seamarks', this.checked)">
+                          <span class="row-icon">⚓</span>
+                          <span class="row-text">OpenSeaMap Seamarks & Buoys</span>
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
