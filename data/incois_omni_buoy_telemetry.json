@@ -1,0 +1,109 @@
+{
+  "source": "INCOIS / NIOT National Data Buoy Programme",
+  "buoys": [
+    {
+      "id": "AD01",
+      "name": "OMNI Deep Sea Buoy AD01",
+      "basin": "Arabian Sea",
+      "lat": 11.5,
+      "lon": 69.0,
+      "depth_m": 4200,
+      "sst": 29.2,
+      "wave_h": 1.4,
+      "wave_p": 7.4,
+      "wind_kt": 12,
+      "pressure_hpa": 1011.8
+    },
+    {
+      "id": "AD02",
+      "name": "OMNI Deep Sea Buoy AD02",
+      "basin": "Arabian Sea",
+      "lat": 15.0,
+      "lon": 69.0,
+      "depth_m": 3950,
+      "sst": 28.7,
+      "wave_h": 1.6,
+      "wave_p": 7.8,
+      "wind_kt": 14,
+      "pressure_hpa": 1012.2
+    },
+    {
+      "id": "BD08",
+      "name": "OMNI Deep Sea Buoy BD08",
+      "basin": "Bay of Bengal",
+      "lat": 18.2,
+      "lon": 89.7,
+      "depth_m": 2250,
+      "sst": 29.8,
+      "wave_h": 1.2,
+      "wave_p": 6.8,
+      "wind_kt": 11,
+      "pressure_hpa": 1010.5
+    },
+    {
+      "id": "BD11",
+      "name": "OMNI Deep Sea Buoy BD11",
+      "basin": "Bay of Bengal",
+      "lat": 14.0,
+      "lon": 83.0,
+      "depth_m": 3100,
+      "sst": 29.4,
+      "wave_h": 1.1,
+      "wave_p": 6.5,
+      "wind_kt": 9,
+      "pressure_hpa": 1011.2
+    },
+    {
+      "id": "CB01",
+      "name": "Coastal Wave Rider CB01 (Kochi)",
+      "basin": "Arabian Sea",
+      "lat": 9.94,
+      "lon": 76.1,
+      "depth_m": 35,
+      "sst": 29.4,
+      "wave_h": 1.1,
+      "wave_p": 7.2,
+      "wind_kt": 8,
+      "pressure_hpa": 1012.0
+    },
+    {
+      "id": "CB02",
+      "name": "Coastal Wave Rider CB02 (Chennai)",
+      "basin": "Bay of Bengal",
+      "lat": 13.12,
+      "lon": 80.35,
+      "depth_m": 42,
+      "sst": 28.9,
+      "wave_h": 0.8,
+      "wave_p": 6.2,
+      "wind_kt": 7,
+      "pressure_hpa": 1012.4
+    },
+    {
+      "id": "CB03",
+      "name": "Coastal Wave Rider CB03 (Visakhapatnam)",
+      "basin": "Bay of Bengal",
+      "lat": 17.65,
+      "lon": 83.35,
+      "depth_m": 45,
+      "sst": 29.1,
+      "wave_h": 1.2,
+      "wave_p": 6.9,
+      "wind_kt": 10,
+      "pressure_hpa": 1011.8
+    },
+    {
+      "id": "CB04",
+      "name": "Coastal Wave Rider CB04 (Goa)",
+      "basin": "Arabian Sea",
+      "lat": 15.42,
+      "lon": 73.72,
+      "depth_m": 30,
+      "sst": 28.8,
+      "wave_h": 1.5,
+      "wave_p": 7.5,
+      "wind_kt": 11,
+      "pressure_hpa": 1012.1
+    }
+  ]
+}

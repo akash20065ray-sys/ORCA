@@ -7,8 +7,8 @@
         "id": "MPA-GOM",
         "name": "Gulf of Mannar Marine National Park",
         "type": "MPA",
-        "authority": "MoEFCC & Tamil Nadu Forest Dept",
-        "restriction": "Commercial trawling strictly prohibited. Coral reef protected ecosystem."
+        "state": "Tamil Nadu",
+        "restriction": "Commercial trawling prohibited. 21 island coral biosphere reserve."
       },
       "geometry": {
         "type": "Polygon",
@@ -41,11 +41,85 @@
     {
       "type": "Feature",
       "properties": {
+        "id": "MPA-MAL",
+        "name": "Malvan Marine Wildlife Sanctuary",
+        "type": "MPA",
+        "state": "Maharashtra",
+        "restriction": "Core zone restricted to non-destructive traditional artisanal fishing."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              73.45,
+              16.02
+            ],
+            [
+              73.52,
+              16.06
+            ],
+            [
+              73.55,
+              15.98
+            ],
+            [
+              73.48,
+              15.95
+            ],
+            [
+              73.45,
+              16.02
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MPA-GAH",
+        "name": "Gahirmatha Marine Sanctuary",
+        "type": "MPA",
+        "state": "Odisha",
+        "restriction": "Strict motorized trawler exclusion zone during Olive Ridley turtle mass nesting (Nov\u2013May)."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              86.75,
+              20.45
+            ],
+            [
+              87.15,
+              20.8
+            ],
+            [
+              87.35,
+              20.6
+            ],
+            [
+              86.95,
+              20.25
+            ],
+            [
+              86.75,
+              20.45
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "id": "IMBL-PALK",
         "name": "International Maritime Boundary Line (IMBL) India-Sri Lanka",
         "type": "IMBL_GEOFENCE",
         "authority": "Indian Coast Guard / Sri Lanka Navy",
-        "restriction": "Border zone. Maintain minimum 5 NM safety margin."
+        "restriction": "International border zone. Maintain minimum 5 NM safety buffer."
       },
       "geometry": {
         "type": "Polygon",

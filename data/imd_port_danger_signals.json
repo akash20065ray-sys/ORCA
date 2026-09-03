@@ -1,0 +1,67 @@
+{
+  "source": "India Meteorological Department (IMD) Marine Weather Division",
+  "signals_definitions": {
+    "Signal 1": "Cautionary \u2014 Squally weather with surface wind 40-50 km/h likely.",
+    "Signal 2": "Warning \u2014 A depression has formed, wind speed 50-60 km/h.",
+    "Signal 3": "Danger \u2014 Port threatened by squally weather, wind 60-70 km/h.",
+    "Signal 4": "Danger \u2014 Severe cyclonic storm, wind 70-90 km/h expected.",
+    "Signal 5": "Danger \u2014 Storm likely to cross coast keeping port to the left.",
+    "Signal 6": "Danger \u2014 Storm likely to cross coast keeping port to the right.",
+    "Signal 7": "Danger \u2014 Storm likely to cross over or near the port.",
+    "Signal 8": "Great Danger \u2014 Severe cyclone likely to cross keeping port to left, winds >100 km/h.",
+    "Signal 9": "Great Danger \u2014 Severe cyclone likely to cross keeping port to right.",
+    "Signal 10": "Great Danger \u2014 Super cyclonic storm crossing directly over port.",
+    "Signal 11": "Communication Failure \u2014 Radio/radar contact lost with meteorological observatory."
+  },
+  "active_ports": [
+    {
+      "port": "Cochin Port (Kochi)",
+      "state": "Kerala",
+      "active_signal": 1,
+      "status": "Cautionary",
+      "advisory": "Moderate sea state. Artisanal craft advised to operate with caution within 30 km."
+    },
+    {
+      "port": "Kasimedu Port (Chennai)",
+      "state": "Tamil Nadu",
+      "active_signal": 1,
+      "status": "Cautionary",
+      "advisory": "Normal coastal sea state. Safe for fishing operations."
+    },
+    {
+      "port": "Mumbai Harbour",
+      "state": "Maharashtra",
+      "active_signal": 1,
+      "status": "Cautionary",
+      "advisory": "Southwesterly surface wind 15-20 knots. Smooth to moderate seas."
+    },
+    {
+      "port": "Visakhapatnam Port",
+      "state": "Andhra Pradesh",
+      "active_signal": 1,
+      "status": "Cautionary",
+      "advisory": "Normal sea state. Wave height 1.2m."
+    },
+    {
+      "port": "Mormugao Port (Goa)",
+      "state": "Goa",
+      "active_signal": 1,
+      "status": "Cautionary",
+      "advisory": "Short swell 1.5m. Safe for coastal vessels."
+    },
+    {
+      "port": "Paradip Port",
+      "state": "Odisha",
+      "active_signal": 1,
+      "status": "Cautionary",
+      "advisory": "Fair weather conditions observed over coastal Odisha."
+    },
+    {
+      "port": "Veraval Port",
+      "state": "Gujarat",
+      "active_signal": 1,
+      "status": "Cautionary",
+      "advisory": "Offshore wind 12 knots. Safe fishing conditions."
+    }
+  ]
+}

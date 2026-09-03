@@ -1,7 +1,8 @@
 {
-  "source": "INCOIS (Indian National Centre for Ocean Information Services)",
+  "source": "INCOIS (Indian National Centre for Ocean Information Services), MoES",
   "bulletin_date": "2026-09-03",
   "valid_until": "48 Hours from issuance",
+  "scientific_basis": "Thermal gradient edges (\u0394T \u2265 0.5\u00b0C/km) + Chlorophyll-a phytoplankton concentration",
   "zones": [
     {
       "id": "PFZ-KOC-01",
@@ -20,7 +21,7 @@
       "target_species": [
         "Yellowfin Tuna",
         "Indian Mackerel",
-        "Sardine",
+        "Oil Sardine",
         "Carangids"
       ],
       "confidence_score": 0.92
@@ -62,11 +63,53 @@
       "chlorophyll_mg_m3": 1.85,
       "target_species": [
         "Bombay Duck",
-        "Pomfret",
+        "Silver Pomfret",
         "Hilsa",
         "Squid"
       ],
       "confidence_score": 0.94
+    },
+    {
+      "id": "PFZ-VIZ-01",
+      "landing_center": "Visakhapatnam Fishing Harbour, Andhra Pradesh",
+      "sector": "East Dolphin's Nose Continental Slope",
+      "bearing_cardinal": "ESE",
+      "bearing_degrees": 115,
+      "distance_km": 31.0,
+      "distance_nm": 16.7,
+      "latitude": 17.55,
+      "longitude": 83.58,
+      "depth_meters": 75,
+      "sst_celsius": 29.1,
+      "thermal_gradient_c_per_km": 0.61,
+      "chlorophyll_mg_m3": 1.55,
+      "target_species": [
+        "Tuna",
+        "Mahi Mahi",
+        "Barracuda"
+      ],
+      "confidence_score": 0.91
+    },
+    {
+      "id": "PFZ-GOA-01",
+      "landing_center": "Malim Jetty, Panaji, Goa",
+      "sector": "Mormugao Deep Sea Banks",
+      "bearing_cardinal": "WSW",
+      "bearing_degrees": 250,
+      "distance_km": 26.0,
+      "distance_nm": 14.0,
+      "latitude": 15.3,
+      "longitude": 73.55,
+      "depth_meters": 48,
+      "sst_celsius": 28.9,
+      "thermal_gradient_c_per_km": 0.54,
+      "chlorophyll_mg_m3": 1.3,
+      "target_species": [
+        "Mackerel",
+        "Kingfish",
+        "Anchovy"
+      ],
+      "confidence_score": 0.88
     }
   ]
 }

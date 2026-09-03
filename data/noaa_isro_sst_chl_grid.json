@@ -1,0 +1,2230 @@
+{
+  "source": "NOAA CoastWatch GHRSST (MUR 1km) & ISRO Oceansat-3 OCM",
+  "spatial_resolution": "0.5 degree EEZ observation grid",
+  "grid_points_count": 247,
+  "data": [
+    {
+      "latitude": 8.0,
+      "longitude": 69.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641703+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 70.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641717+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 71.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641723+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 72.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641726+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 73.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641729+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 74.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641732+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 75.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641735+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 76.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641738+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 77.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641741+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 78.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641744+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 79.0,
+      "sst_celsius": 29.3,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641749+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 80.0,
+      "sst_celsius": 29.3,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641752+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 81.0,
+      "sst_celsius": 29.3,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641755+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 82.0,
+      "sst_celsius": 29.3,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641758+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 83.0,
+      "sst_celsius": 29.3,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641761+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 84.0,
+      "sst_celsius": 29.3,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641764+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 85.0,
+      "sst_celsius": 29.3,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641766+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 86.0,
+      "sst_celsius": 29.3,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641769+00:00"
+    },
+    {
+      "latitude": 8.0,
+      "longitude": 87.0,
+      "sst_celsius": 29.3,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641772+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 69.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641776+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 70.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641779+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 71.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641782+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 72.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641785+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 73.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641788+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 74.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641791+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 75.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641794+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 76.0,
+      "sst_celsius": 29.75,
+      "chlorophyll_mg_m3": 1.42,
+      "is_thermal_front": true,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641798+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 77.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641801+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 78.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641804+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 79.0,
+      "sst_celsius": 29.25,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641807+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 80.0,
+      "sst_celsius": 29.25,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641810+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 81.0,
+      "sst_celsius": 29.25,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641813+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 82.0,
+      "sst_celsius": 29.25,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641816+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 83.0,
+      "sst_celsius": 29.25,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641819+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 84.0,
+      "sst_celsius": 29.25,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641822+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 85.0,
+      "sst_celsius": 29.25,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641825+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 86.0,
+      "sst_celsius": 29.25,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641828+00:00"
+    },
+    {
+      "latitude": 9.0,
+      "longitude": 87.0,
+      "sst_celsius": 29.25,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641831+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 69.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641835+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 70.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641838+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 71.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641841+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 72.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641844+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 73.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641847+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 74.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641850+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 75.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641852+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 76.0,
+      "sst_celsius": 29.7,
+      "chlorophyll_mg_m3": 1.42,
+      "is_thermal_front": true,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641855+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 77.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641858+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 78.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641861+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 79.0,
+      "sst_celsius": 29.2,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641864+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 80.0,
+      "sst_celsius": 29.2,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641867+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 81.0,
+      "sst_celsius": 29.2,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641869+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 82.0,
+      "sst_celsius": 29.2,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641872+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 83.0,
+      "sst_celsius": 29.2,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641875+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 84.0,
+      "sst_celsius": 29.2,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641878+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 85.0,
+      "sst_celsius": 29.2,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641881+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 86.0,
+      "sst_celsius": 29.2,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641884+00:00"
+    },
+    {
+      "latitude": 10.0,
+      "longitude": 87.0,
+      "sst_celsius": 29.2,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641887+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 69.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641890+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 70.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641893+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 71.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641896+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 72.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641899+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 73.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641902+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 74.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641905+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 75.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641907+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 76.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641910+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 77.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641923+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 78.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641926+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 79.0,
+      "sst_celsius": 29.15,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641929+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 80.0,
+      "sst_celsius": 29.15,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641932+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 81.0,
+      "sst_celsius": 29.15,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641934+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 82.0,
+      "sst_celsius": 29.15,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641937+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 83.0,
+      "sst_celsius": 29.15,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641940+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 84.0,
+      "sst_celsius": 29.15,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641943+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 85.0,
+      "sst_celsius": 29.15,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641948+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 86.0,
+      "sst_celsius": 29.15,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641950+00:00"
+    },
+    {
+      "latitude": 11.0,
+      "longitude": 87.0,
+      "sst_celsius": 29.15,
+      "chlorophyll_mg_m3": 0.47,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641953+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 69.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641957+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 70.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641960+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 71.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641963+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 72.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641965+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 73.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641968+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 74.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641970+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 75.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641973+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 76.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641976+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 77.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641980+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 78.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641982+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 79.0,
+      "sst_celsius": 29.1,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641985+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 80.0,
+      "sst_celsius": 29.1,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641988+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 81.0,
+      "sst_celsius": 29.1,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641991+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 82.0,
+      "sst_celsius": 29.1,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641993+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 83.0,
+      "sst_celsius": 29.1,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641996+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 84.0,
+      "sst_celsius": 29.1,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.641998+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 85.0,
+      "sst_celsius": 29.1,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642001+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 86.0,
+      "sst_celsius": 29.1,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642004+00:00"
+    },
+    {
+      "latitude": 12.0,
+      "longitude": 87.0,
+      "sst_celsius": 29.1,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642006+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 69.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642009+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 70.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642012+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 71.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642015+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 72.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642017+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 73.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642020+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 74.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642023+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 75.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642025+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 76.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642028+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 77.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642031+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 78.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642034+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 79.0,
+      "sst_celsius": 29.05,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642036+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 80.0,
+      "sst_celsius": 29.05,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642039+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 81.0,
+      "sst_celsius": 29.85,
+      "chlorophyll_mg_m3": 1.35,
+      "is_thermal_front": true,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642043+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 82.0,
+      "sst_celsius": 29.05,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642045+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 83.0,
+      "sst_celsius": 29.05,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642048+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 84.0,
+      "sst_celsius": 29.05,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642051+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 85.0,
+      "sst_celsius": 29.05,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642054+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 86.0,
+      "sst_celsius": 29.05,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642057+00:00"
+    },
+    {
+      "latitude": 13.0,
+      "longitude": 87.0,
+      "sst_celsius": 29.05,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642059+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 69.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642063+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 70.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642065+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 71.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642068+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 72.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642071+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 73.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642074+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 74.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642076+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 75.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642079+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 76.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642082+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 77.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642084+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 78.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642087+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 79.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642090+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 80.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642093+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 81.0,
+      "sst_celsius": 29.8,
+      "chlorophyll_mg_m3": 1.35,
+      "is_thermal_front": true,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642096+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 82.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642098+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 83.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642101+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 84.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642104+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 85.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642107+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 86.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642109+00:00"
+    },
+    {
+      "latitude": 14.0,
+      "longitude": 87.0,
+      "sst_celsius": 29.0,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642112+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 69.0,
+      "sst_celsius": 28.65,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642115+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 70.0,
+      "sst_celsius": 28.65,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642118+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 71.0,
+      "sst_celsius": 28.65,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642120+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 72.0,
+      "sst_celsius": 28.65,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642123+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 73.0,
+      "sst_celsius": 28.65,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642126+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 74.0,
+      "sst_celsius": 28.65,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642128+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 75.0,
+      "sst_celsius": 28.65,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642131+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 76.0,
+      "sst_celsius": 28.65,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642133+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 77.0,
+      "sst_celsius": 28.65,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642136+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 78.0,
+      "sst_celsius": 28.65,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642138+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 79.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642141+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 80.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642144+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 81.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642147+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 82.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642149+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 83.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642152+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 84.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642154+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 85.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642158+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 86.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642160+00:00"
+    },
+    {
+      "latitude": 15.0,
+      "longitude": 87.0,
+      "sst_celsius": 28.95,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642163+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 69.0,
+      "sst_celsius": 28.6,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642166+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 70.0,
+      "sst_celsius": 28.6,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642169+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 71.0,
+      "sst_celsius": 28.6,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642171+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 72.0,
+      "sst_celsius": 28.6,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642175+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 73.0,
+      "sst_celsius": 28.6,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642178+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 74.0,
+      "sst_celsius": 28.6,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642181+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 75.0,
+      "sst_celsius": 28.6,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642183+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 76.0,
+      "sst_celsius": 28.6,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642186+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 77.0,
+      "sst_celsius": 28.6,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642188+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 78.0,
+      "sst_celsius": 28.6,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642191+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 79.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642194+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 80.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642196+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 81.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642199+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 82.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642201+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 83.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642204+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 84.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642209+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 85.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642214+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 86.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642219+00:00"
+    },
+    {
+      "latitude": 16.0,
+      "longitude": 87.0,
+      "sst_celsius": 28.9,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642224+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 69.0,
+      "sst_celsius": 28.55,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642229+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 70.0,
+      "sst_celsius": 28.55,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642233+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 71.0,
+      "sst_celsius": 28.55,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642236+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 72.0,
+      "sst_celsius": 28.55,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642239+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 73.0,
+      "sst_celsius": 28.55,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642241+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 74.0,
+      "sst_celsius": 28.55,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642244+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 75.0,
+      "sst_celsius": 28.55,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642246+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 76.0,
+      "sst_celsius": 28.55,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642249+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 77.0,
+      "sst_celsius": 28.55,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642252+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 78.0,
+      "sst_celsius": 28.55,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642254+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 79.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642257+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 80.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642260+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 81.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642262+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 82.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642265+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 83.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642268+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 84.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642270+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 85.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642273+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 86.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642275+00:00"
+    },
+    {
+      "latitude": 17.0,
+      "longitude": 87.0,
+      "sst_celsius": 28.85,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642278+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 69.0,
+      "sst_celsius": 28.5,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642281+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 70.0,
+      "sst_celsius": 28.5,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642284+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 71.0,
+      "sst_celsius": 28.5,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642287+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 72.0,
+      "sst_celsius": 28.5,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642290+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 73.0,
+      "sst_celsius": 28.5,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642292+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 74.0,
+      "sst_celsius": 28.5,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642295+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 75.0,
+      "sst_celsius": 28.5,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642298+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 76.0,
+      "sst_celsius": 28.5,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642301+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 77.0,
+      "sst_celsius": 28.5,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642305+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 78.0,
+      "sst_celsius": 28.5,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642307+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 79.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642310+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 80.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642313+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 81.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642316+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 82.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642319+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 83.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642321+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 84.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642324+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 85.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642326+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 86.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642329+00:00"
+    },
+    {
+      "latitude": 18.0,
+      "longitude": 87.0,
+      "sst_celsius": 28.8,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642332+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 69.0,
+      "sst_celsius": 28.45,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642335+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 70.0,
+      "sst_celsius": 28.45,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642337+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 71.0,
+      "sst_celsius": 28.45,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642340+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 72.0,
+      "sst_celsius": 28.45,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642343+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 73.0,
+      "sst_celsius": 28.45,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642346+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 74.0,
+      "sst_celsius": 28.45,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642349+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 75.0,
+      "sst_celsius": 28.45,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642352+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 76.0,
+      "sst_celsius": 28.45,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642355+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 77.0,
+      "sst_celsius": 28.45,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642357+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 78.0,
+      "sst_celsius": 28.45,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642360+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 79.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642363+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 80.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642365+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 81.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642369+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 82.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642372+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 83.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642375+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 84.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642377+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 85.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642380+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 86.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642383+00:00"
+    },
+    {
+      "latitude": 19.0,
+      "longitude": 87.0,
+      "sst_celsius": 28.75,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642385+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 69.0,
+      "sst_celsius": 28.4,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642390+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 70.0,
+      "sst_celsius": 28.4,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642395+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 71.0,
+      "sst_celsius": 28.4,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642399+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 72.0,
+      "sst_celsius": 28.4,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642402+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 73.0,
+      "sst_celsius": 28.4,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642405+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 74.0,
+      "sst_celsius": 28.4,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642408+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 75.0,
+      "sst_celsius": 28.4,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642410+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 76.0,
+      "sst_celsius": 28.4,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642413+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 77.0,
+      "sst_celsius": 28.4,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642416+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 78.0,
+      "sst_celsius": 28.4,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642418+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 79.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642421+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 80.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642425+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 81.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642429+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 82.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642431+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 83.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642434+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 84.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642437+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 85.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642439+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 86.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642442+00:00"
+    },
+    {
+      "latitude": 20.0,
+      "longitude": 87.0,
+      "sst_celsius": 28.7,
+      "chlorophyll_mg_m3": 0.4,
+      "is_thermal_front": false,
+      "satellite_sensor": "NOAA VIIRS L4 Blended & ISRO Oceansat-3 OCM",
+      "observation_time": "2026-09-03T17:20:49.642444+00:00"
+    }
+  ]
+}

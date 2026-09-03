@@ -1,0 +1,63 @@
+{
+  "source": "ICAR-CMFRI (Central Marine Fisheries Research Institute, Kochi)",
+  "reference_year": "2024-2025",
+  "state_profiles": {
+    "Kerala": {
+      "top_species": [
+        "Oil Sardine (Sardinella longiceps)",
+        "Indian Mackerel (Rastrelliger kanagurta)",
+        "Threadfin Bream",
+        "Squid"
+      ],
+      "annual_landings_lakh_tonnes": 6.85,
+      "active_mechanized_vessels": 4200,
+      "peak_season": "September - March"
+    },
+    "Tamil Nadu": {
+      "top_species": [
+        "Silver Belly",
+        "Sardine",
+        "Ribbonfish",
+        "Tuna",
+        "Crab"
+      ],
+      "annual_landings_lakh_tonnes": 7.42,
+      "active_mechanized_vessels": 5800,
+      "peak_season": "October - April"
+    },
+    "Gujarat": {
+      "top_species": [
+        "Bombay Duck",
+        "Ribbonfish",
+        "Catfish",
+        "Squid",
+        "Pomfret"
+      ],
+      "annual_landings_lakh_tonnes": 7.95,
+      "active_mechanized_vessels": 8200,
+      "peak_season": "August - February"
+    },
+    "Maharashtra": {
+      "top_species": [
+        "Non-penaeid Prawns",
+        "Bombay Duck",
+        "Croakers",
+        "Ribbonfish"
+      ],
+      "annual_landings_lakh_tonnes": 3.8,
+      "active_mechanized_vessels": 4600,
+      "peak_season": "September - April"
+    },
+    "Andhra Pradesh": {
+      "top_species": [
+        "Penaeid Prawns",
+        "Lesser Sardines",
+        "Mackerel",
+        "Tuna"
+      ],
+      "annual_landings_lakh_tonnes": 3.25,
+      "active_mechanized_vessels": 3100,
+      "peak_season": "November - May"
+    }
+  }
+}

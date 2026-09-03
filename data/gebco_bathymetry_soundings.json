@@ -1,0 +1,37 @@
+{
+  "source": "GEBCO (General Bathymetric Chart of the Oceans) 15-arcsec grid",
+  "navigation_corridors": [
+    {
+      "corridor": "Kochi to Lakshadweep (Kavaratti)",
+      "distance_nm": 215,
+      "min_depth_m": 18,
+      "max_depth_m": 2150,
+      "shelf_edge_nm": 32,
+      "navigable": true
+    },
+    {
+      "corridor": "Mumbai Harbour to Mormugao (Goa)",
+      "distance_nm": 225,
+      "min_depth_m": 14,
+      "max_depth_m": 95,
+      "shelf_edge_nm": 65,
+      "navigable": true
+    },
+    {
+      "corridor": "Chennai Port to Tuticorin",
+      "distance_nm": 320,
+      "min_depth_m": 16,
+      "max_depth_m": 850,
+      "shelf_edge_nm": 24,
+      "navigable": true
+    },
+    {
+      "corridor": "Visakhapatnam to Paradip",
+      "distance_nm": 190,
+      "min_depth_m": 22,
+      "max_depth_m": 1400,
+      "shelf_edge_nm": 28,
+      "navigable": true
+    }
+  ]
+}
