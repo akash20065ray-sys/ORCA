@@ -36,7 +36,7 @@ function renderForecastChart(containerId, timeline) {
   const svg = `
     <div style="background:rgba(6,14,24,0.7); border:1px solid rgba(0,229,255,0.15); border-radius:8px; padding:10px; margin-top:10px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; font-size:11px; font-weight:700;">
-        <span style="color:#00e5ff;">🌊 24-Hour Wave & Wind Forecast</span>
+        <span style="color:#00e5ff;"> 24-Hour Wave & Wind Forecast</span>
         <span style="color:#aaa;"><span style="color:#00e5ff;">■</span> Wave (m) &nbsp;<span style="color:#ffb703;">■</span> Wind (kts)</span>
       </div>
       <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto;">

@@ -28,6 +28,7 @@ app.add_middleware(
 app.include_router(chat.router)
 app.include_router(map.router)
 app.include_router(routes.router)
+app.include_router(routes.router, prefix="/api/route")
 app.include_router(pfz.router)
 app.include_router(health.router)
 

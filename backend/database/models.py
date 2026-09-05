@@ -90,6 +90,9 @@ class RouteWaypoint(BaseModel):
     wind_speed_kts: float
     hazard_proximity_km: float
     is_safe: bool = True
+    bearing_deg: Optional[float] = None
+    bearing_cardinal: Optional[str] = None
+    steer_instruction: Optional[str] = None
 
 class CandidateRoute(BaseModel):
     route_id: str

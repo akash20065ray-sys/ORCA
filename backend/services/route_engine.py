@@ -1,7 +1,13 @@
 import math
 from typing import Dict, List, Any, Tuple, Optional
 from backend.database.models import CandidateRoute, RouteWaypoint, RiskLevel
-from backend.utils.geo import haversine_distance_km, km_to_nautical_miles, COASTAL_PORT_REGISTRY
+from backend.utils.geo import (
+    haversine_distance_km,
+    km_to_nautical_miles,
+    COASTAL_PORT_REGISTRY,
+    calculate_initial_compass_bearing,
+    bearing_to_cardinal
+)
 from backend.database.spatial_index import spatial_index
 
 class MarineRouteEngine:
@@ -126,10 +132,19 @@ class MarineRouteEngine:
             name = f"WP-{i:02d}"
             if i == 0:
                 name = "Departure Point"
+                bearing = calculate_initial_compass_bearing((lat1, lon1), (lat2, lon2))
+                cardinal = bearing_to_cardinal(bearing)
+                steer_msg = f"Depart on course {bearing:.0f}° {cardinal}"
             elif i == num_points - 1:
                 name = "Arrival Destination"
+                bearing = calculate_initial_compass_bearing((prev_lat, prev_lon), (lat, lon))
+                cardinal = bearing_to_cardinal(bearing)
+                steer_msg = f"Final approach {bearing:.0f}° {cardinal} ({seg_dist_nm:.1f} NM)"
             else:
                 name = f"Nav Waypoint {i}"
+                bearing = calculate_initial_compass_bearing((prev_lat, prev_lon), (lat, lon))
+                cardinal = bearing_to_cardinal(bearing)
+                steer_msg = f"Steer {bearing:.0f}° {cardinal} ({seg_dist_nm:.1f} NM)"
 
             waypoints.append(RouteWaypoint(
                 index=i,
@@ -141,7 +156,10 @@ class MarineRouteEngine:
                 wave_height_m=wp_wave,
                 wind_speed_kts=wp_wind,
                 hazard_proximity_km=35.0 + i * 5.0,
-                is_safe=wp_wave < 2.2
+                is_safe=wp_wave < 2.2,
+                bearing_deg=bearing,
+                bearing_cardinal=cardinal,
+                steer_instruction=steer_msg
             ))
             prev_lat, prev_lon = lat, lon
 

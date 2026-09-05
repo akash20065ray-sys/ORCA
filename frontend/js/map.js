@@ -65,6 +65,11 @@ function initOrcaMaps() {
     // Render the reference mockup scene features
     renderKochiMockupScene();
 
+    // Initialize Windy-Style Native Canvas Animation Engine on Mini Map
+    if (typeof OrcaWindyAnimator !== 'undefined') {
+      window.miniWindyAnimator = new OrcaWindyAnimator(miniMapInstance, 'home-mini-map');
+    }
+
     miniMapInstance.on('mousemove', (e) => {
       const el = document.getElementById('home-cursor-coordinates');
       if (el) el.textContent = `LAT ${e.latlng.lat.toFixed(4)}° · LON ${e.latlng.lng.toFixed(4)}°`;
@@ -100,6 +105,11 @@ function initOrcaMaps() {
       userGps: L.layerGroup().addTo(fullMapInstance)
     };
 
+    // Initialize Windy-Style Native Canvas Animation Engine on Full Map
+    if (typeof OrcaWindyAnimator !== 'undefined') {
+      window.fullWindyAnimator = new OrcaWindyAnimator(fullMapInstance, 'live-full-map');
+    }
+
     fullMapInstance.on('click', (e) => {
       const lat = e.latlng.lat.toFixed(4);
       const lon = e.latlng.lng.toFixed(4);
@@ -131,6 +141,15 @@ function initOrcaMaps() {
       routes: L.layerGroup().addTo(routeMapInstance),
       markers: L.layerGroup().addTo(routeMapInstance)
     };
+
+    // Allow user to click anywhere on Route Map to pick custom destination or departure
+    routeMapInstance.on('click', (e) => {
+      const lat = parseFloat(e.latlng.lat.toFixed(4));
+      const lon = parseFloat(e.latlng.lng.toFixed(4));
+      if (typeof window.handleRouteMapClick === 'function') {
+        window.handleRouteMapClick(lat, lon);
+      }
+    });
   }
 
   // Load initial spatial layers from backend
@@ -191,10 +210,50 @@ function switchBaseMap(baseKey, btnEl) {
 }
 
 // -------------------------------------------------------------------
-// Dynamic Live Overlays Toggle
+// Dynamic Live Overlays Toggle with Windy Animation Sync
 // -------------------------------------------------------------------
+const FLUID_ANIMATED_LAYERS = ['wind', 'waves', 'currents', 'weather'];
+
+function triggerLayerClickFeedback(btnEl) {
+  if (!btnEl) return;
+  btnEl.classList.remove('windy-click-ripple');
+  void btnEl.offsetWidth; // force DOM reflow
+  btnEl.classList.add('windy-click-ripple');
+  setTimeout(() => btnEl.classList.remove('windy-click-ripple'), 600);
+}
+
+function showStatutoryLayerNotice(layerKey) {
+  const notices = {
+    pfz: { icon: '🐟', title: 'INCOIS Potential Fishing Zones Active', sub: 'Satellite Ocean Color & SST Front Convergence' },
+    restricted: { icon: '⛔', title: 'Restricted Corridors & IMBL Geofence', sub: 'Buffer Monitoring Active (< 12 NM Warning Alarm)' },
+    route: { icon: '🚢', title: 'Navigable Sea Routing Channel', sub: 'Obstacle-Avoiding Coastal Clearance Track' },
+    sst: { icon: '🌡️', title: 'ISRO/NOAA SST Thermal Gradients', sub: 'High-Resolution 1km Thermal Front Contours' },
+    seamarks: { icon: '⚓', title: 'OpenSeaMap Marine Seamarks', sub: 'Moored Deep Sea Buoys & Coastal Lighthouses' }
+  };
+
+  const n = notices[layerKey];
+  if (!n) return;
+
+  const animator = window.miniWindyAnimator || window.fullWindyAnimator;
+  if (animator && animator.hudToastEl) {
+    const titleEl = animator.hudToastEl.querySelector('#windyHudTitle');
+    const subEl = animator.hudToastEl.querySelector('#windyHudSubtitle');
+    if (titleEl) titleEl.textContent = `${n.icon} ${n.title}`;
+    if (subEl) subEl.textContent = n.sub;
+    animator.hudToastEl.classList.remove('hidden');
+    animator.hudToastEl.classList.add('active');
+    setTimeout(() => {
+      if (!animator.activeMode) {
+        animator.hudToastEl.classList.remove('active');
+        animator.hudToastEl.classList.add('hidden');
+      }
+    }, 4000);
+  }
+}
+
 function toggleMapOverlay(overlayKey, btnEl) {
   if (!miniMapInstance || !window.miniMapLayers) return;
+  triggerLayerClickFeedback(btnEl);
 
   const targetGroup = window.miniMapLayers[overlayKey];
   if (!targetGroup) return;
@@ -206,12 +265,27 @@ function toggleMapOverlay(overlayKey, btnEl) {
     miniMapInstance.removeLayer(targetGroup);
     if (btnEl) btnEl.classList.remove('active');
     syncDropdownCheckbox(overlayKey, false);
+
+    // Turn off Windy Particle Engine if it was active for this fluid layer
+    if (FLUID_ANIMATED_LAYERS.includes(overlayKey)) {
+      if (window.miniWindyAnimator?.activeMode === overlayKey) window.miniWindyAnimator.clear();
+      if (window.fullWindyAnimator?.activeMode === overlayKey) window.fullWindyAnimator.clear();
+    }
   } else {
     // Turn On & Populate
     populateDynamicOverlay(overlayKey);
     miniMapInstance.addLayer(targetGroup);
     if (btnEl) btnEl.classList.add('active');
     syncDropdownCheckbox(overlayKey, true);
+
+    // Trigger Dynamic Windy Particle Engine for fluid layers
+    if (FLUID_ANIMATED_LAYERS.includes(overlayKey)) {
+      window.miniWindyAnimator?.setMode(overlayKey);
+      window.fullWindyAnimator?.setMode(overlayKey);
+    } else {
+      // Statutory layers remain crisp, static cartography
+      showStatutoryLayerNotice(overlayKey);
+    }
   }
 }
 
@@ -226,9 +300,21 @@ function toggleMapOverlayCheckbox(overlayKey, isChecked) {
     if (!miniMapInstance.hasLayer(targetGroup)) {
       miniMapInstance.addLayer(targetGroup);
     }
+
+    if (FLUID_ANIMATED_LAYERS.includes(overlayKey)) {
+      window.miniWindyAnimator?.setMode(overlayKey);
+      window.fullWindyAnimator?.setMode(overlayKey);
+    } else {
+      showStatutoryLayerNotice(overlayKey);
+    }
   } else {
     if (miniMapInstance.hasLayer(targetGroup)) {
       miniMapInstance.removeLayer(targetGroup);
+    }
+
+    if (FLUID_ANIMATED_LAYERS.includes(overlayKey)) {
+      if (window.miniWindyAnimator?.activeMode === overlayKey) window.miniWindyAnimator.clear();
+      if (window.fullWindyAnimator?.activeMode === overlayKey) window.fullWindyAnimator.clear();
     }
   }
 
@@ -237,6 +323,7 @@ function toggleMapOverlayCheckbox(overlayKey, isChecked) {
   if (btn) {
     if (isChecked) btn.classList.add('active');
     else btn.classList.remove('active');
+    triggerLayerClickFeedback(btn);
   }
 }
 
@@ -323,7 +410,7 @@ function renderLiveWindOverlay(layerGroup, centerLat, centerLon) {
             <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="#38bdf8"/>
           </svg>
         </div>
-        <span class="wind-tag-badge">💨 ${pt.label}</span>
+        <span class="wind-tag-badge"> ${pt.label}</span>
       </div>
     `;
 
@@ -335,7 +422,7 @@ function renderLiveWindOverlay(layerGroup, centerLat, centerLon) {
     });
 
     L.marker([lat, lon], { icon })
-      .bindPopup(`<b>🌬️ Live Wind Vector</b><br>Speed: <b>${pt.speedKt} Knots</b> (${Math.round(pt.speedKt*1.852)} km/h)<br>Direction: <b>${pt.dirDeg}°</b><br>Beaufort: Force 4 (Moderate Breeze)`)
+      .bindPopup(`<b> Live Wind Vector</b><br>Speed: <b>${pt.speedKt} Knots</b> (${Math.round(pt.speedKt*1.852)} km/h)<br>Direction: <b>${pt.dirDeg}°</b><br>Beaufort: Force 4 (Moderate Breeze)`)
       .addTo(layerGroup);
   });
 }
@@ -358,7 +445,7 @@ function renderLiveWaveOverlay(layerGroup, centerLat, centerLon) {
     const iconHtml = `
       <div class="wave-hud-marker">
         <div class="wave-pulse-ring ${pt.status}"></div>
-        <span class="wave-tag-badge">🌊 ${pt.heightM}m · ${pt.periodS}s</span>
+        <span class="wave-tag-badge"> ${pt.heightM}m · ${pt.periodS}s</span>
       </div>
     `;
 
@@ -370,7 +457,7 @@ function renderLiveWaveOverlay(layerGroup, centerLat, centerLon) {
     });
 
     L.marker([lat, lon], { icon })
-      .bindPopup(`<b>🌊 Live Swell Conditions</b><br>Significant Wave: <b>${pt.heightM} meters</b><br>Swell Period: <b>${pt.periodS} seconds</b><br>State: <b>Douglas State 3 (Smooth/Moderate)</b>`)
+      .bindPopup(`<b> Live Swell Conditions</b><br>Significant Wave: <b>${pt.heightM} meters</b><br>Swell Period: <b>${pt.periodS} seconds</b><br>State: <b>Douglas State 3 (Smooth/Moderate)</b>`)
       .addTo(layerGroup);
   });
 }
@@ -392,9 +479,9 @@ function renderLiveCurrentsOverlay(layerGroup, centerLat, centerLon) {
     const iconHtml = `
       <div class="current-hud-marker">
         <div class="current-arrow-wrapper" style="transform: rotate(${pt.dirDeg}deg)">
-          ➔
+          
         </div>
-        <span class="current-tag-badge">🌀 ${pt.label}</span>
+        <span class="current-tag-badge"> ${pt.label}</span>
       </div>
     `;
 
@@ -406,7 +493,7 @@ function renderLiveCurrentsOverlay(layerGroup, centerLat, centerLon) {
     });
 
     L.marker([lat, lon], { icon })
-      .bindPopup(`<b>🌀 Live Surface Ocean Current</b><br>Velocity: <b>${pt.velKmh} km/h</b> (0.2 m/s)<br>Drift Direction: <b>${pt.dirDeg}°</b><br>Source: Copernicus Marine Physical Model`)
+      .bindPopup(`<b> Live Surface Ocean Current</b><br>Velocity: <b>${pt.velKmh} km/h</b> (0.2 m/s)<br>Drift Direction: <b>${pt.dirDeg}°</b><br>Source: Copernicus Marine Physical Model`)
       .addTo(layerGroup);
   });
 }
@@ -453,7 +540,7 @@ function renderLiveSstThermalFronts(layerGroup, centerLat, centerLon) {
       fillColor: color,
       fillOpacity: 0.6,
       weight: pt.front ? 2 : 1
-    }).bindPopup(`<b>🌡️ Sea Surface Temperature</b><br>SST: <b>${pt.sst}°C</b><br>Thermal Gradient: <b>${pt.gradient}°C/km</b><br>${pt.front ? '🔥 <b>Thermal Front Detected (PFZ indicator)</b>' : 'Stable Water Mass'}`)
+    }).bindPopup(`<b> Sea Surface Temperature</b><br>SST: <b>${pt.sst}°C</b><br>Thermal Gradient: <b>${pt.gradient}°C/km</b><br>${pt.front ? ' <b>Thermal Front Detected (PFZ indicator)</b>' : 'Stable Water Mass'}`)
       .addTo(layerGroup);
   });
 }
@@ -485,7 +572,7 @@ function renderKochiMockupScene() {
 
   pfzPolygon.bindPopup(`
     <div style="font-family:inherit; padding:4px;">
-      <b style="color:#10b981; font-size:13px;">🐟 Potential Fishing Zone (High)</b><br>
+      <b style="color:#10b981; font-size:13px;"> Potential Fishing Zone (High)</b><br>
       <b>Sector:</b> Offshore Vypeen Shelf<br>
       <b>Distance:</b> 28 km WSW of Cochin Harbour<br>
       <b>Depth:</b> 45 meters<br>
@@ -513,7 +600,7 @@ function renderKochiMockupScene() {
 
   restrictedPolygon.bindPopup(`
     <div style="font-family:inherit; padding:4px;">
-      <b style="color:#ef4444; font-size:13px;">🛡️ Restricted Zone — Southern Naval Command</b><br>
+      <b style="color:#ef4444; font-size:13px;"> Restricted Zone — Southern Naval Command</b><br>
       <b>Restriction:</b> Naval defense operations & Port Fairway<br>
       <b>Notice:</b> Commercial trawling strictly prohibited.<br>
       Maintain at least 2 NM safety perimeter.
@@ -537,7 +624,7 @@ function renderKochiMockupScene() {
 
   routePolyline.bindPopup(`
     <div style="font-family:inherit; padding:4px;">
-      <b style="color:#f59e0b; font-size:13px;">🧭 Suggested Navigation Route</b><br>
+      <b style="color:#f59e0b; font-size:13px;"> Suggested Navigation Route</b><br>
       <b>Departure:</b> Cochin Fisheries Harbour<br>
       <b>Destination:</b> High PFZ Centroid<br>
       <b>Total Distance:</b> 15.4 Nautical Miles (28.5 km)<br>
@@ -554,17 +641,17 @@ function renderKochiMockupScene() {
       iconSize: [16, 16],
       iconAnchor: [8, 8]
     })
-  }).bindPopup('<b>⚓ Cochin Fisheries Harbour</b><br>Base Port & Landing Center').addTo(zonesGroup);
+  }).bindPopup('<b> Cochin Fisheries Harbour</b><br>Base Port & Landing Center').addTo(zonesGroup);
 
   // 5. Marine Advisory Buoy Marker
   L.marker([9.76, 76.15], {
     icon: L.divIcon({
       className: 'mockup-buoy-icon',
-      html: '<div style="font-size:16px; text-shadow:0 0 8px #f59e0b;" title="Marine Advisory Buoy">⚠️</div>',
+      html: '<div style="font-size:16px; text-shadow:0 0 8px #f59e0b;" title="Marine Advisory Buoy"></div>',
       iconSize: [20, 20],
       iconAnchor: [10, 10]
     })
-  }).bindPopup('<b>⚠️ Marine Advisory Alert</b><br>Moderate chop observed 18 km South of Kochi. Wave height 1.3m.').addTo(zonesGroup);
+  }).bindPopup('<b> Marine Advisory Alert</b><br>Moderate chop observed 18 km South of Kochi. Wave height 1.3m.').addTo(zonesGroup);
 
   // 6. Vessel markers
   const vesselCoords = [
@@ -576,7 +663,7 @@ function renderKochiMockupScene() {
   vesselCoords.forEach((pos, idx) => {
     const vesselIcon = L.divIcon({
       className: 'mockup-vessel-pin',
-      html: '<div style="background:#0284c7; border:2px solid #fff; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:10px; color:#fff; box-shadow:0 0 8px #0284c7;" title="Fishing Craft in transit">⚓</div>',
+      html: '<div style="background:#0284c7; border:2px solid #fff; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:10px; color:#fff; box-shadow:0 0 8px #0284c7;" title="Fishing Craft in transit"></div>',
       iconSize: [20, 20],
       iconAnchor: [10, 10]
     });
@@ -595,7 +682,7 @@ function setGlobalTargetPin(lat, lon, label = "Target") {
     iconAnchor: [9, 9]
   });
 
-  const marker = L.marker([lat, lon], { icon }).bindPopup(`<b>📍 ${label}</b><br>Lat: ${lat}, Lon: ${lon}`).addTo(window.fullMapLayers.userGps);
+  const marker = L.marker([lat, lon], { icon }).bindPopup(`<b> ${label}</b><br>Lat: ${lat}, Lon: ${lon}`).addTo(window.fullMapLayers.userGps);
   marker.openPopup();
   fullMapInstance.panTo([lat, lon]);
 }

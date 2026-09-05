@@ -5,15 +5,15 @@
 
 function getAgentIcon(title) {
   const t = (title || '').toLowerCase();
-  if (t.includes('planning')) return '🧠';
-  if (t.includes('retrieval') || t.includes('data')) return '📡';
-  if (t.includes('analytics') || t.includes('ocean')) return '🌡️';
-  if (t.includes('weather')) return '💨';
-  if (t.includes('alert') || t.includes('notification')) return '⚡';
-  if (t.includes('risk')) return '🛡️';
-  if (t.includes('geospatial') || t.includes('route')) return '🧭';
-  if (t.includes('synthesis') || t.includes('response')) return '📑';
-  return '🤖';
+  if (t.includes('planning')) return '';
+  if (t.includes('retrieval') || t.includes('data')) return '';
+  if (t.includes('analytics') || t.includes('ocean')) return '';
+  if (t.includes('weather')) return '';
+  if (t.includes('alert') || t.includes('notification')) return '';
+  if (t.includes('risk')) return '';
+  if (t.includes('geospatial') || t.includes('route')) return '';
+  if (t.includes('synthesis') || t.includes('response')) return '';
+  return '';
 }
 
 function buildAgentStepperHtml(traceSteps, totalDurationMs) {
@@ -36,7 +36,7 @@ function buildAgentStepperHtml(traceSteps, totalDurationMs) {
   return `
     <div class="agent-stepper">
       <div class="agent-stepper-header">
-        <span>⚡ 8-Agent Collaborative Execution Trace</span>
+        <span> 8-Agent Collaborative Execution Trace</span>
         <span style="font-family:var(--font-mono); font-size:0.7rem; color:var(--brand-primary);">${totalDurationMs} ms total</span>
       </div>
       <div class="stepper-steps-list">
@@ -105,7 +105,7 @@ function buildEvidenceDrawerHtml(citations, cardId) {
     const fClass = (c.freshness || 'REAL_TIME').toLowerCase();
     listHtml += `
       <div class="citation-card">
-        <div class="citation-title">📡 ${c.source_name} (${c.dataset_name})</div>
+        <div class="citation-title"> ${c.source_name} (${c.dataset_name})</div>
         <div class="citation-details">
           <b>Parameters:</b> ${c.parameter}<br>
           <b>Timestamp:</b> ${c.timestamp} &nbsp;|&nbsp; <b>Quality:</b> ${c.quality}<br>
@@ -119,7 +119,7 @@ function buildEvidenceDrawerHtml(citations, cardId) {
   return `
     <div class="evidence-drawer">
       <div class="evidence-header" onclick="toggleEvidence('${cardId}')">
-        <span>📑 Data Provenance & Citations (${citations.length} sources)</span>
+        <span> Data Provenance & Citations (${citations.length} sources)</span>
         <span id="arrow-${cardId}">▼</span>
       </div>
       <div id="content-${cardId}" class="evidence-content" style="display:none;">

@@ -92,8 +92,30 @@ def get_bounding_box(lat: float, lon: float, radius_km: float) -> Dict[str, floa
 
 def resolve_location_name(query_text: str) -> Optional[Dict[str, any]]:
     """
-    Matches location names mentioned in natural query text against the coastal port registry.
+    Matches location names mentioned in natural query text against the coastal port registry,
+    or parses explicit coordinates like 'lat, lon'.
     """
+    if not query_text:
+        return None
+
+    # 1. Check for raw lat,lon coordinates e.g. "9.85, 76.15" or "9.85,76.15"
+    if "," in query_text:
+        try:
+            parts = query_text.split(",")
+            lat, lon = float(parts[0].strip()), float(parts[1].strip())
+            nearest_port, dist_km = find_nearest_port(lat, lon)
+            port_ref = f"near {nearest_port['name']} ({dist_km:.1f} km)" if nearest_port else "Offshore EEZ"
+            return {
+                "name": f"Offshore Waypoint ({lat:.3f}°N, {lon:.3f}°E - {port_ref})",
+                "lat": round(lat, 4),
+                "lon": round(lon, 4),
+                "state": nearest_port["state"] if nearest_port else "Offshore EEZ",
+                "region": nearest_port["region"] if nearest_port else "Indian Ocean",
+                "matched_keyword": "custom_coordinates"
+            }
+        except (ValueError, IndexError):
+            pass
+
     q_lower = query_text.lower()
     # Check multi-word keys first (e.g. "gulf of mannar", "port blair")
     sorted_keys = sorted(COASTAL_PORT_REGISTRY.keys(), key=lambda k: -len(k))

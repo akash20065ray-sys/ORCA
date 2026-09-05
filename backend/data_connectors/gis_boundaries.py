@@ -174,15 +174,17 @@ class GISBoundariesConnector(BaseDataConnector):
             dist_km = haversine_distance_km(lat, lon, avg_lat, avg_lon)
             dist_nm = km_to_nautical_miles(dist_km)
 
-            if dist_nm <= warning_threshold_nm or spatial_index.find_intersecting_zones(lat, lon):
+            # Check if specifically inside this zone or within the warning threshold
+            is_inside_this_zone = any(z.id == zone.id for z in spatial_index.find_intersecting_zones(lat, lon))
+            if dist_nm <= warning_threshold_nm or is_inside_this_zone:
                 alerts.append({
                     "zone_id": zone.id,
                     "zone_name": zone.name,
                     "zone_type": zone.zone_type,
                     "distance_nm": round(dist_nm, 1),
-                    "warning_level": "CRITICAL_BREACH" if dist_nm <= 3.0 else "PROXIMITY_WARNING",
+                    "warning_level": "CRITICAL_BREACH" if (is_inside_this_zone or dist_nm <= 3.0) else "PROXIMITY_WARNING",
                     "description": zone.description,
-                    "recommended_action": f"Turn vessel around immediately. You are {dist_nm:.1f} NM from {zone.name}."
+                    "recommended_action": f"Turn vessel around immediately. You are {dist_nm:.1f} NM from {zone.name}." if is_inside_this_zone else f"Maintain safety margin. You are {dist_nm:.1f} NM from {zone.name}."
                 })
         return alerts
 

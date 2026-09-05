@@ -137,7 +137,7 @@ function renderFullGisZones(geojson) {
       const p = feature.properties;
       layer.bindPopup(`
         <div style="font-size:12px; max-width:220px; color:#0f172a;">
-          <b style="color:#0284c7;">🛡️ ${p.name}</b><br>
+          <b style="color:#0284c7;"> ${p.name}</b><br>
           <span style="color:#64748b;">${p.zone_type}</span>
           <p style="margin-top:4px; font-size:11px;">${p.description}</p>
         </div>
@@ -151,9 +151,9 @@ function renderFullHazards(hazards) {
   window.fullMapLayers.hazards.clearLayers();
 
   hazards.forEach(h => {
-    let iconChar = '⚠️';
-    if (h.advisory_type === "LIGHTNING") iconChar = '⚡';
-    else if (h.advisory_type === "CYCLONE") iconChar = '🌀';
+    let iconChar = '';
+    if (h.advisory_type === "LIGHTNING") iconChar = '';
+    else if (h.advisory_type === "CYCLONE") iconChar = '';
 
     const icon = L.divIcon({
       className: 'custom-hazard-pin',
@@ -186,11 +186,11 @@ function renderFullPorts(portsGeoJson) {
     pointToLayer: (feature, latlng) => {
       const icon = L.divIcon({
         className: 'custom-port-pin',
-        html: `<div style="background:#0f172a; border:1px solid #00f2fe; border-radius:4px; padding:2px 6px; font-size:11px; font-weight:700; color:#00f2fe; box-shadow:0 0 8px rgba(0,242,254,0.3);">⚓ ${feature.properties.name.split(' ')[0]}</div>`,
+        html: `<div style="background:#0f172a; border:1px solid #00f2fe; border-radius:4px; padding:2px 6px; font-size:11px; font-weight:700; color:#00f2fe; box-shadow:0 0 8px rgba(0,242,254,0.3);"> ${feature.properties.name.split(' ')[0]}</div>`,
         iconSize: [60, 20],
         iconAnchor: [30, 10]
       });
-      return L.marker(latlng, { icon }).bindPopup(`<b>⚓ ${feature.properties.name}</b><br>${feature.properties.region}`);
+      return L.marker(latlng, { icon }).bindPopup(`<b> ${feature.properties.name}</b><br>${feature.properties.region}`);
     }
   }).addTo(window.fullMapLayers.ports);
 }
@@ -202,14 +202,14 @@ function displayPFZsOnMap(pfzList) {
   pfzList.forEach((pfz) => {
     const icon = L.divIcon({
       className: 'custom-pfz-pin',
-      html: `<div style="background:#0f172a; border:2px solid #10b981; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:14px; box-shadow:0 0 12px #10b981;">🐟</div>`,
+      html: `<div style="background:#0f172a; border:2px solid #10b981; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:14px; box-shadow:0 0 12px #10b981;"></div>`,
       iconSize: [30, 30],
       iconAnchor: [15, 15]
     });
 
     L.marker([pfz.latitude, pfz.longitude], { icon }).bindPopup(`
       <div style="font-size:12px; max-width:220px; color:#0f172a;">
-        <b style="color:#10b981;">🐟 ${pfz.zone_name}</b><br>
+        <b style="color:#10b981;"> ${pfz.zone_name}</b><br>
         <span>Distance: <b>${pfz.distance_km} km (${pfz.distance_nm} NM)</b> heading <b>${pfz.bearing_cardinal}</b></span><br>
         <span>SST: <b>${pfz.sst_celsius}°C</b> | Depth: <b>${pfz.depth_meters}m</b></span><br>
         <span>Confidence: <b>${Math.round(pfz.confidence_score * 100)}%</b></span>
@@ -230,6 +230,7 @@ function displayPFZsOnMap(pfzList) {
 function displayRoutesOnRouteMap(routesList) {
   if (!routesList || !window.routeMapLayers || !window.routeMapInstance) return;
   window.routeMapLayers.routes.clearLayers();
+  if (window.routeMapLayers.markers) window.routeMapLayers.markers.clearLayers();
 
   routesList.forEach((route, idx) => {
     const isAlpha = route.route_id.includes("ALPHA");
@@ -238,20 +239,58 @@ function displayRoutesOnRouteMap(routesList) {
 
     const poly = L.polyline(latlngs, {
       color: routeColor,
-      weight: 4,
-      opacity: 0.9,
+      weight: isAlpha ? 3.5 : 4.5,
+      opacity: isAlpha ? 0.8 : 0.95,
       dashArray: isAlpha ? '6 4' : null
     }).bindPopup(`
-      <div style="color:#0f172a;">
-        <b>${route.route_name}</b><br>
-        Distance: ${route.total_distance_nm} NM<br>
-        Safety Score: <b>${route.safety_score}/100</b><br>
-        ${route.recommendation_verdict}
+      <div style="color:#0f172a; font-size:12px; max-width:240px;">
+        <b style="color:${routeColor}; font-size:13px;">${route.route_name}</b><br>
+        <span style="color:#475569;">Distance: <b>${route.total_distance_nm} NM (${route.total_distance_km} km)</b></span><br>
+        <span style="color:#475569;">Duration: <b>${route.estimated_duration_hours} hrs</b></span><br>
+        <span style="color:${route.safety_score >= 85 ? '#10b981' : '#f59e0b'}; font-weight:800;">Safety Score: ${route.safety_score}/100</span><br>
+        <p style="margin-top:4px; font-size:11px; color:#334155;">${route.recommendation_verdict}</p>
       </div>
     `).addTo(window.routeMapLayers.routes);
 
+    // Place waypoint markers along Route Bravo (recommended) or Route Alpha
+    if (!isAlpha || routesList.length === 1) {
+      route.waypoints.forEach((wp, wIdx) => {
+        let pinColor = '#00f2fe';
+        let pinLabel = `${wIdx}`;
+        if (wIdx === 0) {
+          pinColor = '#10b981';
+          pinLabel = '⚓';
+        } else if (wIdx === route.waypoints.length - 1) {
+          pinColor = '#f59e0b';
+          pinLabel = '🏁';
+        }
+
+        const icon = L.divIcon({
+          className: 'route-waypoint-pin',
+          html: `<div style="background:#0b2545; border:2px solid ${pinColor}; color:${pinColor}; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; box-shadow:0 0 10px ${pinColor};">${pinLabel}</div>`,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12]
+        });
+
+        const steerInfo = wp.steer_instruction || (wp.bearing_deg != null ? `Steer ${wp.bearing_deg}° ${wp.bearing_cardinal || ''}` : 'Maintain course');
+
+        L.marker([wp.latitude, wp.longitude], { icon }).bindPopup(`
+          <div style="font-size:12px; color:#0f172a; max-width:220px;">
+            <b style="color:#0284c7;">${wp.name}</b><br>
+            <span style="color:#64748b;">(${wp.latitude.toFixed(3)}°N, ${wp.longitude.toFixed(3)}°E)</span><br>
+            <div style="margin:6px 0; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:4px 8px; font-size:11px; font-weight:700; color:#15803d;">
+              🧭 ${steerInfo}
+            </div>
+            <span>Leg Distance: <b>${wp.segment_distance_nm} NM</b></span><br>
+            <span>Cumulative: <b>${wp.cumulative_distance_nm} NM</b></span><br>
+            <span>Wave: <b>${wp.wave_height_m}m</b> · Wind: <b>${wp.wind_speed_kts} kt</b></span>
+          </div>
+        `).addTo(window.routeMapLayers.routes);
+      });
+    }
+
     if (idx === 0) {
-      window.routeMapInstance.fitBounds(poly.getBounds(), { padding: [30, 30] });
+      window.routeMapInstance.fitBounds(poly.getBounds(), { padding: [40, 40] });
     }
   });
 }
@@ -269,7 +308,7 @@ async function loadPfzListView() {
       html += `
         <div class="pfz-card">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:1.4rem;">🐟</span>
+            <span style="font-size:1.4rem;"></span>
             <span style="font-size:0.72rem; font-weight:800; color:var(--emerald-safe); background:var(--emerald-bg); padding:2px 8px; border-radius:10px;">Confidence: ${Math.round(p.confidence_score*100)}%</span>
           </div>
           <h3 style="font-size:0.95rem; font-weight:700; color:var(--brand-primary);">${p.zone_name}</h3>
@@ -279,9 +318,14 @@ async function loadPfzListView() {
             Depth: <b>${p.depth_meters}m</b><br>
             Target Species: <i style="color:var(--text-main);">${p.species_association.join(', ')}</i>
           </div>
-          <button class="btn-primary" style="padding:6px 12px; font-size:0.78rem; margin-top:6px;" onclick="focusPfzOnMap(${p.latitude}, ${p.longitude}, '${p.zone_name}')">
-            View on Live Map ➔
-          </button>
+          <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+            <button class="btn-primary" style="padding:6px 12px; font-size:0.78rem;" onclick="focusPfzOnMap(${p.latitude}, ${p.longitude}, '${p.zone_name}')">
+              View on Live Map 
+            </button>
+            <button class="btn-secondary" style="padding:6px 12px; font-size:0.78rem; background:var(--bg-card); border:1px solid var(--border-medium); color:var(--brand-primary); border-radius:6px; cursor:pointer; font-weight:700;" onclick="setRouteDestinationFromPfz(${p.latitude}, ${p.longitude}, '${p.zone_name}')">
+              🧭 Plot Route to PFZ
+            </button>
+          </div>
         </div>
       `;
     });
