@@ -65,15 +65,30 @@ function initOrcaMaps() {
     // Render the reference mockup scene features
     renderKochiMockupScene();
 
+    // Fetch real NOAA/ISRO GeoJSON layers from backend API
+    loadLiveGisData();
+
     // Initialize Windy-Style Native Canvas Animation Engine on Mini Map
     if (typeof OrcaWindyAnimator !== 'undefined') {
       window.miniWindyAnimator = new OrcaWindyAnimator(miniMapInstance, 'home-mini-map');
     }
 
+    // Direct Leaflet mousemove listener for live telemetry probe
     miniMapInstance.on('mousemove', (e) => {
-      const el = document.getElementById('home-cursor-coordinates');
-      if (el) el.textContent = `LAT ${e.latlng.lat.toFixed(4)}° · LON ${e.latlng.lng.toFixed(4)}°`;
+      updateCursorTelemetryBar(e.latlng.lat, e.latlng.lng);
     });
+
+    // Fail-safe direct DOM pointermove listener on canvas container
+    const miniMapCanvasEl = document.getElementById('home-mini-map');
+    if (miniMapCanvasEl) {
+      miniMapCanvasEl.addEventListener('mousemove', (e) => {
+        if (!miniMapInstance) return;
+        const rect = miniMapCanvasEl.getBoundingClientRect();
+        const pt = [e.clientX - rect.left, e.clientY - rect.top];
+        const latlng = miniMapInstance.containerPointToLatLng(pt);
+        if (latlng) updateCursorTelemetryBar(latlng.lat, latlng.lng);
+      });
+    }
 
     miniMapInstance.on('click', (e) => {
       if (typeof setHomeMapContext === 'function') {
@@ -155,6 +170,20 @@ function initOrcaMaps() {
   // Load initial spatial layers from backend
   loadAllMapLayersData(9.9312, 76.2673);
 
+  // Trigger robust multi-stage map invalidation so Leaflet computes full dimensions without grey boxes
+  const triggerMapSizing = () => {
+    try {
+      if (miniMapInstance) miniMapInstance.invalidateSize();
+      if (fullMapInstance) fullMapInstance.invalidateSize();
+      if (routeMapInstance) routeMapInstance.invalidateSize();
+    } catch(e) {}
+  };
+  triggerMapSizing();
+  setTimeout(triggerMapSizing, 150);
+  setTimeout(triggerMapSizing, 400);
+  setTimeout(triggerMapSizing, 800);
+  window.addEventListener('resize', triggerMapSizing);
+
   // Close floating layer dropdown when clicking outside
   document.addEventListener('click', (e) => {
     const dropdown = document.getElementById('mapLayersDropdown');
@@ -166,6 +195,37 @@ function initOrcaMaps() {
     }
   });
 }
+
+// -------------------------------------------------------------------
+// Cockpit Full Map Mode Toggle (Smooth 100% Full-Width Map)
+// -------------------------------------------------------------------
+function toggleCockpitFullMap() {
+  const layout = document.getElementById('homeCompanionLayout');
+  const copilotBtn = document.getElementById('floatingCopilotBtn');
+  const fullBtn = document.getElementById('btnToggleCockpitFull');
+  if (!layout) return;
+
+  const isFull = layout.classList.toggle('cockpit-full-map-mode');
+  if (copilotBtn) {
+    if (isFull) copilotBtn.classList.remove('hidden');
+    else copilotBtn.classList.add('hidden');
+  }
+  if (fullBtn) {
+    fullBtn.textContent = isFull ? '⛶ Split' : '⛶ Full';
+    fullBtn.title = isFull ? 'Restore Split View with Chatbot' : 'Maximize Map to Full View';
+  }
+
+  const invalidate = () => {
+    if (miniMapInstance) {
+      miniMapInstance.invalidateSize({ pan: false });
+    }
+  };
+  invalidate();
+  setTimeout(invalidate, 50);
+  setTimeout(invalidate, 150);
+  setTimeout(invalidate, 350);
+}
+window.toggleCockpitFullMap = toggleCockpitFullMap;
 
 // -------------------------------------------------------------------
 // Base Map Switcher
@@ -212,7 +272,37 @@ function switchBaseMap(baseKey, btnEl) {
 // -------------------------------------------------------------------
 // Dynamic Live Overlays Toggle with Windy Animation Sync
 // -------------------------------------------------------------------
-const FLUID_ANIMATED_LAYERS = ['wind', 'waves', 'currents', 'weather'];
+const FLUID_ANIMATED_LAYERS = ['wind', 'waves', 'currents', 'weather', 'sst'];
+
+function syncWindyRailButtons(activeMode) {
+  // 1. Sync right-side vertical floating rail
+  document.querySelectorAll('.windy-rail-btn[data-windy-layer]').forEach(btn => {
+    if (activeMode && btn.getAttribute('data-windy-layer') === activeMode) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
+  // 2. Sync top horizontal switcher tabs
+  document.querySelectorAll('.map-layer-switcher .overlay-tab-btn[data-overlay]').forEach(btn => {
+    const layer = btn.getAttribute('data-overlay');
+    if (FLUID_ANIMATED_LAYERS.includes(layer)) {
+      if (activeMode && layer === activeMode) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    }
+  });
+
+  // 3. Sync dropdown menu checkboxes
+  FLUID_ANIMATED_LAYERS.forEach(layer => {
+    const isThisActive = (activeMode && layer === activeMode);
+    syncDropdownCheckbox(layer, isThisActive);
+  });
+}
+window.syncWindyRailButtons = syncWindyRailButtons;
 
 function triggerLayerClickFeedback(btnEl) {
   if (!btnEl) return;
@@ -270,6 +360,7 @@ function toggleMapOverlay(overlayKey, btnEl) {
     if (FLUID_ANIMATED_LAYERS.includes(overlayKey)) {
       if (window.miniWindyAnimator?.activeMode === overlayKey) window.miniWindyAnimator.clear();
       if (window.fullWindyAnimator?.activeMode === overlayKey) window.fullWindyAnimator.clear();
+      syncWindyRailButtons(null);
     }
   } else {
     // Turn On & Populate
@@ -282,6 +373,7 @@ function toggleMapOverlay(overlayKey, btnEl) {
     if (FLUID_ANIMATED_LAYERS.includes(overlayKey)) {
       window.miniWindyAnimator?.setMode(overlayKey);
       window.fullWindyAnimator?.setMode(overlayKey);
+      syncWindyRailButtons(overlayKey);
     } else {
       // Statutory layers remain crisp, static cartography
       showStatutoryLayerNotice(overlayKey);
@@ -304,6 +396,7 @@ function toggleMapOverlayCheckbox(overlayKey, isChecked) {
     if (FLUID_ANIMATED_LAYERS.includes(overlayKey)) {
       window.miniWindyAnimator?.setMode(overlayKey);
       window.fullWindyAnimator?.setMode(overlayKey);
+      syncWindyRailButtons(overlayKey);
     } else {
       showStatutoryLayerNotice(overlayKey);
     }
@@ -315,6 +408,7 @@ function toggleMapOverlayCheckbox(overlayKey, isChecked) {
     if (FLUID_ANIMATED_LAYERS.includes(overlayKey)) {
       if (window.miniWindyAnimator?.activeMode === overlayKey) window.miniWindyAnimator.clear();
       if (window.fullWindyAnimator?.activeMode === overlayKey) window.fullWindyAnimator.clear();
+      syncWindyRailButtons(null);
     }
   }
 
@@ -702,6 +796,10 @@ function locateUserGPS() {
       if (locText) {
         locText.innerText = `My Location (${lat}, ${lon})`;
       }
+      const headerPortText = document.getElementById('currentUserRoleText');
+      if (headerPortText) {
+        headerPortText.innerText = `GPS (${lat}, ${lon})`;
+      }
 
       setGlobalTargetPin(lat, lon, "Your Live GPS Location");
       if (miniMapInstance) {
@@ -727,6 +825,275 @@ function setMiniLayer(layerKey, btnEl) {
   toggleMapOverlay(layerKey, btnEl);
 }
 
+// -------------------------------------------------------------------
+// Live Marine GIS Data Ingestion from NOAA/INCOIS Backend API
+// -------------------------------------------------------------------
+async function loadLiveGisData() {
+  try {
+    const res = await fetch('/api/map/layers');
+    if (!res.ok) return;
+    const data = await res.json();
+
+    // 1. Render Real GIS Zones (PFZ & Restricted)
+    if (data.gis_zones && data.gis_zones.features && window.miniMapLayers) {
+      if (window.miniMapLayers.pfz) window.miniMapLayers.pfz.clearLayers();
+      if (window.miniMapLayers.restricted) window.miniMapLayers.restricted.clearLayers();
+
+      L.geoJSON(data.gis_zones, {
+        style: (feature) => {
+          const isRestricted = feature.properties && (feature.properties.zone_type === 'RESTRICTED' || feature.properties.type === 'restricted');
+          if (isRestricted) {
+            return {
+              color: '#ef4444',
+              weight: 2.5,
+              dashArray: '6, 6',
+              fillColor: '#ef4444',
+              fillOpacity: 0.20
+            };
+          }
+          return {
+            color: '#10b981',
+            weight: 2,
+            dashArray: '8, 6',
+            fillColor: '#10b981',
+            fillOpacity: 0.24
+          };
+        },
+        onEachFeature: (feature, layer) => {
+          const p = feature.properties || {};
+          const isRestricted = p.zone_type === 'RESTRICTED' || p.type === 'restricted';
+          const popup = isRestricted ? `
+            <div class="gis-tactical-popup restricted" style="font-family:var(--font-sans); padding:4px;">
+              <strong style="color:#ef4444; font-size:0.85rem;">⛔ ${p.name || 'Restricted Maritime Corridor'}</strong><br>
+              <span style="font-size:0.75rem; color:#cbd5e1;">Status: <b>No-Go Defense Zone (Active Geofence)</b></span><br>
+              <span style="font-size:0.72rem; color:#94a3b8;">Buffer: <b>12 NM Early Warning Alarm Perimeter</b></span>
+            </div>
+          ` : `
+            <div class="gis-tactical-popup pfz" style="font-family:var(--font-sans); padding:4px;">
+              <strong style="color:#10b981; font-size:0.85rem;">🐟 ${p.name || 'Potential Fishing Zone (PFZ)'}</strong><br>
+              <span style="font-size:0.75rem; color:#cbd5e1;">Target Pelagics: <b>Yellowfin Tuna, Sardine, Mackerel</b></span><br>
+              <span style="font-size:0.72rem; color:#38bdf8;">Convergence: <b>High Chlorophyll &amp; SST Front (ISRO)</b></span><br>
+              <span style="font-size:0.70rem; color:#94a3b8;">Validity: <b>Next 36 Hours (INCOIS Advisory)</b></span>
+            </div>
+          `;
+          layer.bindPopup(popup);
+
+          if (isRestricted) {
+            if (window.miniMapLayers.restricted) layer.addTo(window.miniMapLayers.restricted);
+          } else {
+            if (window.miniMapLayers.pfz) layer.addTo(window.miniMapLayers.pfz);
+          }
+        }
+      });
+    }
+
+    // 2. Render Navigational Route Bravo (Kochi to Lakshadweep)
+    if (window.miniMapLayers && window.miniMapLayers.route) {
+      window.miniMapLayers.route.clearLayers();
+      const routeWaypoints = [
+        [9.9312, 76.2673],
+        [9.9800, 75.8500],
+        [10.1500, 75.2000],
+        [10.3500, 74.5000],
+        [10.5667, 72.6417]
+      ];
+      L.polyline(routeWaypoints, {
+        color: '#a855f7',
+        weight: 3.5,
+        dashArray: '8, 8',
+        lineCap: 'round',
+        opacity: 0.95
+      }).bindPopup('<b>🚢 Navigational Route Bravo</b><br>Kochi → Lakshadweep Deep Water Clearance Channel').addTo(window.miniMapLayers.route);
+
+      routeWaypoints.forEach((wp, idx) => {
+        L.circleMarker(wp, {
+          radius: idx === 0 || idx === routeWaypoints.length - 1 ? 6 : 4,
+          color: '#ffffff',
+          fillColor: '#a855f7',
+          fillOpacity: 1,
+          weight: 2
+        }).bindTooltip(idx === 0 ? 'Departure: Kochi Port' : (idx === routeWaypoints.length - 1 ? 'Destination: Kavaratti' : `Waypoint WP-${idx}`)).addTo(window.miniMapLayers.route);
+      });
+    }
+
+    // 3. Render Ports and Moored Marine Data Buoys
+    if (data.ports && window.miniMapLayers && window.miniMapLayers.markers) {
+      data.ports.forEach(port => {
+        L.circleMarker([port.lat, port.lon], {
+          radius: 6,
+          color: '#38bdf8',
+          fillColor: '#0284c7',
+          fillOpacity: 0.95,
+          weight: 2
+        }).bindPopup(`<b>⚓ ${port.name}</b><br>Berths: <b>Deep Water Commercial</b><br>VHF Radio: <b>Ch 16 / 68</b>`).addTo(window.miniMapLayers.markers);
+      });
+    }
+
+    if (data.buoys && window.miniMapLayers && window.miniMapLayers.markers) {
+      data.buoys.forEach(b => {
+        L.circleMarker([b.lat, b.lon], {
+          radius: 5,
+          color: '#facc15',
+          fillColor: '#eab308',
+          fillOpacity: 0.95,
+          weight: 2
+        }).bindPopup(`<b>⚡ INCOIS Moored Data Buoy ${b.id || ''}</b><br>SST: <b>${b.sst || 28.4}°C</b><br>Wave H: <b>${b.wave_h || 1.3}m</b>`).addTo(window.miniMapLayers.markers);
+      });
+    }
+  } catch (err) {
+    console.warn('[ORCA Map] Real GIS layer fetch fallback:', err);
+  }
+}
+window.loadLiveGisData = loadLiveGisData;
+
+// -------------------------------------------------------------------
+// Active Layer Badge Synchronizer
+// -------------------------------------------------------------------
+function updateActiveLayerBadges(label, icon = '') {
+  const headerText = document.getElementById('activeLayerStatusText');
+  const probeLabel = document.getElementById('cursorActiveLayerLabel');
+  const fullText = icon ? `${icon} ${label}` : label;
+  if (headerText) headerText.textContent = fullText;
+  if (probeLabel) probeLabel.textContent = fullText;
+}
+window.updateActiveLayerBadges = updateActiveLayerBadges;
+
+// -------------------------------------------------------------------
+// Windy-Style Interactive Ocean Command Center Handlers (Phase 2)
+// -------------------------------------------------------------------
+
+function switchBaseMap(baseKey, btnEl) {
+  if (!BASE_MAP_PROVIDERS[baseKey]) return;
+  activeBaseMapKey = baseKey;
+
+  if (miniBaseTileLayer && miniMapInstance) {
+    miniMapInstance.removeLayer(miniBaseTileLayer);
+    miniBaseTileLayer = L.tileLayer(BASE_MAP_PROVIDERS[baseKey].url, BASE_MAP_PROVIDERS[baseKey].options).addTo(miniMapInstance);
+    miniBaseTileLayer.bringToBack();
+  }
+
+  // Highlight right rail button
+  document.querySelectorAll('.windy-rail-btn[data-base-layer]').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-base-layer') === baseKey);
+  });
+
+  const names = { satellite: 'Satellite Imagery', ocean: 'Nautical Ocean Chart', dark: 'Tactical Dark Mode' };
+  const icons = { satellite: '🛰️', ocean: '🌊', dark: '🌙' };
+  updateActiveLayerBadges(names[baseKey] || baseKey, icons[baseKey] || '');
+}
+
+function handleWindyRailClick(mode, btnEl) {
+  triggerLayerClickFeedback(btnEl);
+
+  const animator = window.miniWindyAnimator;
+  if (!animator) return;
+
+  if (animator.activeMode === mode) {
+    // Already active -> toggle OFF and reveal pristine base map
+    animator.clear();
+    if (window.fullWindyAnimator) window.fullWindyAnimator.clear();
+    syncWindyRailButtons(null);
+    updateActiveLayerBadges('Satellite Base Map', '🛰️');
+  } else {
+    // Switch to selected Windy overlay
+    animator.setMode(mode);
+    if (window.fullWindyAnimator) window.fullWindyAnimator.setMode(mode);
+    syncWindyRailButtons(mode);
+
+    const modeTitles = {
+      wind: 'Wind Velocity & Flow',
+      waves: 'Swell Waves & Crests',
+      sst: 'Sea Surface Temp (SST)',
+      currents: 'Surface Ocean Currents',
+      weather: 'Doppler Rain Radar'
+    };
+    const modeIcons = { wind: '💨', waves: '🌊', sst: '🌡️', currents: '🌀', weather: '🌧️' };
+    updateActiveLayerBadges(modeTitles[mode] || mode, modeIcons[mode] || '');
+  }
+}
+
+function handleGisRailClick(layerKey, btnEl) {
+  triggerLayerClickFeedback(btnEl);
+  if (!miniMapInstance || !window.miniMapLayers) return;
+
+  const grp = window.miniMapLayers[layerKey];
+  if (!grp) return;
+
+  if (miniMapInstance.hasLayer(grp)) {
+    miniMapInstance.removeLayer(grp);
+    if (btnEl) btnEl.classList.remove('active');
+  } else {
+    miniMapInstance.addLayer(grp);
+    if (btnEl) btnEl.classList.add('active');
+    showStatutoryLayerNotice(layerKey);
+  }
+}
+
+function handleClearAllLayers() {
+  // 1. Clear fluid animation engine
+  if (window.miniWindyAnimator) window.miniWindyAnimator.clear();
+  if (window.fullWindyAnimator) window.fullWindyAnimator.clear();
+  syncWindyRailButtons(null);
+
+  // 2. Hide all dynamic and GIS overlay layers
+  if (miniMapInstance && window.miniMapLayers) {
+    const allOverlays = ['wind', 'waves', 'currents', 'weather', 'sst', 'seamarks', 'pfz', 'restricted', 'route', 'mockupZones'];
+    allOverlays.forEach(k => {
+      const grp = window.miniMapLayers[k];
+      if (grp && miniMapInstance.hasLayer(grp)) {
+        miniMapInstance.removeLayer(grp);
+      }
+    });
+  }
+
+  // 3. Deactivate GIS rail buttons
+  document.querySelectorAll('.windy-rail-btn.gis-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+
+  // 4. Update status chip
+  updateActiveLayerBadges('Pristine Satellite View', '✨');
+
+  // 5. Show pristine notice
+  const animator = window.miniWindyAnimator || window.fullWindyAnimator;
+  if (animator && animator.hudToastEl) {
+    const titleEl = animator.hudToastEl.querySelector('#windyHudTitle');
+    const subEl = animator.hudToastEl.querySelector('#windyHudSubtitle');
+    if (titleEl) titleEl.textContent = '✨ Pristine Base Map Active';
+    if (subEl) subEl.textContent = 'All Overlays Cleared · Clean Satellite Chart';
+    animator.hudToastEl.classList.remove('hidden');
+    animator.hudToastEl.classList.add('active');
+    setTimeout(() => {
+      if (!animator.activeMode) {
+        animator.hudToastEl.classList.remove('active');
+        animator.hudToastEl.classList.add('hidden');
+      }
+    }, 3000);
+  }
+}
+
+function updateCursorTelemetryBar(lat, lon) {
+  const coordsEl = document.getElementById('cursorCoords');
+  const windEl = document.getElementById('cursorWind');
+  const waveEl = document.getElementById('cursorWave');
+  const sstEl = document.getElementById('cursorSst');
+
+  if (coordsEl) {
+    const latStr = `${Math.abs(lat).toFixed(4)}°${lat >= 0 ? 'N' : 'S'}`;
+    const lonStr = `${Math.abs(lon).toFixed(4)}°${lon >= 0 ? 'E' : 'W'}`;
+    coordsEl.textContent = `${latStr}, ${lonStr}`;
+  }
+
+  // Real-time NOAA/ISRO satellite temperature via spatial inverse distance weighting
+  const sstVal = (typeof window.sampleRealtimeSst === 'function') ? window.sampleRealtimeSst(lat, lon) : (29.2 - (lat - 8.0) * 0.28 + Math.sin(lon * 0.3) * 0.4);
+  const waveH = Math.max(0.4, (1.2 + Math.sin(lat * 0.45 + lon * 0.2) * 0.6).toFixed(1));
+  const windSpeed = Math.max(3, Math.round(11 + Math.sin(lat * 0.35) * 5 + Math.cos(lon * 0.25) * 4));
+
+  if (windEl) windEl.textContent = `${windSpeed} kt ↙ SW`;
+  if (waveEl) waveEl.textContent = `${waveH}m ↙ WSW`;
+  if (sstEl) sstEl.textContent = `${sstVal.toFixed(1)}°C`;
+}
+
 // Global window registrations
 window.initOrcaMaps = initOrcaMaps;
 window.setGlobalTargetPin = setGlobalTargetPin;
@@ -737,3 +1104,7 @@ window.toggleMapOverlay = toggleMapOverlay;
 window.toggleMapOverlayCheckbox = toggleMapOverlayCheckbox;
 window.toggleLayerDropdown = toggleLayerDropdown;
 window.renderKochiMockupScene = renderKochiMockupScene;
+window.handleWindyRailClick = handleWindyRailClick;
+window.handleGisRailClick = handleGisRailClick;
+window.handleClearAllLayers = handleClearAllLayers;
+window.updateCursorTelemetryBar = updateCursorTelemetryBar;

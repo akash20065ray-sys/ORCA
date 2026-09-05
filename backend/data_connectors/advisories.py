@@ -82,7 +82,7 @@ class MarineAdvisoriesConnector(BaseDataConnector):
         }
 
         try:
-            with httpx.Client(timeout=4.0) as client:
+            with httpx.Client(timeout=1.5) as client:
                 # Marine data
                 m_params = {
                     "latitude": lat, "longitude": lon,
@@ -277,12 +277,18 @@ class MarineAdvisoriesConnector(BaseDataConnector):
         if cached:
             return cached
 
-        # Fetch real-time conditions for all monitored regions and generate advisories
+        # Fetch real-time conditions for all monitored regions concurrently
         all_advisories: List[HazardAdvisory] = []
-        for region in ADVISORY_REGIONS:
+        from concurrent.futures import ThreadPoolExecutor
+
+        def fetch_region_bulletins(region: Dict) -> List[HazardAdvisory]:
             conditions = self._fetch_region_conditions(region["lat"], region["lon"])
-            region_advisories = self._generate_advisories_from_conditions(region, conditions)
-            all_advisories.extend(region_advisories)
+            return self._generate_advisories_from_conditions(region, conditions)
+
+        with ThreadPoolExecutor(max_workers=len(ADVISORY_REGIONS)) as executor:
+            results = executor.map(fetch_region_bulletins, ADVISORY_REGIONS)
+            for r_advs in results:
+                all_advisories.extend(r_advs)
 
         self._last_refresh = datetime.now(timezone.utc)
 

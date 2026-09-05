@@ -21,7 +21,7 @@
   <link rel="manifest" href="/static/manifest.json">
   <meta name="theme-color" content="#0b2545">
 </head>
-<body>
+<body class="theme-dark">
 
   <!-- Full Application Wrapper -->
   <div class="app-layout">
@@ -60,50 +60,32 @@
           <span id="themeToggleIcon">Light</span>
         </button>
 
-        <!-- User Profile Pill -->
-        <div class="user-profile-menu" onclick="openLocationModal()" title="Select Coastal Location / Profile">
-          <div class="user-avatar-circle">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        <!-- Active Coastal Port Selector -->
+        <div class="user-profile-menu coastal-port-selector" onclick="openLocationModal()" title="Click to Change Coastal Port / Detect GPS">
+          <div class="user-avatar-circle port-pin-circle">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
           </div>
-          <span class="user-role-text" id="currentUserRoleText">Fisherman</span>
-          <span class="dropdown-chevron"></span>
+          <span class="user-role-text" id="currentUserRoleText">Kochi Coast, Kerala</span>
+          <span class="dropdown-chevron">▼</span>
         </div>
       </div>
     </header>
 
     <div class="app-body">
-      <!-- Left Sidebar Navigation (Option Bar) -->
+      <!-- Left Sidebar Navigation (4 Core Streamlined Modules) -->
       <aside class="app-sidebar" id="appSidebar">
         <nav class="sidebar-nav">
-          <a class="nav-link active" data-view="home">
-            <span class="nav-label">Home</span>
+          <a class="nav-link active" data-view="home" title="100% Full-Height Ocean Cockpit & Live Map">
+            <span class="nav-label">Ocean Cockpit</span>
           </a>
-          <a class="nav-link" data-view="chat">
+          <a class="nav-link" data-view="chat" title="Ask ORCA Dedicated AI Command Center">
             <span class="nav-label">Ask ORCA</span>
           </a>
-          <a class="nav-link" data-view="map">
-            <span class="nav-label">Map</span>
+          <a class="nav-link" data-view="routes" title="Obstacle-Avoiding Navigable Route Planner">
+            <span class="nav-label">Safe Routes</span>
           </a>
-          <a class="nav-link" data-view="alerts">
-            <span class="nav-label">Alerts</span>
-          </a>
-          <a class="nav-link" data-view="pfz">
-            <span class="nav-label">Fishing Zones</span>
-          </a>
-          <a class="nav-link" data-view="safety">
-            <span class="nav-label">Sea Safety</span>
-          </a>
-          <a class="nav-link" data-view="routes">
-            <span class="nav-label">Routes</span>
-          </a>
-          <a class="nav-link" data-view="weather">
-            <span class="nav-label">Weather</span>
-          </a>
-          <a class="nav-link" data-view="explorer">
-            <span class="nav-label">Marine Data</span>
-          </a>
-          <a class="nav-link" onclick="openLocationModal()">
-            <span class="nav-label">Settings</span>
+          <a class="nav-link" data-view="safety" title="Unified Marine Safety, Port Signals & Weather Center">
+            <span class="nav-label">Safety &amp; Weather</span>
           </a>
         </nav>
 
@@ -148,384 +130,146 @@
                   <div class="map-card-header">
                     <div class="map-card-titles">
                       <h3 class="map-card-title">Live Marine Intelligence Map</h3>
-                      <div class="map-card-location" onclick="openLocationModal()">
-                        <span id="current-location-text">Kochi Coast, India</span>
+                      <div class="map-card-location" onclick="openLocationModal()" title="Change Regional Harbor Focus">
+                        <span id="current-location-text">📍 Kochi Coast, India</span>
                       </div>
                     </div>
 
-                    <!-- Layer Switcher Pills & Interactive Dropdown -->
-                    <div class="map-layer-switcher-container">
-                      <div class="map-layer-switcher">
-                        <!-- Base Map Options -->
-                        <button type="button" class="layer-tab-btn active" data-base-layer="satellite" onclick="switchBaseMap('satellite', this)" title="High-Resolution Satellite Imagery">Satellite</button>
-                        <button type="button" class="layer-tab-btn" data-base-layer="ocean" onclick="switchBaseMap('ocean', this)" title="Bathymetric Ocean Nautical Chart">Ocean</button>
-                        <button type="button" class="layer-tab-btn" data-base-layer="dark" onclick="switchBaseMap('dark', this)" title="Tactical Night Operations Mode">Dark</button>
-                        
-                        <span class="layer-switcher-separator"></span>
-
-                        <!-- Dynamic Live Overlays -->
-                        <button type="button" class="layer-tab-btn overlay-tab-btn" data-overlay="wind" onclick="toggleMapOverlay('wind', this)" title="Live Wind Direction & Speed">Wind</button>
-                        <button type="button" class="layer-tab-btn overlay-tab-btn" data-overlay="waves" onclick="toggleMapOverlay('waves', this)" title="Live Wave Swell Contours">Waves</button>
-                        <button type="button" class="layer-tab-btn overlay-tab-btn" data-overlay="currents" onclick="toggleMapOverlay('currents', this)" title="Live Surface Ocean Currents">Currents</button>
-                        <button type="button" class="layer-tab-btn overlay-tab-btn" data-overlay="weather" onclick="toggleMapOverlay('weather', this)" title="Real-Time Precipitation Radar">Radar</button>
-                        
-                        <!-- All Layers Dropdown Trigger -->
-                        <button type="button" id="layerDropdownToggleBtn" class="layer-tab-btn layer-dropdown-btn" onclick="toggleLayerDropdown(event)" title="All Layers & Overlays">Layers 
-                        </button>
-                      </div>
-
-                      <!-- Floating Glassmorphism Layers Dropdown Menu -->
-                      <div id="mapLayersDropdown" class="map-layers-floating-dropdown hidden" onclick="event.stopPropagation()">
-                        <div class="dropdown-header-bar">
-                          <span>Oceanic & Satellite Overlays</span>
-                          <span class="dropdown-close-btn" onclick="toggleLayerDropdown(event)"></span>
-                        </div>
-                        <div class="dropdown-scroll-body">
-                          <div class="dropdown-group-label">Base Maps</div>
-                          <label class="dropdown-layer-row">
-                            <input type="radio" name="basemap_radio" value="satellite" checked onchange="switchBaseMap('satellite')">
-                            <span class="row-icon"></span>
-                            <span class="row-text">Satellite (Esri High-Res)</span>
-                          </label>
-                          <label class="dropdown-layer-row">
-                            <input type="radio" name="basemap_radio" value="ocean" onchange="switchBaseMap('ocean')">
-                            <span class="row-icon"></span>
-                            <span class="row-text">Nautical Ocean & Bathymetry</span>
-                          </label>
-                          <label class="dropdown-layer-row">
-                            <input type="radio" name="basemap_radio" value="dark" onchange="switchBaseMap('dark')">
-                            <span class="row-icon"></span>
-                            <span class="row-text">Tactical Dark Mode (CartoDB)</span>
-                          </label>
-                          <label class="dropdown-layer-row">
-                            <input type="radio" name="basemap_radio" value="streets" onchange="switchBaseMap('streets')">
-                            <span class="row-icon"></span>
-                            <span class="row-text">Coastal Topographic (OSM)</span>
-                          </label>
-
-                          <div class="dropdown-group-label">Dynamic Live Overlays</div>
-                          <label class="dropdown-layer-row">
-                            <input type="checkbox" id="chkOverlayWind" onchange="toggleMapOverlayCheckbox('wind', this.checked)">
-                            <span class="row-icon"></span>
-                            <span class="row-text">Live Wind Vectors & Speed</span>
-                          </label>
-                          <label class="dropdown-layer-row">
-                            <input type="checkbox" id="chkOverlayWaves" onchange="toggleMapOverlayCheckbox('waves', this.checked)">
-                            <span class="row-icon"></span>
-                            <span class="row-text">Live Swell Wave Heatmap</span>
-                          </label>
-                          <label class="dropdown-layer-row">
-                            <input type="checkbox" id="chkOverlayCurrents" onchange="toggleMapOverlayCheckbox('currents', this.checked)">
-                            <span class="row-icon"></span>
-                            <span class="row-text">Surface Ocean Current Flow</span>
-                          </label>
-                          <label class="dropdown-layer-row">
-                            <input type="checkbox" id="chkOverlayRadar" onchange="toggleMapOverlayCheckbox('weather', this.checked)">
-                            <span class="row-icon"></span>
-                            <span class="row-text">Real-Time Rain & Cloud Radar</span>
-                          </label>
-
-                          <div class="dropdown-group-label">Fisheries & Maritime GIS</div>
-                          <label class="dropdown-layer-row">
-                            <input type="checkbox" id="chkOverlayPfz" checked onchange="toggleMapOverlayCheckbox('pfz', this.checked)">
-                            <span class="row-icon"></span>
-                            <span class="row-text">Potential Fishing Zones (PFZ)</span>
-                          </label>
-                          <label class="dropdown-layer-row">
-                            <input type="checkbox" id="chkOverlayRestricted" checked onchange="toggleMapOverlayCheckbox('restricted', this.checked)">
-                            <span class="row-icon"></span>
-                            <span class="row-text">Restricted Defense Corridors</span>
-                          </label>
-                          <label class="dropdown-layer-row">
-                            <input type="checkbox" id="chkOverlayRoute" checked onchange="toggleMapOverlayCheckbox('route', this.checked)">
-                            <span class="row-icon"></span>
-                            <span class="row-text">Suggested Navigation Route</span>
-                          </label>
-                          <label class="dropdown-layer-row">
-                            <input type="checkbox" id="chkOverlaySst" onchange="toggleMapOverlayCheckbox('sst', this.checked)">
-                            <span class="row-icon"></span>
-                            <span class="row-text">ISRO/NOAA SST Thermal Fronts</span>
-                          </label>
-                          <label class="dropdown-layer-row">
-                            <input type="checkbox" id="chkOverlaySeamarks" onchange="toggleMapOverlayCheckbox('seamarks', this.checked)">
-                            <span class="row-text">OpenSeaMap Seamarks & Buoys</span>
-                          </label>
-                        </div>
-                      </div>
+                    <!-- Active Layer Status Badge -->
+                    <div class="map-header-status-badge" id="activeLayerStatusBadge">
+                      <span class="status-live-dot"></span>
+                      <span class="status-badge-text" id="activeLayerStatusText">🛰️ Satellite Base Map</span>
                     </div>
                   </div>
 
-                  <!-- Map Canvas Container -->
+                  <!-- Map Canvas Container (100% Full-Height Ocean Cockpit) -->
                   <div class="map-canvas-wrapper">
                     <div id="home-mini-map" class="home-mini-map-canvas"></div>
 
-                    <!-- Floating MAP LAYERS Panel -->
-                    <div class="floating-map-layers-panel" id="floatingMapLayersPanel">
-                      <div class="map-layers-panel-header">
-                        <div class="map-layers-title-group">
-                          <span class="map-layers-title">MAP LAYERS</span>
-                          <span class="map-layers-count">8</span>
-                        </div>
-                        <button type="button" class="map-layers-close-btn" onclick="toggleFloatingLayersPanel()" title="Collapse / Expand Panel"></button>
+                    <!-- Windy-Style Vertical Ocean Layer Rail (Right Side of Map) -->
+                    <div class="windy-floating-rail" id="windyFloatingRail">
+                      <!-- Base Maps Group -->
+                      <div class="rail-group-label">BASE</div>
+                      <button type="button" class="windy-rail-btn active" data-base-layer="satellite" onclick="switchBaseMap('satellite', this)" title="Esri High-Res Satellite Imagery">
+                        <span class="windy-rail-icon">🛰️</span>
+                        <span class="windy-rail-label">Sat</span>
+                      </button>
+                      <button type="button" class="windy-rail-btn" data-base-layer="ocean" onclick="switchBaseMap('ocean', this)" title="Bathymetric Ocean Nautical Chart">
+                        <span class="windy-rail-icon">🌊</span>
+                        <span class="windy-rail-label">Ocean</span>
+                      </button>
+                      <button type="button" class="windy-rail-btn" data-base-layer="dark" onclick="switchBaseMap('dark', this)" title="Tactical Night Operations Mode">
+                        <span class="windy-rail-icon">🌙</span>
+                        <span class="windy-rail-label">Dark</span>
+                      </button>
+
+                      <div class="windy-rail-divider"></div>
+
+                      <!-- Dynamic Oceanic Heatmaps -->
+                      <div class="rail-group-label">LAYERS</div>
+                      <button type="button" class="windy-rail-btn" data-windy-layer="wind" onclick="handleWindyRailClick('wind', this)" title="Live Wind Velocity & Flow Streamlines">
+                        <span class="windy-rail-icon">💨</span>
+                        <span class="windy-rail-label">Wind</span>
+                      </button>
+                      <button type="button" class="windy-rail-btn" data-windy-layer="waves" onclick="handleWindyRailClick('waves', this)" title="Live Wave Swell Contours & Propagating Wavefront Arcs">
+                        <span class="windy-rail-icon">🌊</span>
+                        <span class="windy-rail-label">Waves</span>
+                      </button>
+                      <button type="button" class="windy-rail-btn" data-windy-layer="sst" onclick="handleWindyRailClick('sst', this)" title="Real-Time NOAA/ISRO SST Thermal Heatmap">
+                        <span class="windy-rail-icon">🌡️</span>
+                        <span class="windy-rail-label">Sea Temp</span>
+                      </button>
+                      <button type="button" class="windy-rail-btn" data-windy-layer="currents" onclick="handleWindyRailClick('currents', this)" title="Surface Ocean Current Drift Streamlines">
+                        <span class="windy-rail-icon">🌀</span>
+                        <span class="windy-rail-label">Currents</span>
+                      </button>
+                      <button type="button" class="windy-rail-btn" data-windy-layer="weather" onclick="handleWindyRailClick('weather', this)" title="Real-Time Doppler Precipitation & Cloud Radar">
+                        <span class="windy-rail-icon">🌧️</span>
+                        <span class="windy-rail-label">Radar</span>
+                      </button>
+
+                      <div class="windy-rail-divider"></div>
+
+                      <!-- Maritime & Fisheries GIS -->
+                      <div class="rail-group-label">GIS</div>
+                      <button type="button" class="windy-rail-btn gis-btn active" data-gis-layer="pfz" onclick="handleGisRailClick('pfz', this)" title="INCOIS Potential Fishing Zones (PFZ)">
+                        <span class="windy-rail-icon">🐟</span>
+                        <span class="windy-rail-label">PFZ</span>
+                      </button>
+                      <button type="button" class="windy-rail-btn gis-btn active" data-gis-layer="restricted" onclick="handleGisRailClick('restricted', this)" title="Restricted Maritime Corridors & IMBL Border Geofence">
+                        <span class="windy-rail-icon">🛡️</span>
+                        <span class="windy-rail-label">IMBL</span>
+                      </button>
+                      <button type="button" class="windy-rail-btn gis-btn active" data-gis-layer="route" onclick="handleGisRailClick('route', this)" title="Safe Navigational Maritime Corridors">
+                        <span class="windy-rail-icon">🚢</span>
+                        <span class="windy-rail-label">Route</span>
+                      </button>
+
+                      <div class="windy-rail-divider"></div>
+
+                      <!-- 1-Click Clear Action -->
+                      <button type="button" class="windy-rail-btn clear-btn" onclick="handleClearAllLayers()" title="Clear All Active Overlays & Reveal Pristine Base Map">
+                        <span class="windy-rail-icon">✕</span>
+                        <span class="windy-rail-label">Clear</span>
+                      </button>
+
+                      <div class="windy-rail-divider"></div>
+
+                      <!-- Map Navigation Tools -->
+                      <button type="button" class="windy-rail-btn tool-rail-btn" onclick="locateUserGPS()" title="Center Live Device GPS Location">
+                        <span class="windy-rail-icon">🎯</span>
+                        <span class="windy-rail-label">GPS</span>
+                      </button>
+                      <button type="button" class="windy-rail-btn tool-rail-btn" onclick="miniMapInstance?.zoomIn()" title="Zoom In">
+                        <span class="windy-rail-icon">＋</span>
+                      </button>
+                      <button type="button" class="windy-rail-btn tool-rail-btn" onclick="miniMapInstance?.zoomOut()" title="Zoom Out">
+                        <span class="windy-rail-icon">－</span>
+                      </button>
+                      <button type="button" class="windy-rail-btn tool-rail-btn" id="btnToggleCockpitFull" onclick="toggleCockpitFullMap()" title="Maximize Map / Collapse Chat Panel">
+                        <span class="windy-rail-icon">⛶</span>
+                        <span class="windy-rail-label">Full</span>
+                      </button>
+                    </div>
+
+                    <!-- Dynamic Live Ocean Telemetry Probe (Bottom Left) -->
+                    <div class="map-cursor-tracker-bar" id="mapCursorTrackerBar">
+                      <div class="tracker-active-chip" id="cursorActiveChip">
+                        <span class="tracker-pulse-dot"></span>
+                        <span id="cursorActiveLayerLabel">🛰️ Base Satellite</span>
                       </div>
-
-                      <div class="map-layers-scroll-body">
-                        <!-- Base Maps Section -->
-                        <div class="map-layers-section-label">BASE MAPS</div>
-                        <button type="button" class="map-layers-item-btn active" data-base-layer="satellite" onclick="switchBaseMap('satellite', this)">
-                          <span class="map-layers-item-text">Satellite</span>
-                        </button>
-                        <button type="button" class="map-layers-item-btn" data-base-layer="ocean" onclick="switchBaseMap('ocean', this)">
-                          <span class="map-layers-item-text">Ocean Bathymetry</span>
-                        </button>
-                        <button type="button" class="map-layers-item-btn" data-base-layer="dark" onclick="switchBaseMap('dark', this)">
-                          <span class="map-layers-item-text">Tactical Dark</span>
-                        </button>
-                        <button type="button" class="map-layers-item-btn" data-base-layer="streets" onclick="switchBaseMap('streets', this)">
-                          <span class="map-layers-item-text">Coastal Topographic</span>
-                        </button>
-
-                        <!-- Dynamic Live Overlays -->
-                        <div class="map-layers-section-label">LIVE OVERLAYS</div>
-                        <label class="map-layers-toggle-row">
-                          <input type="checkbox" id="chkOverlayWindPal" onchange="toggleMapOverlayCheckbox('wind', this.checked)">
-                          <span class="map-layers-item-text">Wind Vectors</span>
-                        </label>
-                        <label class="map-layers-toggle-row">
-                          <input type="checkbox" id="chkOverlayWavesPal" onchange="toggleMapOverlayCheckbox('waves', this.checked)">
-                          <span class="map-layers-item-text">Swell Waves</span>
-                        </label>
-                        <label class="map-layers-toggle-row">
-                          <input type="checkbox" id="chkOverlayCurrentsPal" onchange="toggleMapOverlayCheckbox('currents', this.checked)">
-                          <span class="map-layers-item-text">Ocean Currents</span>
-                        </label>
-                        <label class="map-layers-toggle-row">
-                          <input type="checkbox" id="chkOverlayRadarPal" onchange="toggleMapOverlayCheckbox('weather', this.checked)">
-                          <span class="map-layers-item-text">Rain Radar</span>
-                        </label>
-
-                        <!-- Fisheries & Maritime GIS -->
-                        <div class="map-layers-section-label">MARITIME &amp; FISHERIES</div>
-                        <label class="map-layers-toggle-row">
-                          <input type="checkbox" id="chkOverlayPfzPal" checked onchange="toggleMapOverlayCheckbox('pfz', this.checked)">
-                          <span class="map-layers-item-text">Fishing Zones</span>
-                        </label>
-                        <label class="map-layers-toggle-row">
-                          <input type="checkbox" id="chkOverlayRestrictedPal" checked onchange="toggleMapOverlayCheckbox('restricted', this.checked)">
-                          <span class="map-layers-item-text">Restricted Corridors</span>
-                        </label>
-                        <label class="map-layers-toggle-row">
-                          <input type="checkbox" id="chkOverlayRoutePal" checked onchange="toggleMapOverlayCheckbox('route', this.checked)">
-                          <span class="map-layers-item-text">Navigation Route</span>
-                        </label>
-                        <label class="map-layers-toggle-row">
-                          <input type="checkbox" id="chkOverlaySstPal" onchange="toggleMapOverlayCheckbox('sst', this.checked)">
-                          <span class="map-layers-item-text">SST Thermal Fronts</span>
-                        </label>
-                        <label class="map-layers-toggle-row">
-                          <input type="checkbox" id="chkOverlaySeamarksPal" onchange="toggleMapOverlayCheckbox('seamarks', this.checked)">
-                          <span class="map-layers-item-text">Seamarks &amp; Buoys</span>
-                        </label>
+                      <span class="tracker-sep"></span>
+                      <div class="cursor-tracker-item" title="Live GPS Cursor Coordinate">
+                        <span class="tracker-icon">📍</span>
+                        <span class="tracker-val" id="cursorCoords">9.9312°N, 76.2673°E</span>
+                      </div>
+                      <span class="tracker-sep"></span>
+                      <div class="cursor-tracker-item" title="Surface Wind Speed & Compass Heading">
+                        <span class="tracker-icon">💨</span>
+                        <span class="tracker-val" id="cursorWind">14 kt ↙ SW</span>
+                      </div>
+                      <span class="tracker-sep"></span>
+                      <div class="cursor-tracker-item" title="Significant Swell Wave Height">
+                        <span class="tracker-icon">🌊</span>
+                        <span class="tracker-val" id="cursorWave">1.2m ↙ WSW</span>
+                      </div>
+                      <span class="tracker-sep"></span>
+                      <div class="cursor-tracker-item" title="Real-Time Sea Surface Temperature (NOAA/ISRO Satellite)">
+                        <span class="tracker-icon">🌡️</span>
+                        <span class="tracker-val" id="cursorSst">28.5°C</span>
                       </div>
                     </div>
 
-                    <!-- Map Legend Box (Bottom Left of Map) -->
-                    <div class="map-legend-card">
-                      <div class="legend-title">Legend</div>
-                      <div class="legend-item">
-                        <span class="legend-box pfz-box"></span>
-                        <span class="legend-label">High Potential Zone</span>
-                      </div>
-                      <div class="legend-item">
-                        <span class="legend-box restricted-box"></span>
-                        <span class="legend-label">Restricted Zone</span>
-                      </div>
-                      <div class="legend-item">
-                        <span class="legend-line route-line"></span>
-                        <span class="legend-label">Suggested Route</span>
-                      </div>
-                    </div>
-
-                    <!-- Floating Map Controls (Right Side) -->
-                    <div class="floating-map-tools">
-                      <button type="button" class="tool-btn" title="Center GPS Location" onclick="locateUserGPS()">GPS</button>
-                      <button type="button" class="tool-btn" title="Zoom In" onclick="miniMapInstance?.zoomIn()">+</button>
-                      <button type="button" class="tool-btn" title="Zoom Out" onclick="miniMapInstance?.zoomOut()">−</button>
-                      <button type="button" class="tool-btn" title="Fullscreen Map" onclick="switchView('map')">Full</button>
-                    </div>
+                    <!-- Floating Copilot Restore Pill (Visible only when Cockpit Full Map Mode is Active) -->
+                    <button type="button" id="floatingCopilotBtn" class="floating-copilot-pill hidden" onclick="toggleCockpitFullMap()" title="Restore Ask ORCA Chatbot">
+                      <span class="copilot-icon">💬</span>
+                      <span>Open Copilot</span>
+                    </button>
 
                     <!-- Map Scale Bar Indicator -->
                     <div class="map-scale-badge">5 km</div>
                   </div>
                 </div>
-              </div>
-
-              <!-- Vertical Drag Resizer between Map & Overview -->
-              <div class="layout-resizer layout-resizer-vertical" id="resizerCenterRow" title="Drag to resize Map height"></div>
-
-              <!-- Center Bottom: Overview Part (Telemetry & Quick Access) -->
-              <div class="center-bottom-overview-panel" id="centerBottomOverviewPanel">
-                <!-- 4 Telemetry Metrics Cards -->
-                <div class="telemetry-quad-grid">
-                  
-                  <!-- 1. Marine Conditions -->
-                  <div class="telemetry-card">
-                    <div class="telemetry-card-top">
-                      <span class="card-title">Marine Conditions (Kochi)</span>
-                      <a href="javascript:void(0)" class="card-action-link" onclick="switchView('explorer')">View all</a>
-                    </div>
-                    <div class="telemetry-values-2x2">
-                      <div class="metric-pair">
-                        <div class="pair-data">
-                          <span class="pair-label">SST</span>
-                          <strong class="pair-val" id="cond-sst">-- °C</strong>
-                        </div>
-                      </div>
-                      <div class="metric-pair">
-                        <div class="pair-data">
-                          <span class="pair-label">Wave Height</span>
-                          <strong class="pair-val" id="cond-wave">-- m</strong>
-                        </div>
-                      </div>
-                      <div class="metric-pair">
-                        <div class="pair-data">
-                          <span class="pair-label">Wind Speed</span>
-                          <strong class="pair-val" id="cond-wind">-- km/h</strong>
-                        </div>
-                      </div>
-                      <div class="metric-pair">
-                        <div class="pair-data">
-                          <span class="pair-label">Current</span>
-                          <strong class="pair-val" id="cond-current">-- m/s</strong>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="card-footer-meta">
-                      <span>Source: INCOIS</span>
-                      <span class="footer-time">-- </span>
-                    </div>
-                  </div>
-
-                  <!-- 2. Weather Forecast -->
-                  <div class="telemetry-card">
-                    <div class="telemetry-card-top">
-                      <span class="card-title">Weather Forecast</span>
-                      <a href="javascript:void(0)" class="card-action-link" onclick="switchView('weather')">View all</a>
-                    </div>
-                    <div class="weather-forecast-main">
-                      <div class="weather-temp-hero">
-                        <div class="weather-temp-reading">
-                          <strong class="temp-number">--°</strong>
-                          <span class="temp-condition">--</span>
-                        </div>
-                      </div>
-                      <div class="weather-meta-triplet">
-                        <div class="triplet-item">
-                          <span class="triplet-lbl">Wind</span>
-                          <strong class="triplet-val">--</strong>
-                        </div>
-                        <div class="triplet-item">
-                          <span class="triplet-lbl">Rain Chance</span>
-                          <strong class="triplet-val">--</strong>
-                        </div>
-                        <div class="triplet-item">
-                          <span class="triplet-lbl">Visibility</span>
-                          <strong class="triplet-val">--</strong>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="card-footer-meta">
-                      <span>Source: IMD</span>
-                      <span class="footer-time">-- </span>
-                    </div>
-                  </div>
-
-                  <!-- 3. Marine Advisory (Amber) -->
-                  <div class="telemetry-card advisory-amber-card">
-                    <div class="telemetry-card-top">
-                      <span class="card-title advisory-title">Marine Advisory</span>
-                      <a href="javascript:void(0)" class="card-action-link" onclick="switchView('alerts')">View all</a>
-                    </div>
-                    <div class="advisory-content">
-                      <div class="advisory-lead">
-                        <strong class="advisory-heading">No active advisories</strong>
-                      </div>
-                      <p class="advisory-desc">--</p>
-                    </div>
-                    <div class="card-footer-meta">
-                      <span class="advisory-timestamp">--</span>
-                    </div>
-                  </div>
-
-                  <!-- 4. Tide (Kochi) -->
-                  <div class="telemetry-card">
-                    <div class="telemetry-card-top">
-                      <span class="card-title">Tide (Kochi)</span>
-                      <a href="javascript:void(0)" class="card-action-link" onclick="switchView('explorer')">View all</a>
-                    </div>
-                    <div class="tide-dual-container">
-                      <div class="tide-slot">
-                        <span class="tide-slot-label">High Tide</span>
-                        <strong class="tide-slot-time">--</strong>
-                        <span class="tide-slot-level">--</span>
-                      </div>
-                      <div class="tide-slot">
-                        <span class="tide-slot-label">Low Tide</span>
-                        <strong class="tide-slot-time">--</strong>
-                        <span class="tide-slot-level">--</span>
-                      </div>
-                    </div>
-                    <div class="card-footer-meta">
-                      <span>Source: INCOIS</span>
-                      <span class="footer-time">-- </span>
-                    </div>
-                  </div>
-
-                </div>
-
-                <!-- Quick Access Cards -->
-                <div class="quick-access-container">
-                  <h4 class="quick-access-heading">Quick Access</h4>
-                  <div class="quick-access-grid">
-                    
-                    <div class="quick-access-card" onclick="switchView('pfz')">
-                      <div class="qa-content">
-                        <strong class="qa-title">Fishing Zones</strong>
-                        <span class="qa-desc">Find potential fishing areas</span>
-                      </div>
-                    </div>
-
-                    <div class="quick-access-card" onclick="switchView('safety')">
-                      <div class="qa-content">
-                        <strong class="qa-title">Sea Safety</strong>
-                        <span class="qa-desc">Safety info and emergency guides</span>
-                      </div>
-                    </div>
-
-                    <div class="quick-access-card" onclick="switchView('routes')">
-                      <div class="qa-content">
-                        <strong class="qa-title">Routes</strong>
-                        <span class="qa-desc">Plan safe and efficient routes</span>
-                      </div>
-                    </div>
-
-                    <div class="quick-access-card" onclick="switchView('weather')">
-                      <div class="qa-content">
-                        <strong class="qa-title">Weather</strong>
-                        <span class="qa-desc">Real-time weather and forecast</span>
-                      </div>
-                    </div>
-
-                    <div class="quick-access-card" onclick="switchView('explorer')">
-                      <div class="qa-content">
-                        <strong class="qa-title">Marine Data</strong>
-                        <span class="qa-desc">Explore ocean datasets</span>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-
               </div>
             </div>
 
@@ -541,26 +285,45 @@
                       <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 3.54 1.84 6.65 4.63 8.43L6 22l3.43-1.15C10.23 21.57 11.09 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
                     </div>
                     <div>
-                      <h3 class="panel-heading">Ask ORCA</h3>
-                      <p class="panel-subheading">Your AI ocean assistant</p>
+                      <div style="display:flex; align-items:center; gap:6px;">
+                        <h3 class="panel-heading">Ask ORCA</h3>
+                        <span class="chat-status-indicator"></span>
+                      </div>
+                      <p class="panel-subheading">AI Marine Operations Copilot</p>
                     </div>
                   </div>
                   <div class="panel-top-actions">
-                    <button class="icon-tool-btn" id="ttsVoiceBtn" onclick="speakLastResponse()" title="Read aloud"></button>
-                    <button class="icon-tool-btn" onclick="switchView('chat')" title="Chat History"></button>
+                    <button class="icon-tool-btn" id="ttsVoiceBtn" onclick="speakLastResponse()" title="Read aloud">🔊</button>
+                    <button class="icon-tool-btn" onclick="toggleCockpitFullMap()" title="Maximize Map / Collapse Chat">⛶</button>
+                    <button class="icon-tool-btn" onclick="switchView('chat')" title="Open Dedicated Chat Hub">↗</button>
                   </div>
                 </div>
 
-                <!-- Chat Message Scroll Container -->
+                <!-- Chat Message Scroll Container with Active Welcome Message -->
                 <div class="chat-thread-container" id="home-chat-messages">
-                  <!-- Clean empty initial state until user asks a question -->
+                  <div class="chat-bubble-row assistant">
+                    <div class="chat-assistant-card welcome-card">
+                      <div class="assistant-status-lead">
+                        <span class="lead-check-icon">🌊</span>
+                        <strong class="lead-title">ORCA Marine Intelligence Active</strong>
+                      </div>
+                      <p class="bubble-text">
+                        Welcome aboard, Skipper. Live satellite telemetry, INCOIS wave/wind feeds, and PFZ fishing zones are calibrated for <strong>Kochi Coast</strong>. How can I assist your voyage today?
+                      </p>
+                      <div class="welcome-meta-badges">
+                        <span class="welcome-hud-badge"><span class="pulse-green-dot"></span> Live Telemetry</span>
+                        <span class="welcome-hud-badge">INCOIS Synced</span>
+                        <span class="welcome-hud-badge">GPS Connected</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Quick Suggestion Chips -->
                 <div class="quick-suggestion-chips">
-                  <button type="button" class="suggestion-pill" onclick="sendQuickPrompt('What are the fishing zones near me?')">What are the fishing zones near me?</button>
-                  <button type="button" class="suggestion-pill" onclick="sendQuickPrompt('Show me safe routes to Lakshadweep')">Show me safe routes to Lakshadweep</button>
-                  <button type="button" class="suggestion-pill" onclick="sendQuickPrompt('Is there any restricted area nearby?')">Is there any restricted area nearby?</button>
+                  <button type="button" class="suggestion-pill" onclick="sendQuickPrompt('What are the fishing zones near me?')">🎣 Fishing zones near me?</button>
+                  <button type="button" class="suggestion-pill" onclick="sendQuickPrompt('Show me safe routes to Lakshadweep')">🚢 Safe route to Lakshadweep</button>
+                  <button type="button" class="suggestion-pill" onclick="sendQuickPrompt('Is there any restricted area nearby?')">⚠️ Any restricted zones?</button>
                 </div>
 
                 <!-- Input Area -->
@@ -624,8 +387,23 @@
           <div class="live-map-wrapper">
             <div id="live-full-map"></div>
 
+            <!-- Floating Top Navigation Bar for Full Map View -->
+            <div class="live-map-top-bar">
+              <button type="button" class="live-map-back-btn" onclick="switchView('home')" title="Return to Ocean Cockpit">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                <span>Ocean Cockpit</span>
+              </button>
+              <div class="live-map-title-chip">
+                <span class="pulse-green-dot"></span>
+                <span>Live Satellite Marine Intelligence (100% Full View)</span>
+              </div>
+              <button type="button" class="live-map-back-btn" onclick="switchView('chat')" title="Open Ask ORCA AI Hub">
+                <span>💬 Ask ORCA</span>
+              </button>
+            </div>
+
             <div class="live-map-controls-panel">
-              <div style="font-weight:800; font-size:0.8rem; color:var(--brand-primary); margin-bottom:10px;">SATELLITE & OCEAN LAYERS</div>
+              <div style="font-weight:800; font-size:0.8rem; color:var(--brand-primary); margin-bottom:10px;">SATELLITE &amp; OCEAN LAYERS</div>
               <div style="display:flex; flex-direction:column; gap:8px; font-size:0.78rem;">
                 <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
                   <input type="checkbox" id="fullLayerSst" checked>
@@ -637,11 +415,11 @@
                 </label>
                 <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
                   <input type="checkbox" id="fullLayerHazards" checked>
-                  <span>Hazard Bulletins & Warnings</span>
+                  <span>Hazard Bulletins &amp; Warnings</span>
                 </label>
                 <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
                   <input type="checkbox" id="fullLayerGis" checked>
-                  <span>IMBL Geofence & MPAs</span>
+                  <span>IMBL Geofence &amp; MPAs</span>
                 </label>
                 <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
                   <input type="checkbox" id="fullLayerRoutes" checked>
@@ -649,7 +427,7 @@
                 </label>
                 <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
                   <input type="checkbox" id="fullLayerPorts" checked>
-                  <span>Harbors & Ports</span>
+                  <span>Harbors &amp; Ports</span>
                 </label>
               </div>
             </div>

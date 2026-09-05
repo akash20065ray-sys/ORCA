@@ -1,4 +1,14 @@
 import os
+import sys
+import asyncio
+
+if sys.platform == "win32":
+    # Prevent Windows IOCP Proactor WinError 64 crash when clients disconnect abruptly
+    try:
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    except Exception:
+        pass
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles

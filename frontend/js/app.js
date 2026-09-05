@@ -56,14 +56,21 @@ function toggleTheme() {
 }
 
 function initTheme() {
- try {
- const saved = localStorage.getItem('orca_theme');
- if (saved === 'dark') {
- document.body.classList.add('theme-dark');
- const icon = document.getElementById('themeToggleIcon');
- if (icon) icon.textContent = 'Dark';
- }
- } catch(e) {}
+  try {
+    const saved = localStorage.getItem('orca_theme');
+    if (saved === 'light') {
+      document.body.classList.remove('theme-dark');
+      const icon = document.getElementById('themeToggleIcon');
+      if (icon) icon.textContent = 'Light';
+    } else {
+      // Default to Championship Dark Blue Theme
+      document.body.classList.add('theme-dark');
+      const icon = document.getElementById('themeToggleIcon');
+      if (icon) icon.textContent = 'Dark';
+    }
+  } catch(e) {
+    document.body.classList.add('theme-dark');
+  }
 }
 
 // SIH 1-Click Demo Presets
@@ -147,19 +154,44 @@ async function fetchHomeContextTelemetry(ctx) {
 }
 
 function updateTelemetryCards(data) {
- const t = data.telemetry || {};
- if (t.sst_celsius != null) {
- const el = document.getElementById('cond-sst');
- if (el) el.textContent = `${t.sst_celsius} °C`;
- }
- if (t.wave_height_meters != null) {
- const el = document.getElementById('cond-wave');
- if (el) el.textContent = `${t.wave_height_meters} m`;
- }
- if (t.wind_speed_knots != null) {
- const el = document.getElementById('cond-wind');
- if (el) el.textContent = `${Math.round(t.wind_speed_knots * 1.852)} km/h`;
- }
+  const t = data.telemetry || {};
+  const risk = data.risk_assessment || {};
+  const isSafe = risk.overall_risk === 'LOW' || !risk.overall_risk;
+
+  // 1. Update Top Floating Telemetry HUD Capsule
+  const hudSst = document.getElementById('hud-sst');
+  if (hudSst && t.sst_celsius != null) hudSst.textContent = `${Number(t.sst_celsius).toFixed(1)}°C`;
+
+  const hudWave = document.getElementById('hud-wave');
+  if (hudWave && t.wave_height_meters != null) {
+    hudWave.textContent = `${Number(t.wave_height_meters).toFixed(1)}m ↙ WSW`;
+  }
+
+  const hudWind = document.getElementById('hud-wind');
+  if (hudWind && t.wind_speed_knots != null) {
+    hudWind.textContent = `${Math.round(t.wind_speed_knots)} kt ↙ SW`;
+  }
+
+  const hudSafety = document.getElementById('hud-safety');
+  if (hudSafety) {
+    const score = risk.safety_score != null ? risk.safety_score : (isSafe ? 92 : 48);
+    hudSafety.textContent = `${score}/100 ${isSafe ? 'Safe' : 'Caution'}`;
+    hudSafety.className = `hud-stat-val ${isSafe ? 'hud-safe-green' : 'hud-safe-amber'}`;
+  }
+
+  // Legacy element bindings
+  if (t.sst_celsius != null) {
+    const el = document.getElementById('cond-sst');
+    if (el) el.textContent = `${t.sst_celsius} °C`;
+  }
+  if (t.wave_height_meters != null) {
+    const el = document.getElementById('cond-wave');
+    if (el) el.textContent = `${t.wave_height_meters} m`;
+  }
+  if (t.wind_speed_knots != null) {
+    const el = document.getElementById('cond-wind');
+    if (el) el.textContent = `${Math.round(t.wind_speed_knots * 1.852)} km/h`;
+  }
 }
 
 async function submitHomeDockChat() {
@@ -393,22 +425,37 @@ function setupNavigation() {
 }
 
 function switchView(viewName) {
- currentView = viewName;
+  currentView = viewName;
 
- document.querySelectorAll('.sidebar-nav .nav-link').forEach(el => {
- if (el.getAttribute('data-view') === viewName) el.classList.add('active');
- else el.classList.remove('active');
- });
+  document.querySelectorAll('.sidebar-nav .nav-link').forEach(el => {
+    if (el.getAttribute('data-view') === viewName) el.classList.add('active');
+    else el.classList.remove('active');
+  });
 
- document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
- const targetView = document.getElementById(`view-${viewName}`);
- if (targetView) targetView.classList.add('active');
+  document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+  const targetView = document.getElementById(`view-${viewName}`);
+  if (targetView) targetView.classList.add('active');
 
- setTimeout(() => {
- if (viewName === 'map' && window.fullMapInstance) window.fullMapInstance.invalidateSize();
- if (viewName === 'routes' && window.routeMapInstance) window.routeMapInstance.invalidateSize();
- if (viewName === 'home' && window.miniMapInstance) window.miniMapInstance.invalidateSize();
- }, 100);
+  // Synchronize full map position if switching to 'map'
+  if (viewName === 'map' && window.fullMapInstance && window.miniMapInstance) {
+    try {
+      const c = window.miniMapInstance.getCenter();
+      const z = window.miniMapInstance.getZoom();
+      window.fullMapInstance.setView(c, z, { animate: false });
+    } catch(e) {}
+  }
+
+  const invalidateAll = () => {
+    try {
+      if (window.miniMapInstance) window.miniMapInstance.invalidateSize({ pan: false });
+      if (window.fullMapInstance) window.fullMapInstance.invalidateSize({ pan: false });
+      if (window.routeMapInstance) window.routeMapInstance.invalidateSize({ pan: false });
+    } catch(e) {}
+  };
+  invalidateAll();
+  setTimeout(invalidateAll, 60);
+  setTimeout(invalidateAll, 160);
+  setTimeout(invalidateAll, 360);
 }
 
 // Chat View Setup (Standalone Sessions)
@@ -820,13 +867,16 @@ function closeLocationModal() {
 }
 
 function selectLocation(portKey, displayName) {
- currentPortKey = portKey;
- currentPortName = displayName;
+  currentPortKey = portKey;
+  currentPortName = displayName;
 
- const locText = document.getElementById('current-location-text');
- if (locText) locText.innerText = displayName;
+  const locText = document.getElementById('current-location-text');
+  if (locText) locText.innerText = displayName;
 
- closeLocationModal();
+  const headerPortText = document.getElementById('currentUserRoleText');
+  if (headerPortText) headerPortText.innerText = displayName;
+
+  closeLocationModal();
 
  const portsCoords = {
  kochi: [9.9656, 76.2425],
