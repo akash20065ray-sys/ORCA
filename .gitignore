@@ -24,6 +24,10 @@ htmlcov/
 *.swp
 *.swo
 
+# Node / JavaScript
+frontend-react/node_modules/
+node_modules/
+
 # OS Generated
 Thumbs.db
 ehthumbs.db

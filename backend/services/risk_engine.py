@@ -136,9 +136,12 @@ class MarineRiskEngine:
         if not precautions:
             precautions.append("Maintain standard VHF watch on Channel 16 and wear approved life jackets.")
 
+        safety_score = max(0, min(100, 100 - risk_score))
+
         return RiskAssessment(
             overall_risk=overall_risk,
             risk_score=risk_score,
+            safety_score=safety_score,
             is_safe_to_sail=is_safe,
             wind_risk=wind_risk,
             wave_risk=wave_risk,

@@ -126,18 +126,18 @@ function renderFullGisZones(geojson) {
   L.geoJSON(geojson, {
     style: (feature) => {
       const type = feature.properties.zone_type;
-      if (type === "IMBL_GEOFENCE") {
-        return { color: '#ef4444', weight: 2.5, fillColor: '#ef4444', fillOpacity: 0.25, dashArray: '6 4' };
+      if (type === "IMBL_GEOFENCE" || type === "RESTRICTED_NAVAL") {
+        return { color: '#dc2626', weight: 2, fillColor: '#dc2626', fillOpacity: 0.14, dashArray: '6 4' };
       } else if (type === "MPA") {
-        return { color: '#f59e0b', weight: 2, fillColor: '#f59e0b', fillOpacity: 0.2, dashArray: '4 4' };
+        return { color: '#059669', weight: 2, fillColor: '#059669', fillOpacity: 0.14, dashArray: '4 4' };
       }
-      return { color: '#00f2fe', weight: 1.5, fill: false, opacity: 0.6 };
+      return { color: '#0284c7', weight: 1.5, fill: false, opacity: 0.6 };
     },
     onEachFeature: (feature, layer) => {
       const p = feature.properties;
       layer.bindPopup(`
         <div style="font-size:12px; max-width:220px; color:#0f172a;">
-          <b style="color:#0284c7;"> ${p.name}</b><br>
+          <b style="color:#0284c7;">${p.name}</b><br>
           <span style="color:#64748b;">${p.zone_type}</span>
           <p style="margin-top:4px; font-size:11px;">${p.description}</p>
         </div>
@@ -151,13 +151,13 @@ function renderFullHazards(hazards) {
   window.fullMapLayers.hazards.clearLayers();
 
   hazards.forEach(h => {
-    let iconChar = '';
-    if (h.advisory_type === "LIGHTNING") iconChar = '';
-    else if (h.advisory_type === "CYCLONE") iconChar = '';
+    let iconChar = '⚠️';
+    if (h.advisory_type === "LIGHTNING") iconChar = '⚡';
+    else if (h.advisory_type === "CYCLONE") iconChar = '🌀';
 
     const icon = L.divIcon({
       className: 'custom-hazard-pin',
-      html: `<div style="background:#0f172a; border:2px solid #ef4444; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:14px; box-shadow:0 0 10px #ef4444;">${iconChar}</div>`,
+      html: `<div style="background:#ffffff; border:2px solid #dc2626; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:14px; box-shadow:0 2px 8px rgba(220,38,38,0.25);">${iconChar}</div>`,
       iconSize: [28, 28],
       iconAnchor: [14, 14]
     });
@@ -170,7 +170,7 @@ function renderFullHazards(hazards) {
 
     L.marker([hLat, hLon], { icon }).bindPopup(`
       <div style="font-size:12px; max-width:220px; color:#0f172a;">
-        <b style="color:#ef4444;">${h.title}</b><br>
+        <b style="color:#dc2626;">${h.title}</b><br>
         <span style="color:#64748b;">${h.issuing_authority}</span>
         <p style="margin-top:4px; font-size:11px;">${h.description}</p>
       </div>
@@ -186,11 +186,11 @@ function renderFullPorts(portsGeoJson) {
     pointToLayer: (feature, latlng) => {
       const icon = L.divIcon({
         className: 'custom-port-pin',
-        html: `<div style="background:#0f172a; border:1px solid #00f2fe; border-radius:4px; padding:2px 6px; font-size:11px; font-weight:700; color:#00f2fe; box-shadow:0 0 8px rgba(0,242,254,0.3);"> ${feature.properties.name.split(' ')[0]}</div>`,
+        html: `<div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:4px; padding:3px 8px; font-size:12px; font-weight:700; color:#0f172a; box-shadow:0 2px 4px rgba(0,0,0,0.08); display:flex; align-items:center; gap:4px;">⚓ ${feature.properties.name.split(' ')[0]}</div>`,
         iconSize: [60, 20],
         iconAnchor: [30, 10]
       });
-      return L.marker(latlng, { icon }).bindPopup(`<b> ${feature.properties.name}</b><br>${feature.properties.region}`);
+      return L.marker(latlng, { icon }).bindPopup(`<b>${feature.properties.name}</b><br>${feature.properties.region}`);
     }
   }).addTo(window.fullMapLayers.ports);
 }
@@ -202,14 +202,14 @@ function displayPFZsOnMap(pfzList) {
   pfzList.forEach((pfz) => {
     const icon = L.divIcon({
       className: 'custom-pfz-pin',
-      html: `<div style="background:#0f172a; border:2px solid #10b981; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:14px; box-shadow:0 0 12px #10b981;"></div>`,
+      html: `<div style="background:#ffffff; border:2px solid #059669; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:14px; box-shadow:0 2px 8px rgba(0,0,0,0.12);">🐟</div>`,
       iconSize: [30, 30],
       iconAnchor: [15, 15]
     });
 
     L.marker([pfz.latitude, pfz.longitude], { icon }).bindPopup(`
       <div style="font-size:12px; max-width:220px; color:#0f172a;">
-        <b style="color:#10b981;"> ${pfz.zone_name}</b><br>
+        <b style="color:#059669;">${pfz.zone_name}</b><br>
         <span>Distance: <b>${pfz.distance_km} km (${pfz.distance_nm} NM)</b> heading <b>${pfz.bearing_cardinal}</b></span><br>
         <span>SST: <b>${pfz.sst_celsius}°C</b> | Depth: <b>${pfz.depth_meters}m</b></span><br>
         <span>Confidence: <b>${Math.round(pfz.confidence_score * 100)}%</b></span>
@@ -218,9 +218,9 @@ function displayPFZsOnMap(pfzList) {
 
     L.circle([pfz.latitude, pfz.longitude], {
       radius: 4500,
-      color: '#10b981',
+      color: '#059669',
       fillColor: '#10b981',
-      fillOpacity: 0.2,
+      fillOpacity: 0.14,
       weight: 2,
       dashArray: '3 3'
     }).addTo(window.fullMapLayers.pfzZones);
@@ -237,12 +237,12 @@ function displayRoutesOnRouteMap(routesList) {
 
   routesList.forEach((route, idx) => {
     const isAlpha = route.route_id.includes("ALPHA");
-    const routeColor = isAlpha ? "#f59e0b" : "#00f2fe";
+    const routeColor = isAlpha ? "#d97706" : "#0284c7";
     const latlngs = route.waypoints.map(wp => [wp.latitude, wp.longitude]);
 
     const poly = L.polyline(latlngs, {
       color: routeColor,
-      weight: isAlpha ? 3.5 : 5.0,
+      weight: isAlpha ? 3.0 : 4.5,
       opacity: isAlpha ? 0.85 : 0.98,
       dashArray: isAlpha ? '8 6' : null,
       lineCap: 'round',
@@ -252,7 +252,7 @@ function displayRoutesOnRouteMap(routesList) {
         <b style="color:${routeColor}; font-size:13px;">${route.route_name}</b><br>
         <span style="color:#475569;">Distance: <b>${route.total_distance_nm} NM (${route.total_distance_km} km)</b></span><br>
         <span style="color:#475569;">Duration: <b>${route.estimated_duration_hours} hrs</b></span><br>
-        <span style="color:${route.safety_score >= 85 ? '#10b981' : '#f59e0b'}; font-weight:800;">Safety Score: ${route.safety_score}/100</span><br>
+        <span style="color:${route.safety_score >= 85 ? '#059669' : '#d97706'}; font-weight:800;">Safety Score: ${route.safety_score}/100</span><br>
         <p style="margin-top:4px; font-size:11px; color:#334155;">${route.recommendation_verdict}</p>
       </div>
     `).addTo(window.routeMapLayers.routes);
@@ -266,19 +266,19 @@ function displayRoutesOnRouteMap(routesList) {
     // Place waypoint markers along Route Bravo (recommended) or Route Alpha
     if (!isAlpha || routesList.length === 1) {
       route.waypoints.forEach((wp, wIdx) => {
-        let pinColor = '#00f2fe';
+        let pinColor = '#0284c7';
         let pinLabel = `${wIdx}`;
         if (wIdx === 0) {
-          pinColor = '#10b981';
+          pinColor = '#059669';
           pinLabel = '⚓';
         } else if (wIdx === route.waypoints.length - 1) {
-          pinColor = '#f59e0b';
+          pinColor = '#d97706';
           pinLabel = '🏁';
         }
 
         const icon = L.divIcon({
           className: 'route-waypoint-pin',
-          html: `<div style="background:#07132b; border:2px solid ${pinColor}; color:${pinColor}; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; box-shadow:0 0 10px ${pinColor};">${pinLabel}</div>`,
+          html: `<div style="background:#ffffff; border:2px solid ${pinColor}; color:#0f172a; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; box-shadow:0 2px 6px rgba(0,0,0,0.15);">${pinLabel}</div>`,
           iconSize: [26, 26],
           iconAnchor: [13, 13]
         });

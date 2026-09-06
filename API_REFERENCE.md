@@ -12,11 +12,30 @@
 |---|---|---|
 | `POST` | `/api/chat` | Orchestrate natural language marine intelligence queries |
 | `GET` | `/api/chat/sessions` | List all chat sessions |
+| `POST` | `/api/chat/sessions` | Explicitly create a new chat session |
+| `DELETE` | `/api/chat/sessions` | Clear all chat sessions |
 | `GET` | `/api/chat/sessions/{id}` | Retrieve a specific chat session |
 | `DELETE` | `/api/chat/sessions/{id}` | Delete a chat session |
 | `GET` | `/api/map/layers` | Get all GIS map layers for Leaflet rendering |
-| `POST` | `/api/routes/analyze` | Calculate marine route comparison |
+| `GET` | `/api/routes/ports` | List registered coastal ports and harbors |
+| `POST` | `/api/routes/analyze` | Calculate marine route comparison (Alpha vs Bravo) |
+| `POST` | `/api/routes/waypoints` | High-res turn-by-turn navigation waypoints & steer compass headings |
+| `POST` | `/api/routes/reverse` | Compute reverse return voyage |
 | `GET` | `/api/pfz/zones` | Get Potential Fishing Zone advisories |
+| `GET` | `/api/pfz/forecast` | Alias for PFZ advisories forecast |
+| `GET/POST` | `/api/pfz/diagnose-decline` | Ecological diagnostic of fishery decline & actionable recommendations |
+| `POST/GET` | `/api/safety/assess` | Deterministic safety score (0–100), Douglas Sea State & Beaufort Force |
+| `GET` | `/api/weather/forecast` | Real-time weather, wave, swell, and semi-diurnal tides |
+| `GET` | `/api/weather/current` | Current atmospheric and marine telemetry |
+| `GET` | `/api/weather/in-situ` | In-situ buoy telemetry from NIOT National Data Buoy Programme |
+| `GET` | `/api/weather/buoys` | Oceanographic and coastal buoy registry |
+| `GET` | `/api/alerts/active` | Active INCOIS & IMD marine advisories with severity filtering |
+| `GET` | `/api/alerts/signals` | Official IMD Port Danger Warning Signals (1 to 11) definitions |
+| `POST` | `/api/emergency/distress` | GMDSS Mayday distress transmission to nearest Coast Guard MRCC |
+| `GET` | `/api/emergency/mrcc` | Indian Coast Guard Maritime Rescue Coordination Centres registry |
+| `GET` | `/api/emergency/status/{token}` | SAR operational response status lookup |
+| `POST` | `/api/emergency/cancel/{token}` | Stand down / cancel emergency distress alert |
+| `GET` | `/api/emergency/logs` | Recent emergency distress transmission ledger |
 | `GET` | `/api/health` | System health and component status |
 | `GET` | `/` | Serve frontend application |
 
@@ -324,7 +343,140 @@ Returns INCOIS-calibrated Potential Fishing Zone advisories for any coastal area
 
 ---
 
-## 5. System Health
+## 5. Marine Safety Assessment
+
+### `POST /api/safety/assess` & `GET /api/safety/assess`
+
+Evaluates deterministic sea safety score (0–100), Douglas Sea State (0–9), Beaufort Wind Force (0–12), and sail advisories tailored to vessel type.
+
+**POST Body / GET Query Parameters**:
+```json
+{
+  "port_name": "kochi",
+  "vessel_type": "artisanal_fishing_craft",
+  "latitude": 9.9656,
+  "longitude": 76.2425
+}
+```
+
+**Response**:
+```json
+{
+  "location": {
+    "name": "Cochin Port (Kochi, Kerala)",
+    "latitude": 9.9656,
+    "longitude": 76.2425
+  },
+  "safety_score": 75,
+  "risk_score": 25,
+  "overall_risk": "LOW",
+  "sail_verdict": "SAFE_TO_SAIL",
+  "is_safe_to_sail": true,
+  "advisory_headline": "LOW RISK. Favourable conditions for coastal fishing.",
+  "metrics": {
+    "wave_height_meters": 1.2,
+    "swell_height_meters": 1.0,
+    "douglas_sea_state": 3,
+    "wind_speed_knots": 14.0,
+    "wind_gusts_knots": 18.0,
+    "beaufort_wind_force": 4
+  },
+  "causal_factors": [
+    "Wave height is within safe operational limits for artisanal_fishing_craft."
+  ],
+  "mandatory_precautions": [
+    "Life jackets mandatory for all crew.",
+    "Carry operational VHF radio tuned to Channel 16."
+  ],
+  "vessel_profile": "artisanal_fishing_craft"
+}
+```
+
+---
+
+## 6. Ocean Weather Station & Tides
+
+### `GET /api/weather/forecast` & `GET /api/weather/current`
+
+Real-time multi-source ocean weather and semi-diurnal coastal tides.
+
+**Query Parameters**:
+- `port`: Port name or coastal city (default: `"kochi"`)
+- `lat`: Custom latitude (optional)
+- `lon`: Custom longitude (optional)
+- `hours`: Forecast horizon in hours (default: 24, max 72)
+
+**Response**:
+Includes atmospheric parameters, wave state, sea surface temperature, and astronomical tidal predictions with flood/ebb indicators.
+
+### `GET /api/weather/in-situ` & `GET /api/weather/buoys`
+
+Real-time telemetry and directory of the NIOT National Data Buoy Programme (OMNI & coastal buoys).
+
+---
+
+## 7. Marine Advisories & IMD Port Signals
+
+### `GET /api/alerts/active`
+
+Fetches active INCOIS High Wave Alerts, Swell Surges (Kallakkadal), and IMD Squall warnings with optional filtering by `region`, `severity` (WARNING, ADVISORY), or `advisory_type`.
+
+### `GET /api/alerts/signals`
+
+Returns the official definitions, day shapes, and night lights for IMD Port Danger Warning Signals No. 1 through 11.
+
+---
+
+## 8. Maritime Emergency & Coast Guard SOS
+
+### `POST /api/emergency/distress`
+
+Simulates / dispatches official GMDSS Mayday distress transmission to the nearest Indian Coast Guard Maritime Rescue Coordination Centre (MRCC: Kochi, Mumbai, Chennai, Port Blair).
+
+**Request Body**:
+```json
+{
+  "vessel_id": "IND-KL-07-ORCA",
+  "callsign": "ORCA-INDIA",
+  "latitude": 9.9312,
+  "longitude": 76.2673,
+  "crew_count": 4,
+  "distress_type": "ENGINE_FAILURE_DRIFT",
+  "sea_state": "Moderate Swell 1.4m · Wind 16 kt",
+  "description": "Engine failure offshore. Drifting westward."
+}
+```
+
+**Response**:
+Returns dispatch token (e.g. `GMDSS-MRCC-KOC-12345`), nearest MRCC, distance in nautical miles, Fast Interceptor Craft ETA, and formatted GMDSS Mayday broadcast message.
+
+### `GET /api/emergency/mrcc`
+
+Returns directory of all 4 Indian Coast Guard MRCC stations with contact telephone hotlines, VHF Channel 16, and DSC Channel 70 frequencies.
+
+### `GET /api/emergency/status/{dispatch_token}` & `POST /api/emergency/cancel/{dispatch_token}`
+
+Allows active tracking of search & rescue response status and official stand-down/cancellation.
+
+---
+
+## 9. Navigation Waypoints & Coastal Ports
+
+### `GET /api/routes/ports`
+
+Lists 34 registered Indian coastal ports, fishing harbors, and anchorages with coordinates and administrative states.
+
+### `POST /api/routes/waypoints`
+
+Generates turn-by-turn navigation waypoints with compass steer headings (e.g., `Steer 142° SE`), leg distances, cumulative nautical miles, wave swell, and clearance margins.
+
+### `POST /api/routes/reverse`
+
+Computes reverse return passage from destination back to origin.
+
+---
+
+## 10. System Health
 
 ### `GET /api/health`
 

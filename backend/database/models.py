@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from typing import Dict, List, Optional, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 class FreshnessStatus(str, Enum):
     LIVE = "LIVE"                       # < 3 hours
@@ -114,14 +114,21 @@ class CandidateRoute(BaseModel):
 class RiskAssessment(BaseModel):
     overall_risk: RiskLevel
     risk_score: int # 0 - 100
+    safety_score: Optional[int] = None
     is_safe_to_sail: bool
     wind_risk: RiskLevel
     wave_risk: RiskLevel
     hazard_risk: RiskLevel
-    freshness_penalty_applied: bool
+    freshness_penalty_applied: bool = False
     reasons: List[str]
     safety_advisory: str
     recommended_precautions: List[str]
+
+    @model_validator(mode="after")
+    def populate_safety_score(self) -> "RiskAssessment":
+        if self.safety_score is None:
+            self.safety_score = max(0, min(100, 100 - self.risk_score))
+        return self
 
 class AgentTraceStep(BaseModel):
     agent_name: str

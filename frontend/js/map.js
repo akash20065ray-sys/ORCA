@@ -10,16 +10,20 @@ let liveLocationMarker = null;
 
 let miniBaseTileLayer = null;
 let fullBaseTileLayer = null;
-let activeBaseMapKey = 'satellite';
+let activeBaseMapKey = 'light';
 
 const BASE_MAP_PROVIDERS = {
-  satellite: {
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    options: { maxZoom: 19, attribution: 'Tiles &copy; Esri &mdash; ISRO MOSDAC / NOAA' }
+  light: {
+    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    options: { maxZoom: 19, attribution: '&copy; CartoDB &copy; OpenStreetMap' }
   },
   ocean: {
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean/MapServer/tile/{z}/{y}/{x}',
     options: { maxZoom: 13, attribution: 'Tiles &copy; Esri Ocean &mdash; GEBCO, NOAA' }
+  },
+  satellite: {
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    options: { maxZoom: 19, attribution: 'Tiles &copy; Esri &mdash; ISRO MOSDAC / NOAA' }
   },
   dark: {
     url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
@@ -35,7 +39,7 @@ const SEAMARKS_TILE_URL = 'https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png'
 const RAINVIEWER_RADAR_URL = 'https://tilecache.rainviewer.com/v2/radar/nowcast_45/256/{z}/{x}/{y}/2/1_1.png';
 
 function initOrcaMaps() {
-  // 1. Initialize Home Mini Satellite Map
+  // 1. Initialize Home Mini Map with Crisp Light Nautical Tiles
   const miniEl = document.getElementById('home-mini-map');
   if (miniEl) {
     miniMapInstance = L.map('home-mini-map', {
@@ -45,8 +49,8 @@ function initOrcaMaps() {
       attributionControl: false
     });
 
-    // Default base tile layer: Satellite
-    miniBaseTileLayer = L.tileLayer(BASE_MAP_PROVIDERS.satellite.url, BASE_MAP_PROVIDERS.satellite.options).addTo(miniMapInstance);
+    // Default base tile layer: Clean Light Positron
+    miniBaseTileLayer = L.tileLayer(BASE_MAP_PROVIDERS.light.url, BASE_MAP_PROVIDERS.light.options).addTo(miniMapInstance);
 
     window.miniMapLayers = {
       wind: L.layerGroup(),
@@ -111,7 +115,7 @@ function initOrcaMaps() {
 
     L.control.zoom({ position: 'bottomright' }).addTo(fullMapInstance);
 
-    fullBaseTileLayer = L.tileLayer(BASE_MAP_PROVIDERS.satellite.url, BASE_MAP_PROVIDERS.satellite.options).addTo(fullMapInstance);
+    fullBaseTileLayer = L.tileLayer(BASE_MAP_PROVIDERS.light.url, BASE_MAP_PROVIDERS.light.options).addTo(fullMapInstance);
 
     window.fullMapLayers = {
       sstGrid: L.layerGroup().addTo(fullMapInstance),
@@ -142,7 +146,7 @@ function initOrcaMaps() {
     });
   }
 
-  // 3. Initialize Route Map
+  // 3. Initialize Route Map with Light CartoDB Positron
   const routeEl = document.getElementById('route-full-map');
   if (routeEl) {
     routeMapInstance = L.map('route-full-map', {
@@ -153,7 +157,7 @@ function initOrcaMaps() {
 
     L.control.zoom({ position: 'bottomright' }).addTo(routeMapInstance);
 
-    L.tileLayer(BASE_MAP_PROVIDERS.satellite.url, BASE_MAP_PROVIDERS.satellite.options).addTo(routeMapInstance);
+    L.tileLayer(BASE_MAP_PROVIDERS.light.url, BASE_MAP_PROVIDERS.light.options).addTo(routeMapInstance);
 
     window.routeMapLayers = {
       routes: L.layerGroup().addTo(routeMapInstance),
@@ -663,16 +667,16 @@ function renderKochiMockupScene() {
   ];
 
   const pfzPolygon = L.polygon(pfzPolygonCoords, {
-    color: '#10b981',
+    color: '#059669',
     fillColor: '#10b981',
-    fillOpacity: 0.28,
-    weight: 2.5,
+    fillOpacity: 0.16,
+    weight: 2.0,
     dashArray: '6, 6'
   }).addTo(zonesGroup);
 
   pfzPolygon.bindPopup(`
     <div style="font-family:inherit; padding:4px;">
-      <b style="color:#10b981; font-size:13px;"> Potential Fishing Zone (High)</b><br>
+      <b style="color:#059669; font-size:13px;">Potential Fishing Zone (High)</b><br>
       <b>Sector:</b> Offshore Vypeen Shelf<br>
       <b>Distance:</b> 28 km WSW of Cochin Harbour<br>
       <b>Depth:</b> 45 meters<br>
@@ -691,23 +695,23 @@ function renderKochiMockupScene() {
   ];
 
   const restrictedPolygon = L.polygon(restrictedPolygonCoords, {
-    color: '#ef4444',
+    color: '#dc2626',
     fillColor: '#ef4444',
-    fillOpacity: 0.25,
-    weight: 2.5,
+    fillOpacity: 0.16,
+    weight: 2.0,
     dashArray: '5, 5'
   }).addTo(zonesGroup);
 
   restrictedPolygon.bindPopup(`
     <div style="font-family:inherit; padding:4px;">
-      <b style="color:#ef4444; font-size:13px;"> Restricted Zone — Southern Naval Command</b><br>
+      <b style="color:#dc2626; font-size:13px;">Restricted Zone — Southern Naval Command</b><br>
       <b>Restriction:</b> Naval defense operations & Port Fairway<br>
       <b>Notice:</b> Commercial trawling strictly prohibited.<br>
       Maintain at least 2 NM safety perimeter.
     </div>
   `);
 
-  // 3. Suggested Navigation Route (Amber dashed line)
+  // 3. Suggested Navigation Route (Solid Maritime Blue track)
   const routePoints = [
     [9.965, 76.242], // Cochin Harbour departure
     [9.930, 76.120], // Waypoint 1 (clearing fairway)
@@ -716,7 +720,7 @@ function renderKochiMockupScene() {
   ];
 
   const routePolyline = L.polyline(routePoints, {
-    color: '#f59e0b',
+    color: '#0284c7',
     weight: 3.5,
     dashArray: '8, 8',
     opacity: 0.95
@@ -724,7 +728,7 @@ function renderKochiMockupScene() {
 
   routePolyline.bindPopup(`
     <div style="font-family:inherit; padding:4px;">
-      <b style="color:#f59e0b; font-size:13px;"> Suggested Navigation Route</b><br>
+      <b style="color:#0284c7; font-size:13px;">Suggested Navigation Route</b><br>
       <b>Departure:</b> Cochin Fisheries Harbour<br>
       <b>Destination:</b> High PFZ Centroid<br>
       <b>Total Distance:</b> 15.4 Nautical Miles (28.5 km)<br>
@@ -737,21 +741,21 @@ function renderKochiMockupScene() {
   const kochiMarker = L.marker([9.9656, 76.2425], {
     icon: L.divIcon({
       className: 'mockup-pin-kochi',
-      html: '<div style="background:#0f2c59; border:2px solid #fff; border-radius:50%; width:16px; height:16px; box-shadow:0 0 8px #0f2c59;"></div>',
+      html: '<div style="background:#0284c7; border:2px solid #ffffff; border-radius:50%; width:16px; height:16px; box-shadow:0 2px 6px rgba(0,0,0,0.2);"></div>',
       iconSize: [16, 16],
       iconAnchor: [8, 8]
     })
-  }).bindPopup('<b> Cochin Fisheries Harbour</b><br>Base Port & Landing Center').addTo(zonesGroup);
+  }).bindPopup('<b>Cochin Fisheries Harbour</b><br>Base Port & Landing Center').addTo(zonesGroup);
 
   // 5. Marine Advisory Buoy Marker
   L.marker([9.76, 76.15], {
     icon: L.divIcon({
       className: 'mockup-buoy-icon',
-      html: '<div style="font-size:16px; text-shadow:0 0 8px #f59e0b;" title="Marine Advisory Buoy"></div>',
-      iconSize: [20, 20],
-      iconAnchor: [10, 10]
+      html: '<div style="background:#d97706; border:2px solid #ffffff; border-radius:50%; width:14px; height:14px; box-shadow:0 2px 6px rgba(0,0,0,0.2);" title="Marine Advisory Buoy"></div>',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7]
     })
-  }).bindPopup('<b> Marine Advisory Alert</b><br>Moderate chop observed 18 km South of Kochi. Wave height 1.3m.').addTo(zonesGroup);
+  }).bindPopup('<b>Marine Advisory Alert</b><br>Moderate chop observed 18 km South of Kochi. Wave height 1.3m.').addTo(zonesGroup);
 
   // 6. Vessel markers
   const vesselCoords = [

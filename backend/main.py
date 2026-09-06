@@ -1,6 +1,7 @@
 import os
 import sys
 import asyncio
+from contextlib import asynccontextmanager
 
 if sys.platform == "win32":
     # Prevent Windows IOCP Proactor WinError 64 crash when clients disconnect abruptly
@@ -16,13 +17,24 @@ from fastapi.responses import FileResponse
 
 from backend.config import settings
 from backend.utils.logger import logger
-from backend.api import chat, map, routes, pfz, health
+from backend.api import chat, map, routes, pfz, health, emergency, weather, alerts, safety
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("================================================================")
+    logger.info(f" 🐋 {settings.PROJECT_NAME} initialized successfully!")
+    logger.info(f" 🏆 SIH Problem Statement ID: {settings.SIH_PROBLEM_ID}")
+    logger.info(f" 🌐 Server running at: http://{settings.HOST}:{settings.PORT}")
+    logger.info("================================================================")
+    yield
+    logger.info(f" 🛑 {settings.PROJECT_NAME} shut down gracefully.")
 
 # Create FastAPI app
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="Agentic AI Marine Decision-Support Platform with 8 Collaborative Specialized Agents (SIH26176)",
-    version=settings.VERSION
+    version=settings.VERSION,
+    lifespan=lifespan
 )
 
 # CORS Middleware
@@ -41,26 +53,52 @@ app.include_router(routes.router)
 app.include_router(routes.router, prefix="/api/route")
 app.include_router(pfz.router)
 app.include_router(health.router)
+app.include_router(emergency.router)
+app.include_router(weather.router)
+app.include_router(alerts.router)
+app.include_router(safety.router)
 
-# Mount Frontend Static Directory
-frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
-if os.path.exists(frontend_dir):
-    app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
+# Mount Frontend Static & Vite Production Directories
+base_frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
+dist_dir = os.path.join(base_frontend_dir, "dist")
+dist_assets_dir = os.path.join(dist_dir, "assets")
+os.makedirs(dist_assets_dir, exist_ok=True)
+
+app.mount("/assets", StaticFiles(directory=dist_assets_dir), name="dist-assets")
+
+if os.path.exists(base_frontend_dir):
+    app.mount("/static", StaticFiles(directory=base_frontend_dir), name="static")
+
+@app.get("/favicon.svg")
+async def serve_favicon():
+    dist_fav = os.path.join(dist_dir, "favicon.svg")
+    if os.path.exists(dist_fav):
+        return FileResponse(dist_fav, media_type="image/svg+xml")
+    base_fav = os.path.join(base_frontend_dir, "favicon.svg")
+    if os.path.exists(base_fav):
+        return FileResponse(base_fav, media_type="image/svg+xml")
+    return FileResponse(os.path.join(dist_dir, "index.html"))
+
+@app.get("/icons.svg")
+async def serve_icons():
+    dist_icons = os.path.join(dist_dir, "icons.svg")
+    if os.path.exists(dist_icons):
+        return FileResponse(dist_icons, media_type="image/svg+xml")
+    base_icons = os.path.join(base_frontend_dir, "icons.svg")
+    if os.path.exists(base_icons):
+        return FileResponse(base_icons, media_type="image/svg+xml")
+    return FileResponse(os.path.join(dist_dir, "index.html"))
 
 @app.get("/")
 async def serve_frontend_root():
-    index_path = os.path.join(frontend_dir, "index.html")
+    dist_index = os.path.join(dist_dir, "index.html")
+    if os.path.exists(dist_index):
+        return FileResponse(dist_index)
+    index_path = os.path.join(base_frontend_dir, "index.html")
     if os.path.exists(index_path):
         return FileResponse(index_path)
     return {"message": f"{settings.PROJECT_NAME} is active. Visit /docs for OpenAPI specifications."}
 
-@app.on_event("startup")
-async def startup_event():
-    logger.info("================================================================")
-    logger.info(f" 🐋 {settings.PROJECT_NAME} initialized successfully!")
-    logger.info(f" 🏆 SIH Problem Statement ID: {settings.SIH_PROBLEM_ID}")
-    logger.info(f" 🌐 Server running at: http://{settings.HOST}:{settings.PORT}")
-    logger.info("================================================================")
 
 if __name__ == "__main__":
     import uvicorn

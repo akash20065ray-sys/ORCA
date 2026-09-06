@@ -36,7 +36,10 @@ COASTAL_PORT_REGISTRY: Dict[str, Dict[str, any]] = {
     "karwar": {"name": "Karwar Port", "lat": 14.8080, "lon": 74.1300, "state": "Karnataka", "region": "Arabian Sea"},
     "ratnagiri": {"name": "Ratnagiri Port", "lat": 16.9902, "lon": 73.2847, "state": "Maharashtra", "region": "Arabian Sea"},
     "dhamra": {"name": "Dhamra Port", "lat": 20.8250, "lon": 86.9700, "state": "Odisha", "region": "Bay of Bengal"},
-    "krishnapatnam": {"name": "Krishnapatnam Port", "lat": 14.2500, "lon": 80.1167, "state": "Andhra Pradesh", "region": "Bay of Bengal"}
+    "krishnapatnam": {"name": "Krishnapatnam Port", "lat": 14.2500, "lon": 80.1167, "state": "Andhra Pradesh", "region": "Bay of Bengal"},
+    "colombo": {"name": "Port of Colombo (Sri Lanka)", "lat": 6.9497, "lon": 79.8433, "state": "Western Province", "region": "Indian Ocean"},
+    "minicoy": {"name": "Minicoy Port (Lakshadweep)", "lat": 8.2833, "lon": 73.0500, "state": "Lakshadweep", "region": "Arabian Sea"},
+    "male": {"name": "Malé Commercial Harbour", "lat": 4.1755, "lon": 73.5093, "state": "Kaafu Atoll", "region": "Indian Ocean"}
 }
 
 def haversine_distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -136,3 +139,62 @@ def find_nearest_port(lat: float, lon: float) -> Tuple[Dict[str, any], float]:
             min_dist = d
             nearest = port
     return nearest, min_dist
+
+def get_west_coast_lon(lat: float) -> float:
+    """Returns the approximate coastline longitude along India's West Coast for a given latitude."""
+    if lat < 8.08:
+        return 77.55
+    if lat <= 8.8:
+        return 77.55 - ((lat - 8.08) / 0.72) * (77.55 - 76.58)
+    if lat <= 9.97:
+        return 76.58 - ((lat - 8.8) / 1.17) * (76.58 - 76.24)
+    if lat <= 11.25:
+        return 76.24 - ((lat - 9.97) / 1.28) * (76.24 - 75.77)
+    if lat <= 12.92:
+        return 75.77 - ((lat - 11.25) / 1.67) * (75.77 - 74.82)
+    if lat <= 14.81:
+        return 74.82 - ((lat - 12.92) / 1.89) * (74.82 - 74.13)
+    if lat <= 15.42:
+        return 74.13 - ((lat - 14.81) / 0.61) * (74.13 - 73.80)
+    if lat <= 16.99:
+        return 73.80 - ((lat - 15.42) / 1.57) * (73.80 - 73.28)
+    if lat <= 18.94:
+        return 73.28 - ((lat - 16.99) / 1.95) * (73.28 - 72.84)
+    if lat <= 20.0:
+        return 72.82 - ((lat - 18.9) / 1.1) * (72.82 - 72.70)
+    if lat <= 21.0:
+        return 72.70 - ((lat - 20.0) / 1.0) * (72.70 - 72.40)
+    if lat <= 22.5:
+        return 69.50
+    if lat <= 24.5:
+        return 68.60
+    return 67.5
+
+def get_east_coast_lon(lat: float) -> float:
+    """Returns the approximate coastline longitude along India's East Coast for a given latitude."""
+    if lat < 8.08:
+        return 77.55
+    if lat <= 8.8:
+        return 77.55 + ((lat - 8.08) / 0.72) * (78.15 - 77.55)
+    if lat <= 9.3:
+        return 78.15 + ((lat - 8.8) / 0.5) * (79.31 - 78.15)
+    if lat <= 10.8:
+        return 79.31 + ((lat - 9.3) / 1.5) * (79.85 - 79.31)
+    if lat <= 11.9:
+        return 79.85 - ((lat - 10.8) / 1.1) * (79.85 - 79.80)
+    if lat <= 13.1:
+        return 79.80 + ((lat - 11.9) / 1.2) * (80.28 - 79.80)
+    if lat <= 14.2:
+        return 80.28 - ((lat - 13.1) / 1.1) * (80.28 - 80.05)
+    if lat <= 15.8:
+        return 80.05 + ((lat - 14.2) / 1.6) * (80.85 - 80.05)
+    if lat <= 17.7:
+        return 80.85 + ((lat - 15.8) / 1.9) * (83.22 - 80.85)
+    if lat <= 19.8:
+        return 83.22 + ((lat - 17.7) / 2.1) * (85.83 - 83.22)
+    if lat <= 20.3:
+        return 85.83 + ((lat - 19.8) / 0.5) * (86.67 - 85.83)
+    if lat <= 22.5:
+        return 86.67 + ((lat - 20.3) / 2.2) * (88.80 - 86.67)
+    return 89.2
+
