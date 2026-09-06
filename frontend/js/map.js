@@ -58,6 +58,9 @@ function initOrcaMaps() {
       pfz: L.layerGroup().addTo(miniMapInstance),
       restricted: L.layerGroup().addTo(miniMapInstance),
       route: L.layerGroup().addTo(miniMapInstance),
+      ports: L.layerGroup().addTo(miniMapInstance),
+      buoys: L.layerGroup().addTo(miniMapInstance),
+      hazards: L.layerGroup().addTo(miniMapInstance),
       mockupZones: L.layerGroup().addTo(miniMapInstance),
       markers: L.layerGroup().addTo(miniMapInstance)
     };
@@ -317,6 +320,9 @@ function showStatutoryLayerNotice(layerKey) {
     pfz: { icon: '🐟', title: 'INCOIS Potential Fishing Zones Active', sub: 'Satellite Ocean Color & SST Front Convergence' },
     restricted: { icon: '⛔', title: 'Restricted Corridors & IMBL Geofence', sub: 'Buffer Monitoring Active (< 12 NM Warning Alarm)' },
     route: { icon: '🚢', title: 'Navigable Sea Routing Channel', sub: 'Obstacle-Avoiding Coastal Clearance Track' },
+    ports: { icon: '⚓', title: 'Indian Coastal Harbors & Ports Active', sub: '35+ Commercial Berths, Fishery Harbors & VHF Channels' },
+    buoys: { icon: '⚡', title: 'INCOIS Moored Ocean Buoys Active', sub: 'Deep Sea OMNI Buoys & Coastal Wave Rider Telemetry' },
+    hazards: { icon: '⚠️', title: 'Marine Hazard Advisories Active', sub: 'Real-Time INCOIS & IMD High Swell & Weather Bulletins' },
     sst: { icon: '🌡️', title: 'ISRO/NOAA SST Thermal Gradients', sub: 'High-Resolution 1km Thermal Front Contours' },
     seamarks: { icon: '⚓', title: 'OpenSeaMap Marine Seamarks', sub: 'Moored Deep Sea Buoys & Coastal Lighthouses' }
   };
@@ -916,28 +922,98 @@ async function loadLiveGisData() {
       });
     }
 
-    // 3. Render Ports and Moored Marine Data Buoys
-    if (data.ports && window.miniMapLayers && window.miniMapLayers.markers) {
-      data.ports.forEach(port => {
-        L.circleMarker([port.lat, port.lon], {
-          radius: 6,
-          color: '#38bdf8',
-          fillColor: '#0284c7',
-          fillOpacity: 0.95,
-          weight: 2
-        }).bindPopup(`<b>⚓ ${port.name}</b><br>Berths: <b>Deep Water Commercial</b><br>VHF Radio: <b>Ch 16 / 68</b>`).addTo(window.miniMapLayers.markers);
+    // 3. Render Ports (35+ Coastal Harbors & Commercial Berths)
+    if (window.miniMapLayers && window.miniMapLayers.ports) {
+      window.miniMapLayers.ports.clearLayers();
+      const portItems = data.ports?.features || (Array.isArray(data.ports) ? data.ports : []);
+      portItems.forEach(item => {
+        const coords = item.geometry?.coordinates ? [item.geometry.coordinates[1], item.geometry.coordinates[0]] : (item.lat && item.lon ? [item.lat, item.lon] : null);
+        const p = item.properties || item;
+        if (coords) {
+          const marker = L.circleMarker(coords, {
+            radius: 6,
+            color: '#38bdf8',
+            fillColor: '#0284c7',
+            fillOpacity: 0.95,
+            weight: 2
+          });
+          marker.bindPopup(`
+            <div class="gis-tactical-popup port" style="font-family:var(--font-sans); padding:4px;">
+              <strong style="color:#38bdf8; font-size:0.85rem;">⚓ ${p.name || 'Coastal Port / Harbor'}</strong><br>
+              <span style="font-size:0.75rem; color:#cbd5e1;">State / Region: <b>${p.state || p.region || 'India'}</b></span><br>
+              <span style="font-size:0.72rem; color:#94a3b8;">Berths: <b>Commercial &amp; Fishery Wharf</b></span><br>
+              <span style="font-size:0.70rem; color:#94a3b8;">Marine Radio: <b>VHF Ch 16 / 68</b></span>
+            </div>
+          `);
+          marker.addTo(window.miniMapLayers.ports);
+        }
       });
     }
 
-    if (data.buoys && window.miniMapLayers && window.miniMapLayers.markers) {
-      data.buoys.forEach(b => {
-        L.circleMarker([b.lat, b.lon], {
-          radius: 5,
-          color: '#facc15',
-          fillColor: '#eab308',
-          fillOpacity: 0.95,
-          weight: 2
-        }).bindPopup(`<b>⚡ INCOIS Moored Data Buoy ${b.id || ''}</b><br>SST: <b>${b.sst || 28.4}°C</b><br>Wave H: <b>${b.wave_h || 1.3}m</b>`).addTo(window.miniMapLayers.markers);
+    // 4. Render Moored Marine Data Buoys (INCOIS OMNI & Wave Rider Network)
+    if (window.miniMapLayers && window.miniMapLayers.buoys) {
+      window.miniMapLayers.buoys.clearLayers();
+      const buoyItems = data.buoys?.features || (Array.isArray(data.buoys) ? data.buoys : []);
+      buoyItems.forEach(item => {
+        const coords = item.geometry?.coordinates ? [item.geometry.coordinates[1], item.geometry.coordinates[0]] : (item.lat && item.lon ? [item.lat, item.lon] : null);
+        const b = item.properties || item;
+        if (coords) {
+          const marker = L.circleMarker(coords, {
+            radius: 5,
+            color: '#facc15',
+            fillColor: '#eab308',
+            fillOpacity: 0.95,
+            weight: 2
+          });
+          marker.bindPopup(`
+            <div class="gis-tactical-popup buoy" style="font-family:var(--font-sans); padding:4px;">
+              <strong style="color:#facc15; font-size:0.85rem;">⚡ ${b.name || ('INCOIS Moored Buoy ' + (b.id || ''))}</strong><br>
+              <span style="font-size:0.75rem; color:#cbd5e1;">Region: <b>${b.region || 'Indian Ocean'}</b></span><br>
+              <span style="font-size:0.72rem; color:#38bdf8;">Depth: <b>${b.depth_m || 1850} meters</b></span><br>
+              <span style="font-size:0.70rem; color:#94a3b8;">Telemetry: <b>Surface Met &amp; Subsurface CTD</b></span>
+            </div>
+          `);
+          marker.addTo(window.miniMapLayers.buoys);
+        }
+      });
+    }
+
+    // 5. Render Active Marine Hazards & Safety Advisories
+    if (window.miniMapLayers && window.miniMapLayers.hazards) {
+      window.miniMapLayers.hazards.clearLayers();
+      const hazardItems = Array.isArray(data.hazards) ? data.hazards : [];
+      hazardItems.forEach(hz => {
+        if (hz.lat && hz.lon) {
+          const isWarning = hz.severity === 'WARNING';
+          const alertColor = isWarning ? '#ef4444' : '#f59e0b';
+
+          const alertCircle = L.circle([hz.lat, hz.lon], {
+            radius: 35000,
+            color: alertColor,
+            weight: 2,
+            dashArray: '4, 6',
+            fillColor: alertColor,
+            fillOpacity: 0.18
+          });
+          alertCircle.addTo(window.miniMapLayers.hazards);
+
+          const alertMarker = L.circleMarker([hz.lat, hz.lon], {
+            radius: 7,
+            color: '#ffffff',
+            fillColor: alertColor,
+            fillOpacity: 1.0,
+            weight: 2.5
+          });
+          alertMarker.bindPopup(`
+            <div class="gis-tactical-popup hazard" style="font-family:var(--font-sans); padding:4px; max-width:260px;">
+              <strong style="color:${alertColor}; font-size:0.85rem;">⚠️ ${hz.title || 'Marine Weather Advisory'}</strong><br>
+              <span style="font-size:0.74rem; color:#cbd5e1;">Severity: <b>${hz.severity || 'ADVISORY'}</b> | Authority: <b>${hz.issuing_authority || 'INCOIS'}</b></span><br>
+              <p style="font-size:0.72rem; color:#e2e8f0; margin:4px 0;">${hz.description || ''}</p>
+              <span style="font-size:0.70rem; color:#f87171;">Port Signal: <b>Signal ${hz.port_warning_signal || 1} Caution</b></span>
+            </div>
+          `);
+          alertMarker.addTo(window.miniMapLayers.hazards);
+        }
       });
     }
   } catch (err) {
@@ -1061,7 +1137,7 @@ function handleClearAllLayers() {
 
   // 2. Hide all dynamic and GIS overlay layers
   if (miniMapInstance && window.miniMapLayers) {
-    const allOverlays = ['wind', 'waves', 'currents', 'chlorophyll', 'sst', 'seamarks', 'pfz', 'restricted', 'route', 'mockupZones'];
+    const allOverlays = ['wind', 'waves', 'currents', 'chlorophyll', 'sst', 'seamarks', 'pfz', 'restricted', 'route', 'ports', 'buoys', 'hazards', 'mockupZones'];
     allOverlays.forEach(k => {
       const grp = window.miniMapLayers[k];
       if (grp && miniMapInstance.hasLayer(grp)) {

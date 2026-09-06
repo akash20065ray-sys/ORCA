@@ -2,7 +2,7 @@ from typing import Dict, Any, List, Optional
 from fastapi import APIRouter, Query
 from backend.data_connectors.gis_boundaries import gis_boundaries_connector
 from backend.data_connectors.ocean_sst_chl import ocean_sst_chl_connector
-from backend.data_connectors.advisories import marine_advisories_connector
+from backend.data_connectors.advisories import marine_advisories_connector, ADVISORY_REGIONS
 from backend.data_connectors.in_situ import in_situ_connector
 from backend.utils.geo import COASTAL_PORT_REGISTRY
 
@@ -18,7 +18,7 @@ async def get_map_layers(
     Returns full spatial layers for Leaflet interactive rendering:
     - GIS Zones (MPAs, EEZ, Naval perimeters)
     - Ocean SST / Chlorophyll spatial grid
-    - Active hazard advisories
+    - Active hazard advisories with geo-coordinates
     - Coastal ports and harbors
     - Deep sea and coastal buoys
     """
@@ -28,8 +28,17 @@ async def get_map_layers(
     # 2. Regional SST & Chlorophyll Heatmap Grid
     sst_grid = ocean_sst_chl_connector.get_regional_grid(center_lat, center_lon, radius_deg=radius_deg, step=0.35)
 
-    # 3. Active Hazard Bulletins
+    # 3. Active Hazard Bulletins with Representative Coordinates
     hazards = marine_advisories_connector.fetch_data()
+    region_coords = {r["region"]: (r["lat"], r["lon"]) for r in ADVISORY_REGIONS}
+    hazard_list = []
+    for h in hazards:
+        hd = h.model_dump()
+        if h.region in region_coords:
+            hd["lat"], hd["lon"] = region_coords[h.region]
+        else:
+            hd["lat"], hd["lon"] = (center_lat, center_lon)
+        hazard_list.append(hd)
 
     # 4. Coastal Port Points GeoJSON
     port_features = []
@@ -69,7 +78,7 @@ async def get_map_layers(
         "center": {"lat": center_lat, "lon": center_lon},
         "gis_zones": zones_geojson,
         "sst_grid": sst_grid,
-        "hazards": [h.model_dump() for h in hazards],
+        "hazards": hazard_list,
         "ports": {
             "type": "FeatureCollection",
             "features": port_features
