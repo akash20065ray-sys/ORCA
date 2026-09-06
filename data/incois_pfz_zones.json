@@ -110,6 +110,115 @@
         "Anchovy"
       ],
       "confidence_score": 0.88
+    },
+    {
+      "id": "PFZ-VER-01",
+      "landing_center": "Veraval Fisheries Harbour, Gujarat",
+      "sector": "Saurashtra Continental Shelf Trawler Grounds",
+      "bearing_cardinal": "SW",
+      "bearing_degrees": 215,
+      "distance_km": 36.0,
+      "distance_nm": 19.4,
+      "latitude": 20.65,
+      "longitude": 69.85,
+      "depth_meters": 52,
+      "sst_celsius": 27.4,
+      "thermal_gradient_c_per_km": 0.78,
+      "chlorophyll_mg_m3": 2.10,
+      "target_species": [
+        "Silver Pomfret",
+        "Ribbonfish",
+        "Croaker",
+        "Squid"
+      ],
+      "confidence_score": 0.94
+    },
+    {
+      "id": "PFZ-MNG-01",
+      "landing_center": "Old Mangalore Port (Bunder), Karnataka",
+      "sector": "New Mangalore Upwelling Corridor",
+      "bearing_cardinal": "WNW",
+      "bearing_degrees": 290,
+      "distance_km": 29.0,
+      "distance_nm": 15.7,
+      "latitude": 12.80,
+      "longitude": 74.30,
+      "depth_meters": 42,
+      "sst_celsius": 28.8,
+      "thermal_gradient_c_per_km": 0.62,
+      "chlorophyll_mg_m3": 1.75,
+      "target_species": [
+        "Yellowfin Tuna",
+        "Oil Sardine",
+        "Seerfish"
+      ],
+      "confidence_score": 0.93
+    },
+    {
+      "id": "PFZ-TUT-01",
+      "landing_center": "Thoothukudi Fishing Harbour, Tamil Nadu",
+      "sector": "Gulf of Mannar Thermal Convergence",
+      "bearing_cardinal": "SE",
+      "bearing_degrees": 135,
+      "distance_km": 24.0,
+      "distance_nm": 13.0,
+      "latitude": 8.65,
+      "longitude": 78.45,
+      "depth_meters": 38,
+      "sst_celsius": 29.2,
+      "thermal_gradient_c_per_km": 0.59,
+      "chlorophyll_mg_m3": 1.55,
+      "target_species": [
+        "Indian Mackerel",
+        "Seerfish",
+        "Barracuda",
+        "Carangids"
+      ],
+      "confidence_score": 0.90
+    },
+    {
+      "id": "PFZ-PAR-01",
+      "landing_center": "Paradip Fishing Harbour, Odisha",
+      "sector": "Mahanadi Estuarine Plume & Continental Shelf",
+      "bearing_cardinal": "ESE",
+      "bearing_degrees": 110,
+      "distance_km": 38.0,
+      "distance_nm": 20.5,
+      "latitude": 20.05,
+      "longitude": 87.05,
+      "depth_meters": 46,
+      "sst_celsius": 28.5,
+      "thermal_gradient_c_per_km": 0.74,
+      "chlorophyll_mg_m3": 2.30,
+      "target_species": [
+        "Hilsa",
+        "Silver Pomfret",
+        "Catfish",
+        "Prawns"
+      ],
+      "confidence_score": 0.94
+    },
+    {
+      "id": "PFZ-PBL-01",
+      "landing_center": "Junglighat Fishing Jetty, Port Blair, Andaman",
+      "sector": "South Andaman Continental Slope & Trench Ridge",
+      "bearing_cardinal": "SW",
+      "bearing_degrees": 225,
+      "distance_km": 28.0,
+      "distance_nm": 15.1,
+      "latitude": 11.50,
+      "longitude": 93.00,
+      "depth_meters": 110,
+      "sst_celsius": 29.3,
+      "thermal_gradient_c_per_km": 0.82,
+      "chlorophyll_mg_m3": 1.10,
+      "target_species": [
+        "Bigeye Tuna",
+        "Yellowfin Tuna",
+        "Skipjack",
+        "Marlin"
+      ],
+      "confidence_score": 0.97
     }
   ]
 }

@@ -800,6 +800,36 @@ body {
   border-color: #0284c7;
 }
 
+.btn-action-pill.pfz {
+  color: #065f46;
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+}
+.btn-action-pill.pfz:hover {
+  background: #d1fae5;
+  border-color: #059669;
+}
+
+.btn-action-pill.route {
+  color: #0369a1;
+  border-color: #bae6fd;
+  background: #f0f9ff;
+}
+.btn-action-pill.route:hover {
+  background: #e0f2fe;
+  border-color: #0284c7;
+}
+
+.btn-action-pill.weather {
+  color: #0e7490;
+  border-color: #cffafe;
+  background: #ecfeff;
+}
+.btn-action-pill.weather:hover {
+  background: #cffafe;
+  border-color: #0891b2;
+}
+
 /* Loading Indicator */
 .loading-bubble {
   padding: 10px 14px;

@@ -52,6 +52,11 @@ export default function App() {
   const [focusedRoute, setFocusedRoute] = useState(null);
   const [focusedPFZ, setFocusedPFZ] = useState(null);
 
+  // Dynamic Map Action Synchronization (Real-time Chatbot -> Map Bridge)
+  const [mapTargetLocation, setMapTargetLocation] = useState(null);
+  const [externalWindyMode, setExternalWindyMode] = useState(undefined);
+  const [externalVectorLayers, setExternalVectorLayers] = useState(undefined);
+
   // Save dock width
   useEffect(() => {
     try {
@@ -103,6 +108,39 @@ export default function App() {
 
   const handleShowOnMap = (targetType) => {
     setActiveTab(targetType);
+  };
+
+  // Real-time Chatbot ➔ Map Bridge
+  const handleMapAction = ({ type, data, mode }) => {
+    if (activeTab !== 'home') {
+      setActiveTab('home');
+      setIsHomePanelOpen(true);
+    }
+
+    if (type === 'pfz' && data) {
+      setFocusedPFZ(data);
+      setExternalVectorLayers((prev) => ({ ...(prev || {}), pfz: true }));
+      const lat = data.latitude ?? data.lat;
+      const lon = data.longitude ?? data.lon;
+      if (lat && lon) {
+        setMapTargetLocation({ lat, lon, zoom: 10, ts: Date.now() });
+      }
+    } else if (type === 'route' && data) {
+      setFocusedRoute(data);
+      setExternalVectorLayers((prev) => ({ ...(prev || {}), routes: true }));
+      if (data.waypoints && data.waypoints.length > 0) {
+        const mid = data.waypoints[Math.floor(data.waypoints.length / 2)];
+        const lat = mid.latitude ?? mid.lat;
+        const lon = mid.longitude ?? mid.lon;
+        if (lat && lon) {
+          setMapTargetLocation({ lat, lon, zoom: 7, ts: Date.now() });
+        }
+      }
+    } else if (type === 'weather') {
+      setExternalWindyMode(mode || 'wind');
+    } else if (type === 'flyto' && data) {
+      setMapTargetLocation({ ...data, ts: Date.now() });
+    }
   };
 
   // Preset button cycler (Compact -> Standard -> Wide)
@@ -204,6 +242,9 @@ export default function App() {
                 isStaticMap={false}
                 isFullMap={!isHomePanelOpen}
                 onToggleFullMap={handleToggleFullMap}
+                mapTargetLocation={mapTargetLocation}
+                externalWindyMode={externalWindyMode}
+                externalVectorLayers={externalVectorLayers}
               />
             </section>
 
@@ -249,7 +290,11 @@ export default function App() {
                   </div>
 
                   <div className="dock-content-scroll">
-                    <AskOrcaChat onShowOnMap={handleShowOnMap} isDedicatedPage={false} />
+                    <AskOrcaChat
+                      onShowOnMap={handleShowOnMap}
+                      onMapAction={handleMapAction}
+                      isDedicatedPage={false}
+                    />
                   </div>
                 </aside>
               </>
@@ -282,6 +327,9 @@ export default function App() {
                 hideLayersControl={true}
                 shipLocation={shipLocation}
                 isStaticMap={true}
+                mapTargetLocation={mapTargetLocation}
+                externalWindyMode={externalWindyMode}
+                externalVectorLayers={externalVectorLayers}
               />
             </section>
           </>
@@ -290,7 +338,11 @@ export default function App() {
         {/* 3. DEDICATED ASK ORCA FULL CHATBOT WORKSPACE (NO Map) */}
         {activeTab === 'chat' && (
           <section className="dedicated-chat-section">
-            <AskOrcaChat onShowOnMap={handleShowOnMap} isDedicatedPage={true} />
+            <AskOrcaChat
+              onShowOnMap={handleShowOnMap}
+              onMapAction={handleMapAction}
+              isDedicatedPage={true}
+            />
           </section>
         )}
 

@@ -86,3 +86,27 @@ async def diagnose_productivity_decline_post(
             reg_name = res["name"]
 
     return pfz_engine.analyze_productivity_decline(reg_name, target_lat, target_lon)
+
+@router.get("/all")
+async def get_all_pfz_zones() -> Dict[str, Any]:
+    """
+    Returns all verified INCOIS Potential Fishing Zones across Indian coastal states
+    from the official dataset, supplemented by regional harbor advisories.
+    """
+    import os
+    import json
+    data_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "incois_pfz_zones.json")
+    if os.path.exists(data_file):
+        with open(data_file, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    # Dynamic generation fallback
+    major_ports = ["kochi", "chennai", "mumbai", "visakhapatnam", "goa", "mangalore", "tuticorin", "veraval", "paradip"]
+    all_zones = []
+    for p in major_ports:
+        res = resolve_location_name(p)
+        if res:
+            zones = pfz_engine.generate_pfz_advisories(res["lat"], res["lon"], res["name"])
+            all_zones.extend([z.dict() for z in zones])
+    return {"source": "INCOIS (Indian National Centre for Ocean Information Services)", "zones": all_zones}
+

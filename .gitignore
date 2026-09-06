@@ -28,6 +28,9 @@ htmlcov/
 frontend-react/node_modules/
 node_modules/
 
+# Local Scratch & Diagnostics
+scratch/
+
 # OS Generated
 Thumbs.db
 ehthumbs.db

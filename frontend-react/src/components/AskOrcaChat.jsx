@@ -26,9 +26,23 @@ const SUGGESTIONS = [
   'Is it safe to depart Cochin Port under current sea state?',
 ];
 
+const MARITIME_PORTS = [
+  { name: 'Kochi', aliases: ['kochi', 'cochin', 'munambam', 'vypeen', 'kerala'], lat: 9.9656, lon: 76.2425, zoom: 9 },
+  { name: 'Mumbai', aliases: ['mumbai', 'bombay', 'sassoon', 'maharashtra'], lat: 18.9220, lon: 72.8347, zoom: 9 },
+  { name: 'Chennai', aliases: ['chennai', 'madras', 'pulicat', 'tamil nadu'], lat: 13.0827, lon: 80.2707, zoom: 9 },
+  { name: 'Visakhapatnam', aliases: ['visakhapatnam', 'vizag', 'andhra'], lat: 17.6868, lon: 83.2185, zoom: 9 },
+  { name: 'Goa', aliases: ['goa', 'mormugao', 'panaji'], lat: 15.4989, lon: 73.8278, zoom: 9 },
+  { name: 'Mangalore', aliases: ['mangalore', 'mangaluru', 'karnataka', 'karwar'], lat: 12.9141, lon: 74.8560, zoom: 9 },
+  { name: 'Tuticorin', aliases: ['tuticorin', 'thoothukudi', 'mannar', 'kanyakumari', 'wadge'], lat: 8.7642, lon: 78.1348, zoom: 9 },
+  { name: 'Veraval', aliases: ['veraval', 'porbandar', 'gujarat', 'saurashtra', 'okha'], lat: 20.9000, lon: 70.3667, zoom: 9 },
+  { name: 'Paradip', aliases: ['paradip', 'paradeep', 'odisha', 'sundarbans', 'bengal'], lat: 20.3160, lon: 86.6110, zoom: 9 },
+  { name: 'Port Blair', aliases: ['port blair', 'andaman', 'nicobar'], lat: 11.6234, lon: 92.7265, zoom: 9 },
+  { name: 'Minicoy', aliases: ['minicoy', 'lakshadweep', 'kavaratti'], lat: 8.2833, lon: 73.0500, zoom: 9 },
+];
+
 const LOCAL_STORAGE_KEY = 'orca_ai_chat_sessions_v1';
 
-export default function AskOrcaChat({ onShowOnMap, isDedicatedPage = false }) {
+export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage = false }) {
   const [sessions, setSessions] = useState(() => {
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -188,6 +202,28 @@ export default function AskOrcaChat({ onShowOnMap, isDedicatedPage = false }) {
     const query = (queryToSend || inputQuery).trim();
     if (!query || isLoading) return;
 
+    const lowerQuery = query.toLowerCase();
+    const matchedPort = MARITIME_PORTS.find((p) =>
+      p.aliases.some((alias) => lowerQuery.includes(alias))
+    );
+
+    // Immediate Real-Time Map Actions on Query Dispatch
+    if (onMapAction) {
+      if (matchedPort) {
+        onMapAction({
+          type: 'flyto',
+          data: { lat: matchedPort.lat, lon: matchedPort.lon, zoom: matchedPort.zoom },
+        });
+      }
+      if (/wave|swell|sea state/i.test(query)) {
+        onMapAction({ type: 'weather', mode: 'waves' });
+      } else if (/current|drift/i.test(query)) {
+        onMapAction({ type: 'weather', mode: 'currents' });
+      } else if (/wind|gust|cyclone|squall|monsoon/i.test(query)) {
+        onMapAction({ type: 'weather', mode: 'wind' });
+      }
+    }
+
     const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const userMsg = {
       id: `user-${messageCounterRef.current++}`,
@@ -228,6 +264,33 @@ export default function AskOrcaChat({ onShowOnMap, isDedicatedPage = false }) {
       const data = await res.json();
       const responseText = data.synthesized_response || data.final_synthesis || 'Ocean intelligence report generated.';
 
+      // Real-Time Map Synchronization on Intelligence Response:
+      if (onMapAction) {
+        if (data.pfz_advisories && data.pfz_advisories.length > 0) {
+          onMapAction({ type: 'pfz', data: data.pfz_advisories[0] });
+        } else if (/pfz|fish|tuna|mackerel|catch|chlorophyll|hotspot/i.test(query)) {
+          if (matchedPort) {
+            onMapAction({
+              type: 'pfz',
+              data: { latitude: matchedPort.lat, longitude: matchedPort.lon, name: `${matchedPort.name} Coastal PFZ` },
+            });
+          } else {
+            onMapAction({
+              type: 'pfz',
+              data: { latitude: 9.850, longitude: 75.880, name: 'Cochin Offshore Front (Vypeen)' },
+            });
+          }
+        } else if (data.routes && data.routes.length > 0) {
+          const chosenRoute = data.routes.find((r) => r.safety_score >= 90) || data.routes[1] || data.routes[0];
+          onMapAction({ type: 'route', data: chosenRoute });
+        } else if (data.target_coordinates && data.target_coordinates.lat && data.target_coordinates.lon) {
+          onMapAction({
+            type: 'flyto',
+            data: { lat: data.target_coordinates.lat, lon: data.target_coordinates.lon, zoom: 9 },
+          });
+        }
+      }
+
       const orcaMsg = {
         id: `orca-${messageCounterRef.current++}`,
         sender: 'orca',
@@ -237,6 +300,8 @@ export default function AskOrcaChat({ onShowOnMap, isDedicatedPage = false }) {
         telemetry: data.telemetry,
         routes: data.routes,
         pfz: data.pfz_advisories,
+        matchedPort: matchedPort,
+        query: query,
       };
 
       setSessions((prev) =>
@@ -493,26 +558,70 @@ export default function AskOrcaChat({ onShowOnMap, isDedicatedPage = false }) {
                           </div>
                         )}
 
-                        {/* Quick Interactive Map Actions */}
-                        {(msg.routes || msg.pfz) && (
+                        {/* Quick Interactive Map Actions Connected to Live Map */}
+                        {(msg.routes || msg.pfz || msg.telemetry || msg.matchedPort) && (
                           <div className="msg-interactive-actions">
-                            {msg.routes && (
+                            {msg.pfz && msg.pfz.length > 0 && (
                               <button
                                 type="button"
-                                className="btn-action-pill"
-                                onClick={() => onShowOnMap && onShowOnMap('routes')}
+                                className="btn-action-pill pfz"
+                                onClick={() => onMapAction?.({ type: 'pfz', data: msg.pfz[0] })}
+                                title="Activate Pan-India PFZ layer and focus coordinates on the map"
                               >
-                                <Compass size={14} />
-                                <span>Inspect Route on Map</span>
+                                <span>🐟 Focus PFZ Zone on Map</span>
                               </button>
                             )}
-                            {msg.pfz && (
+                            {msg.routes && msg.routes.length > 0 && (
+                              <button
+                                type="button"
+                                className="btn-action-pill route"
+                                onClick={() =>
+                                  onMapAction?.({
+                                    type: 'route',
+                                    data: msg.routes.find((r) => r.safety_score >= 90) || msg.routes[0],
+                                  })
+                                }
+                                title="Activate Routes layer and render route on the map"
+                              >
+                                <Compass size={14} />
+                                <span>Display Route on Map</span>
+                              </button>
+                            )}
+                            {msg.telemetry && (
+                              <>
+                                <button
+                                  type="button"
+                                  className="btn-action-pill weather"
+                                  onClick={() => onMapAction?.({ type: 'weather', mode: 'wind' })}
+                                  title="Toggle animated Windy wind field simulation"
+                                >
+                                  <Wind size={13} />
+                                  <span>Wind Field</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn-action-pill weather"
+                                  onClick={() => onMapAction?.({ type: 'weather', mode: 'waves' })}
+                                  title="Toggle animated Windy wave swell simulation"
+                                >
+                                  <Waves size={13} />
+                                  <span>Wave Swell</span>
+                                </button>
+                              </>
+                            )}
+                            {msg.matchedPort && (
                               <button
                                 type="button"
                                 className="btn-action-pill"
-                                onClick={() => onShowOnMap && onShowOnMap('pfz')}
+                                onClick={() =>
+                                  onMapAction?.({
+                                    type: 'flyto',
+                                    data: { lat: msg.matchedPort.lat, lon: msg.matchedPort.lon, zoom: 9 },
+                                  })
+                                }
+                                title={`Center map on ${msg.matchedPort.name}`}
                               >
-                                <span>🐟 Inspect PFZ Fishing Zone</span>
+                                <span>📍 Fly to {msg.matchedPort.name}</span>
                               </button>
                             )}
                           </div>
