@@ -3732,3 +3732,602 @@ body.theme-dark .advisory-desc {
   color: #ef4444;
 }
 
+/* ===================================================
+   10. Phase 4: Safe Route Planner, Fuel ROI & Voyage Simulator
+   =================================================== */
+
+/* Fuel ROI & Carbon Reduction Card */
+.fuel-roi-card {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(2, 132, 199, 0.08) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.fuel-roi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.fuel-roi-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #34d399;
+}
+
+.co2-badge {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid #10b981;
+  color: #10b981;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.fuel-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.fuel-stat-col {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.fuel-stat-lbl {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.fuel-stat-val {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin-top: 2px;
+}
+
+.val-green {
+  color: #34d399 !important;
+}
+
+.val-cyan {
+  color: #38bdf8 !important;
+}
+
+/* Simulator Launch Button */
+.btn-simulator-launch {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-simulator-launch:hover {
+  background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.45);
+}
+
+/* Route Map Wrapper & Floating Elements */
+.route-map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 540px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+#route-full-map {
+  width: 100%;
+  height: 100%;
+  min-height: 540px;
+}
+
+/* Floating Emergency SOS Distress Beacon Button */
+.route-floating-sos-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 800;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.95) 0%, rgba(185, 28, 28, 0.95) 100%);
+  border: 1.5px solid #f87171;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 8px 14px;
+  border-radius: 24px;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.5), 0 0 12px rgba(239, 68, 68, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.route-floating-sos-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.7), 0 0 18px rgba(239, 68, 68, 0.5);
+}
+
+.sos-icon {
+  font-size: 1rem;
+  animation: sosPulse 1.2s infinite;
+}
+
+@keyframes sosPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+/* Route Map Tools Pill (Zoom & Center) */
+.route-map-tools-pill {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  z-index: 800;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.route-tool-btn {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.route-tool-btn:hover {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+/* Voyage Simulator Floating HUD */
+.voyage-simulator-hud {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 850;
+  width: 90%;
+  max-width: 580px;
+  background: rgba(7, 19, 43, 0.94);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  border-radius: 12px;
+  padding: 10px 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(2, 132, 199, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.voyage-simulator-hud.hidden {
+  display: none !important;
+}
+
+.simulator-hud-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sim-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.simulator-vessel-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+  animation: liveDotPulse 1.5s infinite;
+}
+
+.simulator-title {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #38bdf8;
+}
+
+.sim-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sim-progress-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #10b981;
+}
+
+.sim-close-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0 4px;
+  transition: color 0.15s;
+}
+
+.sim-close-btn:hover {
+  color: #ef4444;
+}
+
+.simulator-progress-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.simulator-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0284c7 0%, #10b981 100%);
+  border-radius: 3px;
+  transition: width 0.15s linear;
+}
+
+.simulator-hud-telemetry {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+.sim-telem-item {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.sim-lbl {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.sim-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-top: 1px;
+}
+
+.steer-hl {
+  color: #facc15 !important;
+}
+
+.status-safe {
+  color: #10b981 !important;
+}
+
+.simulator-hud-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.sim-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.sim-btn:hover {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+}
+
+/* Animated Cruising Boat Marker on Route Map */
+.sim-boat-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-size: 1.4rem;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
+  animation: boatBobbing 2s infinite ease-in-out;
+}
+
+@keyframes boatBobbing {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-2px) rotate(2deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+.boat-wake {
+  position: absolute;
+  bottom: 0;
+  width: 24px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  filter: blur(2px);
+  animation: wakeSpread 1.2s infinite;
+}
+
+@keyframes wakeSpread {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+/* Emergency Distress SOS Modal */
+.emergency-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 15, 28, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.emergency-modal-backdrop.hidden {
+  display: none !important;
+}
+
+.emergency-modal-card {
+  width: 100%;
+  max-width: 540px;
+  background: #0b1528;
+  border: 2px solid #ef4444;
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(239, 68, 68, 0.35), 0 0 20px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: modalScale 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.emergency-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.2) 0%, rgba(15, 23, 42, 0.8) 100%);
+  border-bottom: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.emergency-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.emergency-header-title h3 {
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: #f87171;
+  margin: 0;
+}
+
+.mayday-beacon-pulse {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 12px #ef4444;
+  animation: liveDotPulse 1.0s infinite;
+}
+
+.emergency-close-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.emergency-close-btn:hover {
+  color: #ffffff;
+}
+
+.emergency-modal-body {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.emergency-banner {
+  background: rgba(239, 68, 68, 0.12);
+  border-left: 3px solid #ef4444;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+.emergency-banner strong {
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #f87171;
+  letter-spacing: 0.04em;
+}
+
+.emergency-banner p {
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  margin: 2px 0 0 0;
+}
+
+.emergency-telemetry-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.emergency-stat-box {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.em-lbl {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.em-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin-top: 1px;
+}
+
+.emergency-message-box {
+  background: #070d19;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.em-msg-lbl {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #facc15;
+}
+
+.em-msg-pre {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: #e2e8f0;
+  margin: 6px 0 0 0;
+  white-space: pre-wrap;
+}
+
+.emergency-receipt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid #10b981;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.emergency-receipt.hidden {
+  display: none !important;
+}
+
+.receipt-icon {
+  font-size: 1.6rem;
+}
+
+.emergency-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 18px;
+  background: rgba(15, 23, 42, 0.6);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.btn-cancel {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.btn-broadcast-mayday {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: 1px solid #f87171;
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+  transition: all 0.2s ease;
+}
+
+.btn-broadcast-mayday:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.6);
+}
+
+

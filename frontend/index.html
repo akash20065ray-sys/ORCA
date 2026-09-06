@@ -543,6 +543,62 @@
             <div class="route-map-wrapper">
               <div id="routePickMapBanner" class="route-map-pick-banner hidden"></div>
               <div id="route-full-map"></div>
+
+              <!-- Floating Emergency SOS Distress Beacon Button -->
+              <button type="button" class="route-floating-sos-btn" id="btnRouteSos" onclick="openEmergencyDistressModal()" title="Transmit Emergency SOS Distress Beacon to Indian Coast Guard">
+                <span class="sos-icon">🆘</span>
+                <span>Emergency SOS</span>
+              </button>
+
+              <!-- Route Map Quick Tools (Zoom & Center) -->
+              <div class="route-map-tools-pill">
+                <button type="button" class="route-tool-btn" onclick="window.routeMapInstance?.zoomIn()" title="Zoom In">＋</button>
+                <button type="button" class="route-tool-btn" onclick="window.routeMapInstance?.zoomOut()" title="Zoom Out">－</button>
+                <button type="button" class="route-tool-btn" onclick="fitCalculatedRoute()" title="Center Calculated Route">🎯</button>
+              </div>
+
+              <!-- Real-Time Interactive Voyage Simulator HUD -->
+              <div id="voyageSimulatorHud" class="voyage-simulator-hud hidden">
+                <div class="simulator-hud-header">
+                  <div class="sim-header-left">
+                    <span class="simulator-vessel-dot"></span>
+                    <span class="simulator-title" id="simTitle">🚢 VOYAGE SIMULATOR ACTIVE</span>
+                  </div>
+                  <div class="sim-header-right">
+                    <span class="sim-progress-text" id="simProgressPct">0%</span>
+                    <button type="button" class="sim-close-btn" onclick="resetVoyageSimulator()" title="Close Simulator">✕</button>
+                  </div>
+                </div>
+                <div class="simulator-progress-track">
+                  <div class="simulator-progress-fill" id="simProgressFill" style="width: 0%;"></div>
+                </div>
+                <div class="simulator-hud-telemetry">
+                  <div class="sim-telem-item">
+                    <span class="sim-lbl">POS</span>
+                    <span class="sim-val" id="simPosText">--</span>
+                  </div>
+                  <div class="sim-telem-item">
+                    <span class="sim-lbl">STEER</span>
+                    <span class="sim-val steer-hl" id="simSteerText">--</span>
+                  </div>
+                  <div class="sim-telem-item">
+                    <span class="sim-lbl">SWELL</span>
+                    <span class="sim-val" id="simWaveText">--</span>
+                  </div>
+                  <div class="sim-telem-item">
+                    <span class="sim-lbl">WIND</span>
+                    <span class="sim-val" id="simWindText">--</span>
+                  </div>
+                  <div class="sim-telem-item">
+                    <span class="sim-lbl">STATUS</span>
+                    <span class="sim-val status-safe" id="simStatusText">CLEAR</span>
+                  </div>
+                </div>
+                <div class="simulator-hud-controls">
+                  <button type="button" class="sim-btn play" id="simPlayPauseBtn" onclick="toggleVoyageSimulatorPause()">⏸ Pause</button>
+                  <button type="button" class="sim-btn reset" onclick="resetVoyageSimulator()">↺ Reset</button>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -708,6 +764,68 @@
         <button class="suggestion-chip" onclick="selectLocation('veraval', 'Veraval Port, Gujarat')">Veraval Port</button>
         <button class="suggestion-chip" onclick="selectLocation('paradip', 'Paradip Port, Odisha')">Paradip Port</button>
         <button class="suggestion-chip" onclick="selectLocation('kolkata', 'Kolkata Port, India')">Kolkata Port</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Emergency SOS Distress Modal (Indian Coast Guard MRCC Simulation) -->
+  <div id="emergencyDistressModal" class="emergency-modal-backdrop hidden">
+    <div class="emergency-modal-card">
+      <div class="emergency-modal-header">
+        <div class="emergency-header-title">
+          <span class="mayday-beacon-pulse"></span>
+          <h3>🚨 EMERGENCY SOS DISTRESS BEACON</h3>
+        </div>
+        <button type="button" class="emergency-close-btn" onclick="closeEmergencyDistressModal()">✕</button>
+      </div>
+      <div class="emergency-modal-body">
+        <div class="emergency-banner">
+          <strong>MARITIME RESCUE COORDINATION CENTRE (MRCC)</strong>
+          <p>Direct priority broadcast to Indian Coast Guard (ICG) Search & Rescue Network</p>
+        </div>
+
+        <div class="emergency-telemetry-grid">
+          <div class="emergency-stat-box">
+            <span class="em-lbl">VESSEL ID</span>
+            <span class="em-val" id="emVesselId">IND-KL-07-ORCA</span>
+          </div>
+          <div class="emergency-stat-box">
+            <span class="em-lbl">CURRENT GPS</span>
+            <span class="em-val" id="emGpsPos">9.9312°N, 76.2673°E</span>
+          </div>
+          <div class="emergency-stat-box">
+            <span class="em-lbl">EST. REGION</span>
+            <span class="em-val" id="emRegion">Arabian Sea / Kerala Coast</span>
+          </div>
+          <div class="emergency-stat-box">
+            <span class="em-lbl">DISTRESS FREQ</span>
+            <span class="em-val">VHF CH 16 / DSC 70</span>
+          </div>
+        </div>
+
+        <div class="emergency-message-box">
+          <span class="em-msg-lbl">OFFICIAL GMDSS MAYDAY RELAY TEXT</span>
+          <pre class="em-msg-pre" id="emMaydayText">MAYDAY MAYDAY MAYDAY
+THIS IS VESSEL: IND-KL-07-ORCA (CALLSIGN: ORCA-INDIA)
+POSITION: 09°55.87' N, 076°16.04' E
+SEVERITY: IMMEDIATE ASSISTANCE REQUIRED
+PERSONS ON BOARD: 4
+SEA STATE: MODERATE SWELL 1.4m · WIND 16 KT</pre>
+        </div>
+
+        <div id="emTransmissionReceipt" class="emergency-receipt hidden">
+          <div class="receipt-icon">📡</div>
+          <div>
+            <strong style="color:#10b981;">DISTRESS BEACON BROADCAST TRANSMITTED</strong>
+            <p style="font-size:0.75rem; color:#cbd5e1; margin-top:2px;">Relayed to ICG MRCC Kochi & Mumbai. Coast Guard Fast Interceptor Craft alerted. Maintain VHF Ch 16 standby.</p>
+          </div>
+        </div>
+      </div>
+      <div class="emergency-modal-footer">
+        <button type="button" class="btn-cancel" onclick="closeEmergencyDistressModal()">Cancel</button>
+        <button type="button" class="btn-broadcast-mayday" id="btnTransmitMayday" onclick="transmitMaydayDistress()">
+          🚨 Transmit Distress Beacon to Coast Guard
+        </button>
       </div>
     </div>
   </div>

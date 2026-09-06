@@ -106,6 +106,10 @@ class CandidateRoute(BaseModel):
     weather_summary: str
     avoided_hazards: List[str] = Field(default_factory=list)
     recommendation_verdict: str
+    fuel_estimate_liters: Optional[float] = None
+    fuel_saved_liters: Optional[float] = None
+    co2_saved_kg: Optional[float] = None
+    fuel_cost_savings_inr: Optional[float] = None
 
 class RiskAssessment(BaseModel):
     overall_risk: RiskLevel

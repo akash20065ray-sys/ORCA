@@ -229,8 +229,11 @@ function displayPFZsOnMap(pfzList) {
 
 function displayRoutesOnRouteMap(routesList) {
   if (!routesList || !window.routeMapLayers || !window.routeMapInstance) return;
+  window.currentActiveRoutes = routesList;
   window.routeMapLayers.routes.clearLayers();
   if (window.routeMapLayers.markers) window.routeMapLayers.markers.clearLayers();
+
+  let combinedBounds = null;
 
   routesList.forEach((route, idx) => {
     const isAlpha = route.route_id.includes("ALPHA");
@@ -239,11 +242,13 @@ function displayRoutesOnRouteMap(routesList) {
 
     const poly = L.polyline(latlngs, {
       color: routeColor,
-      weight: isAlpha ? 3.5 : 4.5,
-      opacity: isAlpha ? 0.8 : 0.95,
-      dashArray: isAlpha ? '6 4' : null
+      weight: isAlpha ? 3.5 : 5.0,
+      opacity: isAlpha ? 0.85 : 0.98,
+      dashArray: isAlpha ? '8 6' : null,
+      lineCap: 'round',
+      lineJoin: 'round'
     }).bindPopup(`
-      <div style="color:#0f172a; font-size:12px; max-width:240px;">
+      <div style="color:#0f172a; font-family:var(--font-sans, sans-serif); font-size:12px; max-width:250px;">
         <b style="color:${routeColor}; font-size:13px;">${route.route_name}</b><br>
         <span style="color:#475569;">Distance: <b>${route.total_distance_nm} NM (${route.total_distance_km} km)</b></span><br>
         <span style="color:#475569;">Duration: <b>${route.estimated_duration_hours} hrs</b></span><br>
@@ -251,6 +256,12 @@ function displayRoutesOnRouteMap(routesList) {
         <p style="margin-top:4px; font-size:11px; color:#334155;">${route.recommendation_verdict}</p>
       </div>
     `).addTo(window.routeMapLayers.routes);
+
+    if (!combinedBounds) {
+      combinedBounds = poly.getBounds();
+    } else {
+      combinedBounds.extend(poly.getBounds());
+    }
 
     // Place waypoint markers along Route Bravo (recommended) or Route Alpha
     if (!isAlpha || routesList.length === 1) {
@@ -267,33 +278,44 @@ function displayRoutesOnRouteMap(routesList) {
 
         const icon = L.divIcon({
           className: 'route-waypoint-pin',
-          html: `<div style="background:#0b2545; border:2px solid ${pinColor}; color:${pinColor}; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; box-shadow:0 0 10px ${pinColor};">${pinLabel}</div>`,
-          iconSize: [24, 24],
-          iconAnchor: [12, 12]
+          html: `<div style="background:#07132b; border:2px solid ${pinColor}; color:${pinColor}; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; box-shadow:0 0 10px ${pinColor};">${pinLabel}</div>`,
+          iconSize: [26, 26],
+          iconAnchor: [13, 13]
         });
 
         const steerInfo = wp.steer_instruction || (wp.bearing_deg != null ? `Steer ${wp.bearing_deg}° ${wp.bearing_cardinal || ''}` : 'Maintain course');
 
         L.marker([wp.latitude, wp.longitude], { icon }).bindPopup(`
-          <div style="font-size:12px; color:#0f172a; max-width:220px;">
-            <b style="color:#0284c7;">${wp.name}</b><br>
-            <span style="color:#64748b;">(${wp.latitude.toFixed(3)}°N, ${wp.longitude.toFixed(3)}°E)</span><br>
-            <div style="margin:6px 0; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:4px 8px; font-size:11px; font-weight:700; color:#15803d;">
+          <div style="font-size:12px; font-family:var(--font-sans, sans-serif); color:#0f172a; max-width:240px;">
+            <b style="color:#0284c7; font-size:13px;">${wp.name}</b><br>
+            <span style="color:#64748b; font-size:11px;">Coordinates: (${wp.latitude.toFixed(4)}°N, ${wp.longitude.toFixed(4)}°E)</span><br>
+            <div style="margin:6px 0; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:5px 8px; font-size:11px; font-weight:800; color:#15803d;">
               🧭 ${steerInfo}
             </div>
-            <span>Leg Distance: <b>${wp.segment_distance_nm} NM</b></span><br>
-            <span>Cumulative: <b>${wp.cumulative_distance_nm} NM</b></span><br>
-            <span>Wave: <b>${wp.wave_height_m}m</b> · Wind: <b>${wp.wind_speed_kts} kt</b></span>
+            <div style="font-size:11px; color:#334155; line-height:1.4;">
+              <span>Leg Distance: <b>${wp.segment_distance_nm} NM</b></span> · 
+              <span>Cumulative: <b>${wp.cumulative_distance_nm} NM</b></span><br>
+              <span>🌊 Swell: <b>${wp.wave_height_m}m</b> · Wind: <b>${wp.wind_speed_kts} kt</b></span><br>
+              <span style="color:#10b981; font-weight:700;">Safe Nav Corridor Clearance: <b>${wp.hazard_proximity_km} km</b></span>
+            </div>
           </div>
         `).addTo(window.routeMapLayers.routes);
       });
     }
-
-    if (idx === 0) {
-      window.routeMapInstance.fitBounds(poly.getBounds(), { padding: [40, 40] });
-    }
   });
+
+  if (combinedBounds && window.routeMapInstance) {
+    window.currentActiveRouteBounds = combinedBounds;
+    window.routeMapInstance.fitBounds(combinedBounds, { padding: [40, 40], maxZoom: 11 });
+  }
 }
+
+function fitCalculatedRoute() {
+  if (window.routeMapInstance && window.currentActiveRouteBounds) {
+    window.routeMapInstance.fitBounds(window.currentActiveRouteBounds, { padding: [40, 40], maxZoom: 11 });
+  }
+}
+window.fitCalculatedRoute = fitCalculatedRoute;
 
 async function loadPfzListView() {
   try {

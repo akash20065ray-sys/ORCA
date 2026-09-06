@@ -665,7 +665,12 @@ function handleRouteMapClick(lat, lon) {
     const oInput = document.getElementById('routeCustomOriginInput');
     if (oInput) oInput.value = coordStr;
     const badge = document.getElementById('routeOriginCustomBadge');
-    if (badge) { badge.textContent = `📍 Map Point: ${lat}°N, ${lon}°E`; badge.classList.remove('hidden'); }
+    if (badge) {
+      const span = badge.querySelector('span');
+      if (span) span.textContent = `📍 Map Point: ${lat}°N, ${lon}°E`;
+      else badge.textContent = `📍 Map Point: ${lat}°N, ${lon}°E`;
+      badge.classList.remove('hidden');
+    }
     activeRoutePickingMode = null;
     updateRoutePickerBanner();
   } else {
@@ -674,7 +679,12 @@ function handleRouteMapClick(lat, lon) {
     const dInput = document.getElementById('routeCustomDestInput');
     if (dInput) dInput.value = coordStr;
     const badge = document.getElementById('routeDestCustomBadge');
-    if (badge) { badge.textContent = `🏁 Map Point: ${lat}°N, ${lon}°E`; badge.classList.remove('hidden'); }
+    if (badge) {
+      const span = badge.querySelector('span');
+      if (span) span.textContent = `🏁 Map Point: ${lat}°N, ${lon}°E`;
+      else badge.textContent = `🏁 Map Point: ${lat}°N, ${lon}°E`;
+      badge.classList.remove('hidden');
+    }
     activeRoutePickingMode = null;
     updateRoutePickerBanner();
   }
@@ -691,7 +701,12 @@ function useCurrentGpsAsRouteOrigin() {
       const lon = pos.coords.longitude.toFixed(4);
       routeCustomOriginCoords = `${lat}, ${lon}`;
       const badge = document.getElementById('routeOriginCustomBadge');
-      if (badge) { badge.textContent = `📱 My GPS: ${lat}°N, ${lon}°E`; badge.classList.remove('hidden'); }
+      if (badge) {
+        const span = badge.querySelector('span');
+        if (span) span.textContent = `📱 My GPS: ${lat}°N, ${lon}°E`;
+        else badge.textContent = `📱 My GPS: ${lat}°N, ${lon}°E`;
+        badge.classList.remove('hidden');
+      }
       const oInput = document.getElementById('routeCustomOriginInput');
       if (oInput) oInput.value = routeCustomOriginCoords;
       if (window.routeMapInstance) {
@@ -708,7 +723,12 @@ function setRouteDestinationFromPfz(lat, lon, zoneName) {
   switchView('routes');
   routeCustomDestCoords = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
   const badge = document.getElementById('routeDestCustomBadge');
-  if (badge) { badge.textContent = `🐟 PFZ: ${zoneName} (${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E)`; badge.classList.remove('hidden'); }
+  if (badge) {
+    const span = badge.querySelector('span');
+    if (span) span.textContent = `🐟 PFZ: ${zoneName} (${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E)`;
+    else badge.textContent = `🐟 PFZ: ${zoneName} (${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E)`;
+    badge.classList.remove('hidden');
+  }
   const dInput = document.getElementById('routeCustomDestInput');
   if (dInput) dInput.value = routeCustomDestCoords;
   setTimeout(() => {
@@ -764,12 +784,14 @@ async function runRouteOptimization() {
       throw new Error("No navigable corridors found for these coordinates.");
     }
 
+    window.currentActiveRoutes = routes;
+
     // 1. Render routes and waypoints on the Route Leaflet Map
     if (typeof window.displayRoutesOnRouteMap === 'function') {
       window.displayRoutesOnRouteMap(routes);
     }
 
-    // 2. Render route comparison and Turn-by-Turn Compass Steerage Guide
+    // 2. Render route comparison, Fuel ROI & Turn-by-Turn Compass Steerage Guide
     if (compContainer) {
       const routeAlpha = routes.find(r => r.route_id.includes('ALPHA')) || routes[0];
       const routeBravo = routes.find(r => r.route_id.includes('BRAVO')) || routes[1] || routes[0];
@@ -808,7 +830,7 @@ async function runRouteOptimization() {
 
       compContainer.innerHTML = `
         <!-- Route Alpha vs Bravo Comparison Cards -->
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
           <!-- Route Bravo (Safest) -->
           <div class="route-choice-card recommended">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
@@ -834,6 +856,46 @@ async function runRouteOptimization() {
             </div>
             <p style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">Faster coastal fairway track with standard navigable clearance.</p>
           </div>
+        </div>
+
+        <!-- Blue Economy Fuel ROI & Carbon Reduction Card -->
+        <div class="fuel-roi-card">
+          <div class="fuel-roi-header">
+            <div class="fuel-roi-title">
+              <span>⛽</span>
+              <strong>Blue Economy Fuel ROI &amp; Emissions Saved</strong>
+            </div>
+            <span class="co2-badge">🌿 ${routeBravo.co2_saved_kg || 102} kg CO₂ Avoided</span>
+          </div>
+          <div class="fuel-stat-grid">
+            <div class="fuel-stat-col">
+              <span class="fuel-stat-lbl">DIESEL SAVED</span>
+              <span class="fuel-stat-val val-green">-${routeBravo.fuel_saved_liters || 38.2} L</span>
+            </div>
+            <div class="fuel-stat-col">
+              <span class="fuel-stat-lbl">FINANCIAL SAVINGS</span>
+              <span class="fuel-stat-val val-green">₹${routeBravo.fuel_cost_savings_inr ? Number(routeBravo.fuel_cost_savings_inr).toLocaleString() : '3,590'}</span>
+            </div>
+            <div class="fuel-stat-col">
+              <span class="fuel-stat-lbl">EST. TOTAL BURN</span>
+              <span class="fuel-stat-val">${routeBravo.fuel_estimate_liters || 142} L</span>
+            </div>
+            <div class="fuel-stat-col">
+              <span class="fuel-stat-lbl">EFFICIENCY GAIN</span>
+              <span class="fuel-stat-val val-cyan">+18% Eco-Drift</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Simulator & Quick Actions Toolbar -->
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+          <button type="button" class="btn-primary btn-simulator-launch" style="flex:1; padding:9px; font-weight:800; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="startVoyageSimulator()" title="Simulate vessel cruising along Route Bravo with real-time telemetry">
+            <span>▶</span>
+            <span>Start Voyage Simulator</span>
+          </button>
+          <button type="button" class="btn-secondary" style="padding:9px 14px; font-size:0.8rem; font-weight:700; border-radius:8px; border:1px solid var(--border-medium); background:var(--bg-card); color:var(--text-main); cursor:pointer;" onclick="fitCalculatedRoute()" title="Zoom to fit entire route">
+            <span>🎯 Center Route</span>
+          </button>
         </div>
 
         <!-- Turn-by-Turn Compass Steerage Guide -->
@@ -964,3 +1026,209 @@ window.useCurrentGpsAsRouteOrigin = useCurrentGpsAsRouteOrigin;
 window.setRouteDestinationFromPfz = setRouteDestinationFromPfz;
 window.toggleRoutePicking = toggleRoutePicking;
 window.clearCustomRouteCoords = clearCustomRouteCoords;
+
+// -------------------------------------------------------------------
+// Phase 4: Interactive Voyage Simulator Engine
+// -------------------------------------------------------------------
+let voyageSimState = {
+  active: false,
+  paused: false,
+  waypoints: [],
+  currentLegIdx: 0,
+  legProgress: 0.0,
+  animFrameId: null,
+  vesselMarker: null
+};
+
+function startVoyageSimulator() {
+  if (!window.currentActiveRoutes || window.currentActiveRoutes.length === 0) return;
+  const route = window.currentActiveRoutes.find(r => r.route_id.includes('BRAVO')) || window.currentActiveRoutes[0];
+  if (!route || !route.waypoints || route.waypoints.length < 2) return;
+
+  const hud = document.getElementById('voyageSimulatorHud');
+  if (hud) hud.classList.remove('hidden');
+
+  voyageSimState.waypoints = route.waypoints;
+  voyageSimState.currentLegIdx = 0;
+  voyageSimState.legProgress = 0.0;
+  voyageSimState.active = true;
+  voyageSimState.paused = false;
+
+  const playBtn = document.getElementById('simPlayPauseBtn');
+  if (playBtn) playBtn.textContent = '⏸ Pause';
+
+  // Create or reset vessel marker on Route Map
+  if (window.routeMapInstance) {
+    if (voyageSimState.vesselMarker) {
+      window.routeMapInstance.removeLayer(voyageSimState.vesselMarker);
+    }
+    const startWp = route.waypoints[0];
+    const boatIcon = L.divIcon({
+      className: 'sim-boat-icon',
+      html: '<div class="sim-boat-marker"><span class="boat-glyph">🚢</span><span class="boat-wake"></span></div>',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
+    });
+    voyageSimState.vesselMarker = L.marker([startWp.latitude, startWp.longitude], { icon: boatIcon, zIndexOffset: 2000 }).addTo(window.routeMapInstance);
+    window.routeMapInstance.panTo([startWp.latitude, startWp.longitude], { animate: true });
+  }
+
+  runVoyageSimLoop();
+}
+
+function runVoyageSimLoop() {
+  if (!voyageSimState.active || voyageSimState.paused) return;
+
+  const wps = voyageSimState.waypoints;
+  const leg = voyageSimState.currentLegIdx;
+
+  if (leg >= wps.length - 1) {
+    // Arrival
+    updateVoyageSimHud(100, wps[wps.length - 1], "ARRIVED", "Reached Destination Safely");
+    const playBtn = document.getElementById('simPlayPauseBtn');
+    if (playBtn) playBtn.textContent = '↺ Restart';
+    return;
+  }
+
+  const p1 = wps[leg];
+  const p2 = wps[leg + 1];
+
+  voyageSimState.legProgress += 0.015;
+  if (voyageSimState.legProgress >= 1.0) {
+    voyageSimState.legProgress = 0.0;
+    voyageSimState.currentLegIdx++;
+  }
+
+  const curT = voyageSimState.legProgress;
+  const curLat = p1.latitude + (p2.latitude - p1.latitude) * curT;
+  const curLon = p1.longitude + (p2.longitude - p1.longitude) * curT;
+
+  if (voyageSimState.vesselMarker) {
+    voyageSimState.vesselMarker.setLatLng([curLat, curLon]);
+  }
+
+  const totalLegs = wps.length - 1;
+  const overallPct = Math.min(100, Math.round(((leg + curT) / totalLegs) * 100));
+  const steer = p2.steer_instruction || `Steer ${p2.bearing_deg || 270}° ${p2.bearing_cardinal || ''}`;
+
+  updateVoyageSimHud(overallPct, {
+    latitude: curLat,
+    longitude: curLon,
+    wave_height_m: (p1.wave_height_m * (1 - curT) + p2.wave_height_m * curT).toFixed(1),
+    wind_speed_kts: (p1.wind_speed_kts * (1 - curT) + p2.wind_speed_kts * curT).toFixed(1)
+  }, steer, `Leg ${leg + 1} of ${totalLegs}`);
+
+  voyageSimState.animFrameId = requestAnimationFrame(runVoyageSimLoop);
+}
+
+function updateVoyageSimHud(pct, pos, steer, status) {
+  const pctEl = document.getElementById('simProgressPct');
+  const fillEl = document.getElementById('simProgressFill');
+  const posEl = document.getElementById('simPosText');
+  const steerEl = document.getElementById('simSteerText');
+  const waveEl = document.getElementById('simWaveText');
+  const windEl = document.getElementById('simWindText');
+  const statusEl = document.getElementById('simStatusText');
+
+  if (pctEl) pctEl.textContent = `${pct}%`;
+  if (fillEl) fillEl.style.width = `${pct}%`;
+  if (posEl && pos.latitude != null) posEl.textContent = `${pos.latitude.toFixed(3)}°, ${pos.longitude.toFixed(3)}°`;
+  if (steerEl) steerEl.textContent = steer;
+  if (waveEl) waveEl.textContent = `${pos.wave_height_m || 1.2}m`;
+  if (windEl) windEl.textContent = `${pos.wind_speed_kts || 14} kt`;
+  if (statusEl) statusEl.textContent = status;
+}
+
+function toggleVoyageSimulatorPause() {
+  if (!voyageSimState.active) {
+    startVoyageSimulator();
+    return;
+  }
+  const wps = voyageSimState.waypoints;
+  if (voyageSimState.currentLegIdx >= wps.length - 1) {
+    startVoyageSimulator();
+    return;
+  }
+  voyageSimState.paused = !voyageSimState.paused;
+  const playBtn = document.getElementById('simPlayPauseBtn');
+  if (playBtn) playBtn.textContent = voyageSimState.paused ? '▶ Resume' : '⏸ Pause';
+  if (!voyageSimState.paused) {
+    runVoyageSimLoop();
+  }
+}
+
+function resetVoyageSimulator() {
+  voyageSimState.active = false;
+  voyageSimState.paused = false;
+  if (voyageSimState.animFrameId) cancelAnimationFrame(voyageSimState.animFrameId);
+  if (voyageSimState.vesselMarker && window.routeMapInstance) {
+    window.routeMapInstance.removeLayer(voyageSimState.vesselMarker);
+    voyageSimState.vesselMarker = null;
+  }
+  const hud = document.getElementById('voyageSimulatorHud');
+  if (hud) hud.classList.add('hidden');
+}
+
+window.startVoyageSimulator = startVoyageSimulator;
+window.toggleVoyageSimulatorPause = toggleVoyageSimulatorPause;
+window.resetVoyageSimulator = resetVoyageSimulator;
+
+// -------------------------------------------------------------------
+// Phase 4: Emergency SOS Distress Beacon (Coast Guard SAR Mayday)
+// -------------------------------------------------------------------
+function openEmergencyDistressModal() {
+  const modal = document.getElementById('emergencyDistressModal');
+  if (!modal) return;
+
+  let lat = 9.9312;
+  let lon = 76.2673;
+  if (routeCustomOriginCoords) {
+    const parts = routeCustomOriginCoords.split(',').map(s => parseFloat(s.trim()));
+    if (parts.length === 2 && !isNaN(parts[0])) { lat = parts[0]; lon = parts[1]; }
+  }
+
+  const gpsEl = document.getElementById('emGpsPos');
+  if (gpsEl) gpsEl.textContent = `${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E`;
+
+  const degLat = Math.floor(lat);
+  const minLat = ((lat - degLat) * 60).toFixed(2);
+  const degLon = Math.floor(lon);
+  const minLon = ((lon - degLon) * 60).toFixed(2);
+
+  const maydayText = document.getElementById('emMaydayText');
+  if (maydayText) {
+    maydayText.textContent = `MAYDAY MAYDAY MAYDAY\nTHIS IS VESSEL: IND-KL-07-ORCA (CALLSIGN: ORCA-INDIA)\nPOSITION: ${degLat.toString().padStart(2, '0')}°${minLat}' N, ${degLon.toString().padStart(3, '0')}°${minLon}' E\nSEVERITY: IMMEDIATE ASSISTANCE REQUIRED\nPERSONS ON BOARD: 4\nSEA STATE: MODERATE SWELL 1.4m · WIND 16 KT`;
+  }
+
+  const receipt = document.getElementById('emTransmissionReceipt');
+  if (receipt) receipt.classList.add('hidden');
+  const txBtn = document.getElementById('btnTransmitMayday');
+  if (txBtn) {
+    txBtn.disabled = false;
+    txBtn.textContent = '🚨 Transmit Distress Beacon to Coast Guard';
+  }
+
+  modal.classList.remove('hidden');
+}
+
+function closeEmergencyDistressModal() {
+  const modal = document.getElementById('emergencyDistressModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function transmitMaydayDistress() {
+  const txBtn = document.getElementById('btnTransmitMayday');
+  const receipt = document.getElementById('emTransmissionReceipt');
+  if (txBtn) {
+    txBtn.disabled = true;
+    txBtn.textContent = '📡 Broadcasting Distress Frequencies (VHF Ch 16 / DSC 70)...';
+  }
+  setTimeout(() => {
+    if (txBtn) txBtn.textContent = '✅ Distress Signal Acknowledged by ICG MRCC';
+    if (receipt) receipt.classList.remove('hidden');
+  }, 900);
+}
+
+window.openEmergencyDistressModal = openEmergencyDistressModal;
+window.closeEmergencyDistressModal = closeEmergencyDistressModal;
+window.transmitMaydayDistress = transmitMaydayDistress;
