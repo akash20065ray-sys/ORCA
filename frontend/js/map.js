@@ -272,7 +272,7 @@ function switchBaseMap(baseKey, btnEl) {
 // -------------------------------------------------------------------
 // Dynamic Live Overlays Toggle with Windy Animation Sync
 // -------------------------------------------------------------------
-const FLUID_ANIMATED_LAYERS = ['wind', 'waves', 'currents', 'weather', 'sst'];
+const FLUID_ANIMATED_LAYERS = ['wind', 'waves', 'currents', 'chlorophyll', 'sst'];
 
 function syncWindyRailButtons(activeMode) {
   // 1. Sync right-side vertical floating rail
@@ -972,15 +972,39 @@ function switchBaseMap(baseKey, btnEl) {
     miniBaseTileLayer.bringToBack();
   }
 
-  // Highlight right rail button
-  document.querySelectorAll('.windy-rail-btn[data-base-layer]').forEach(btn => {
+  // Highlight above-the-map header buttons
+  document.querySelectorAll('.header-basemap-btn[data-base-layer]').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-base-layer') === baseKey);
   });
 
-  const names = { satellite: 'Satellite Imagery', ocean: 'Nautical Ocean Chart', dark: 'Tactical Dark Mode' };
-  const icons = { satellite: '🛰️', ocean: '🌊', dark: '🌙' };
+  const names = { satellite: 'Satellite Imagery', dark: 'Tactical Dark Mode', streets: 'Maritime Road Map' };
+  const icons = { satellite: '🛰️', dark: '🌙', streets: '🗺️' };
   updateActiveLayerBadges(names[baseKey] || baseKey, icons[baseKey] || '');
 }
+
+// -------------------------------------------------------------------
+// 1-Click Map Layers Drawer Toggle (Slide-in / Slide-out)
+// -------------------------------------------------------------------
+function toggleMapLayersDrawer(forceOpen) {
+  const rail = document.getElementById('windyFloatingRail');
+  const toggleBtn = document.getElementById('btnToggleLayersDrawer');
+  const togglePill = document.getElementById('windyRailTogglePill');
+  if (!rail) return;
+
+  const isClosed = rail.classList.contains('closed');
+  const shouldOpen = forceOpen !== undefined ? forceOpen : isClosed;
+
+  if (shouldOpen) {
+    rail.classList.remove('closed');
+    if (toggleBtn) toggleBtn.classList.add('active');
+    if (togglePill) togglePill.classList.add('active');
+  } else {
+    rail.classList.add('closed');
+    if (toggleBtn) toggleBtn.classList.remove('active');
+    if (togglePill) togglePill.classList.remove('active');
+  }
+}
+window.toggleMapLayersDrawer = toggleMapLayersDrawer;
 
 function handleWindyRailClick(mode, btnEl) {
   triggerLayerClickFeedback(btnEl);
@@ -1004,10 +1028,10 @@ function handleWindyRailClick(mode, btnEl) {
       wind: 'Wind Velocity & Flow',
       waves: 'Swell Waves & Crests',
       sst: 'Sea Surface Temp (SST)',
-      currents: 'Surface Ocean Currents',
-      weather: 'Doppler Rain Radar'
+      chlorophyll: 'Chlorophyll-a Biomass',
+      currents: 'Surface Ocean Currents'
     };
-    const modeIcons = { wind: '💨', waves: '🌊', sst: '🌡️', currents: '🌀', weather: '🌧️' };
+    const modeIcons = { wind: '💨', waves: '🌊', sst: '🌡️', chlorophyll: '🌿', currents: '🌀' };
     updateActiveLayerBadges(modeTitles[mode] || mode, modeIcons[mode] || '');
   }
 }
@@ -1037,7 +1061,7 @@ function handleClearAllLayers() {
 
   // 2. Hide all dynamic and GIS overlay layers
   if (miniMapInstance && window.miniMapLayers) {
-    const allOverlays = ['wind', 'waves', 'currents', 'weather', 'sst', 'seamarks', 'pfz', 'restricted', 'route', 'mockupZones'];
+    const allOverlays = ['wind', 'waves', 'currents', 'chlorophyll', 'sst', 'seamarks', 'pfz', 'restricted', 'route', 'mockupZones'];
     allOverlays.forEach(k => {
       const grp = window.miniMapLayers[k];
       if (grp && miniMapInstance.hasLayer(grp)) {
@@ -1074,25 +1098,48 @@ function handleClearAllLayers() {
 
 function updateCursorTelemetryBar(lat, lon) {
   const coordsEl = document.getElementById('cursorCoords');
+  const headerCoordsEl = document.getElementById('headerLiveCoords');
   const windEl = document.getElementById('cursorWind');
   const waveEl = document.getElementById('cursorWave');
   const sstEl = document.getElementById('cursorSst');
+  const chlEl = document.getElementById('cursorChl');
 
-  if (coordsEl) {
-    const latStr = `${Math.abs(lat).toFixed(4)}°${lat >= 0 ? 'N' : 'S'}`;
-    const lonStr = `${Math.abs(lon).toFixed(4)}°${lon >= 0 ? 'E' : 'W'}`;
-    coordsEl.textContent = `${latStr}, ${lonStr}`;
-  }
+  const latStr = `${Math.abs(lat).toFixed(4)}°${lat >= 0 ? 'N' : 'S'}`;
+  const lonStr = `${Math.abs(lon).toFixed(4)}°${lon >= 0 ? 'E' : 'W'}`;
+  const formattedCoords = `${latStr}, ${lonStr}`;
 
-  // Real-time NOAA/ISRO satellite temperature via spatial inverse distance weighting
-  const sstVal = (typeof window.sampleRealtimeSst === 'function') ? window.sampleRealtimeSst(lat, lon) : (29.2 - (lat - 8.0) * 0.28 + Math.sin(lon * 0.3) * 0.4);
-  const waveH = Math.max(0.4, (1.2 + Math.sin(lat * 0.45 + lon * 0.2) * 0.6).toFixed(1));
-  const windSpeed = Math.max(3, Math.round(11 + Math.sin(lat * 0.35) * 5 + Math.cos(lon * 0.25) * 4));
+  if (coordsEl) coordsEl.textContent = formattedCoords;
+  if (headerCoordsEl) headerCoordsEl.textContent = formattedCoords;
 
-  if (windEl) windEl.textContent = `${windSpeed} kt ↙ SW`;
-  if (waveEl) waveEl.textContent = `${waveH}m ↙ WSW`;
-  if (sstEl) sstEl.textContent = `${sstVal.toFixed(1)}°C`;
+  // Cache last coordinates for reactive unit switches
+  window._lastHoverCoords = { lat, lon };
+
+  const sstUnit = window.orcaUnits?.sst || '°C';
+  const waveUnit = window.orcaUnits?.waves || 'm';
+  const windUnit = window.orcaUnits?.wind || 'kt';
+
+  // Real-time satellite oceanography
+  const rawSst = (typeof window.sampleRealtimeSst === 'function') ? window.sampleRealtimeSst(lat, lon) : (29.2 - (lat - 8.0) * 0.28 + Math.sin(lon * 0.3) * 0.4);
+  const rawChl = (typeof window.sampleRealtimeChl === 'function') ? window.sampleRealtimeChl(lat, lon) : 0.85;
+  const rawWave = Math.max(0.4, 1.25 + Math.cos(lat * 2.0) * 0.45 + Math.sin(lon * 1.5) * 0.3);
+  const rawWind = Math.max(3, 11 + Math.sin(lat * 0.35) * 5 + Math.cos(lon * 0.25) * 4);
+
+  const dispSst = (typeof window.convertValue === 'function') ? window.convertValue(rawSst, 'sst', sstUnit) : rawSst;
+  const dispWave = (typeof window.convertValue === 'function') ? window.convertValue(rawWave, 'waves', waveUnit) : rawWave;
+  const dispWind = (typeof window.convertValue === 'function') ? window.convertValue(rawWind, 'wind', windUnit) : rawWind;
+
+  if (windEl) windEl.textContent = `${Math.round(dispWind)} ${windUnit} ↙ SW`;
+  if (waveEl) waveEl.textContent = `${dispWave.toFixed(1)}${waveUnit} ↙ WSW`;
+  if (sstEl) sstEl.textContent = `${dispSst.toFixed(1)}${sstUnit}`;
+  if (chlEl) chlEl.textContent = `${rawChl.toFixed(2)} mg/m³`;
 }
+
+function refreshCursorTelemetryUnits() {
+  if (window._lastHoverCoords) {
+    updateCursorTelemetryBar(window._lastHoverCoords.lat, window._lastHoverCoords.lon);
+  }
+}
+window.refreshCursorTelemetryUnits = refreshCursorTelemetryUnits;
 
 // Global window registrations
 window.initOrcaMaps = initOrcaMaps;
@@ -1100,6 +1147,7 @@ window.setGlobalTargetPin = setGlobalTargetPin;
 window.locateUserGPS = locateUserGPS;
 window.setMiniLayer = setMiniLayer;
 window.switchBaseMap = switchBaseMap;
+window.toggleMapLayersDrawer = toggleMapLayersDrawer;
 window.toggleMapOverlay = toggleMapOverlay;
 window.toggleMapOverlayCheckbox = toggleMapOverlayCheckbox;
 window.toggleLayerDropdown = toggleLayerDropdown;
@@ -1108,3 +1156,4 @@ window.handleWindyRailClick = handleWindyRailClick;
 window.handleGisRailClick = handleGisRailClick;
 window.handleClearAllLayers = handleClearAllLayers;
 window.updateCursorTelemetryBar = updateCursorTelemetryBar;
+window.refreshCursorTelemetryUnits = refreshCursorTelemetryUnits;

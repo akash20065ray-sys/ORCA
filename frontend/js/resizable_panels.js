@@ -39,10 +39,13 @@ function initResizablePanels() {
     }
   } catch (e) {}
 
-  // Helper to trigger Leaflet resize recalculation
+  // Helper to trigger Leaflet and Windy Animator resize recalculation
   const notifyMapResize = () => {
     if (window.miniMapInstance) {
       window.miniMapInstance.invalidateSize({ pan: false });
+    }
+    if (window.miniWindyAnimator) {
+      window.miniWindyAnimator._resizeCanvas();
     }
   };
 
@@ -93,8 +96,8 @@ function initResizablePanels() {
     const onPointerMoveChat = (e) => {
       const dx = startX - e.clientX;
       let newWidth = startWidth + dx;
-      if (newWidth < 280) newWidth = 280;
-      if (newWidth > 560) newWidth = 560;
+      if (newWidth < 220) newWidth = 220;
+      if (newWidth > 750) newWidth = 750;
       chatPanel.style.width = newWidth + 'px';
       notifyMapResize();
     };

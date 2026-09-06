@@ -135,6 +135,35 @@
                       </div>
                     </div>
 
+                    <!-- Live Cursor Coordinates (Smoothly updates with mouse movement) -->
+                    <div class="map-header-coords-badge" id="headerLiveCoordsBadge" title="Live Mouse Cursor Lat/Lon Position">
+                      <span class="header-coords-icon">📍</span>
+                      <span class="header-coords-val" id="headerLiveCoords">9.9312°N, 76.2673°E</span>
+                    </div>
+
+                    <!-- Base Maps Switcher Directly Above Map: Satellite, Dark, Map (No Ocean) -->
+                    <div class="map-header-basemap-group" id="headerBasemapGroup">
+                      <button type="button" class="header-basemap-btn active" data-base-layer="satellite" onclick="switchBaseMap('satellite', this)" title="Esri High-Resolution Satellite Imagery">
+                        <span class="btn-icon">🛰️</span>
+                        <span>Satellite</span>
+                      </button>
+                      <button type="button" class="header-basemap-btn" data-base-layer="dark" onclick="switchBaseMap('dark', this)" title="Tactical Night Operations Mode">
+                        <span class="btn-icon">🌙</span>
+                        <span>Dark</span>
+                      </button>
+                      <button type="button" class="header-basemap-btn" data-base-layer="streets" onclick="switchBaseMap('streets', this)" title="Coastal Maritime Roads & Navigation">
+                        <span class="btn-icon">🗺️</span>
+                        <span>Map</span>
+                      </button>
+                    </div>
+
+                    <!-- 1-Click Map Layers Drawer Toggle Button -->
+                    <button type="button" class="header-layers-toggle-btn active" id="btnToggleLayersDrawer" onclick="toggleMapLayersDrawer()" title="1-Click Open/Close Map Layers Drawer">
+                      <span class="layers-icon">☰</span>
+                      <span>Map Layers</span>
+                      <span class="layers-arrow">▾</span>
+                    </button>
+
                     <!-- Active Layer Status Badge -->
                     <div class="map-header-status-badge" id="activeLayerStatusBadge">
                       <span class="status-live-dot"></span>
@@ -146,52 +175,40 @@
                   <div class="map-canvas-wrapper">
                     <div id="home-mini-map" class="home-mini-map-canvas"></div>
 
-                    <!-- Windy-Style Vertical Ocean Layer Rail (Right Side of Map) -->
+                    <!-- 1-Click Floating Layers Drawer Toggle Button on Map Canvas -->
+                    <button type="button" class="windy-rail-toggle-pill" id="windyRailTogglePill" onclick="toggleMapLayersDrawer()" title="Toggle Map Layers Drawer">
+                      <span>☰ Layers</span>
+                    </button>
+
+                    <!-- Windy-Style Vertical Ocean Layer Drawer (Right Side of Map) -->
                     <div class="windy-floating-rail" id="windyFloatingRail">
-                      <!-- Base Maps Group -->
-                      <div class="rail-group-label">BASE</div>
-                      <button type="button" class="windy-rail-btn active" data-base-layer="satellite" onclick="switchBaseMap('satellite', this)" title="Esri High-Res Satellite Imagery">
-                        <span class="windy-rail-icon">🛰️</span>
-                        <span class="windy-rail-label">Sat</span>
-                      </button>
-                      <button type="button" class="windy-rail-btn" data-base-layer="ocean" onclick="switchBaseMap('ocean', this)" title="Bathymetric Ocean Nautical Chart">
-                        <span class="windy-rail-icon">🌊</span>
-                        <span class="windy-rail-label">Ocean</span>
-                      </button>
-                      <button type="button" class="windy-rail-btn" data-base-layer="dark" onclick="switchBaseMap('dark', this)" title="Tactical Night Operations Mode">
-                        <span class="windy-rail-icon">🌙</span>
-                        <span class="windy-rail-label">Dark</span>
-                      </button>
-
-                      <div class="windy-rail-divider"></div>
-
-                      <!-- Dynamic Oceanic Heatmaps -->
-                      <div class="rail-group-label">LAYERS</div>
+                      <!-- Dynamic Oceanic Layers (Windy Engine) -->
+                      <div class="rail-group-label">OCEAN DYNAMICS</div>
                       <button type="button" class="windy-rail-btn" data-windy-layer="wind" onclick="handleWindyRailClick('wind', this)" title="Live Wind Velocity & Flow Streamlines">
                         <span class="windy-rail-icon">💨</span>
                         <span class="windy-rail-label">Wind</span>
                       </button>
-                      <button type="button" class="windy-rail-btn" data-windy-layer="waves" onclick="handleWindyRailClick('waves', this)" title="Live Wave Swell Contours & Propagating Wavefront Arcs">
+                      <button type="button" class="windy-rail-btn" data-windy-layer="waves" onclick="handleWindyRailClick('waves', this)" title="Live Wave Swell Contours & Swell Vectors">
                         <span class="windy-rail-icon">🌊</span>
                         <span class="windy-rail-label">Waves</span>
                       </button>
-                      <button type="button" class="windy-rail-btn" data-windy-layer="sst" onclick="handleWindyRailClick('sst', this)" title="Real-Time NOAA/ISRO SST Thermal Heatmap">
+                      <button type="button" class="windy-rail-btn" data-windy-layer="sst" onclick="handleWindyRailClick('sst', this)" title="Real-Time NOAA/ISRO SST Thermal Field">
                         <span class="windy-rail-icon">🌡️</span>
                         <span class="windy-rail-label">Sea Temp</span>
+                      </button>
+                      <button type="button" class="windy-rail-btn" data-windy-layer="chlorophyll" onclick="handleWindyRailClick('chlorophyll', this)" title="ISRO Oceansat-3 OCM Chlorophyll-a Biomass">
+                        <span class="windy-rail-icon">🌿</span>
+                        <span class="windy-rail-label">Chlorophyll</span>
                       </button>
                       <button type="button" class="windy-rail-btn" data-windy-layer="currents" onclick="handleWindyRailClick('currents', this)" title="Surface Ocean Current Drift Streamlines">
                         <span class="windy-rail-icon">🌀</span>
                         <span class="windy-rail-label">Currents</span>
                       </button>
-                      <button type="button" class="windy-rail-btn" data-windy-layer="weather" onclick="handleWindyRailClick('weather', this)" title="Real-Time Doppler Precipitation & Cloud Radar">
-                        <span class="windy-rail-icon">🌧️</span>
-                        <span class="windy-rail-label">Radar</span>
-                      </button>
 
                       <div class="windy-rail-divider"></div>
 
                       <!-- Maritime & Fisheries GIS -->
-                      <div class="rail-group-label">GIS</div>
+                      <div class="rail-group-label">GIS & SAFETY</div>
                       <button type="button" class="windy-rail-btn gis-btn active" data-gis-layer="pfz" onclick="handleGisRailClick('pfz', this)" title="INCOIS Potential Fishing Zones (PFZ)">
                         <span class="windy-rail-icon">🐟</span>
                         <span class="windy-rail-label">PFZ</span>
@@ -232,7 +249,7 @@
                       </button>
                     </div>
 
-                    <!-- Dynamic Live Ocean Telemetry Probe (Bottom Left) -->
+                    <!-- Dynamic Live Ocean Telemetry Probe (Bottom Left) with 1-Click Unit Switchers -->
                     <div class="map-cursor-tracker-bar" id="mapCursorTrackerBar">
                       <div class="tracker-active-chip" id="cursorActiveChip">
                         <span class="tracker-pulse-dot"></span>
@@ -244,19 +261,24 @@
                         <span class="tracker-val" id="cursorCoords">9.9312°N, 76.2673°E</span>
                       </div>
                       <span class="tracker-sep"></span>
-                      <div class="cursor-tracker-item" title="Surface Wind Speed & Compass Heading">
+                      <div class="cursor-tracker-item clickable-unit-item" title="Click to Cycle Wind Units (kt / km/h / m/s / mph)" onclick="cycleUnit('wind')">
                         <span class="tracker-icon">💨</span>
                         <span class="tracker-val" id="cursorWind">14 kt ↙ SW</span>
                       </div>
                       <span class="tracker-sep"></span>
-                      <div class="cursor-tracker-item" title="Significant Swell Wave Height">
+                      <div class="cursor-tracker-item clickable-unit-item" title="Click to Cycle Wave Units (m / ft)" onclick="cycleUnit('waves')">
                         <span class="tracker-icon">🌊</span>
                         <span class="tracker-val" id="cursorWave">1.2m ↙ WSW</span>
                       </div>
                       <span class="tracker-sep"></span>
-                      <div class="cursor-tracker-item" title="Real-Time Sea Surface Temperature (NOAA/ISRO Satellite)">
+                      <div class="cursor-tracker-item clickable-unit-item" title="Click to Cycle Temperature Units (°C / °F)" onclick="cycleUnit('sst')">
                         <span class="tracker-icon">🌡️</span>
                         <span class="tracker-val" id="cursorSst">28.5°C</span>
+                      </div>
+                      <span class="tracker-sep"></span>
+                      <div class="cursor-tracker-item" title="ISRO Oceansat-3 Chlorophyll-a Biomass">
+                        <span class="tracker-icon">🌿</span>
+                        <span class="tracker-val" id="cursorChl">0.85 mg/m³</span>
                       </div>
                     </div>
 
@@ -299,32 +321,8 @@
                   </div>
                 </div>
 
-                <!-- Chat Message Scroll Container with Active Welcome Message -->
-                <div class="chat-thread-container" id="home-chat-messages">
-                  <div class="chat-bubble-row assistant">
-                    <div class="chat-assistant-card welcome-card">
-                      <div class="assistant-status-lead">
-                        <span class="lead-check-icon">🌊</span>
-                        <strong class="lead-title">ORCA Marine Intelligence Active</strong>
-                      </div>
-                      <p class="bubble-text">
-                        Welcome aboard, Skipper. Live satellite telemetry, INCOIS wave/wind feeds, and PFZ fishing zones are calibrated for <strong>Kochi Coast</strong>. How can I assist your voyage today?
-                      </p>
-                      <div class="welcome-meta-badges">
-                        <span class="welcome-hud-badge"><span class="pulse-green-dot"></span> Live Telemetry</span>
-                        <span class="welcome-hud-badge">INCOIS Synced</span>
-                        <span class="welcome-hud-badge">GPS Connected</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Quick Suggestion Chips -->
-                <div class="quick-suggestion-chips">
-                  <button type="button" class="suggestion-pill" onclick="sendQuickPrompt('What are the fishing zones near me?')">🎣 Fishing zones near me?</button>
-                  <button type="button" class="suggestion-pill" onclick="sendQuickPrompt('Show me safe routes to Lakshadweep')">🚢 Safe route to Lakshadweep</button>
-                  <button type="button" class="suggestion-pill" onclick="sendQuickPrompt('Is there any restricted area nearby?')">⚠️ Any restricted zones?</button>
-                </div>
+                <!-- Chat Message Scroll Container (Clean, Minimalist) -->
+                <div class="chat-thread-container" id="home-chat-messages"></div>
 
                 <!-- Input Area -->
                 <div class="panel-input-section">

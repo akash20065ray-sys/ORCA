@@ -3095,7 +3095,7 @@ body.theme-dark .advisory-desc {
   transition: opacity 0.25s ease;
 }
 
-/* 2. Vertical Floating Layer Rail (Right-Hand Dock) */
+/* 2. Vertical Floating Layer Drawer (Right-Hand Dock) */
 .windy-floating-rail {
   position: absolute;
   top: 14px;
@@ -3115,6 +3115,47 @@ body.theme-dark .advisory-desc {
   user-select: none;
   max-height: calc(100% - 28px);
   overflow-y: auto;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+}
+
+.windy-floating-rail.closed {
+  transform: translateX(95px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 1-Click Floating Layers Drawer Toggle Pill on Map Canvas */
+.windy-rail-toggle-pill {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 501;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: rgba(2, 6, 23, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  border-radius: 20px;
+  padding: 6px 14px;
+  color: #38bdf8;
+  font-size: 0.74rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.windy-rail-toggle-pill:hover {
+  background: #0284c7;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+#windyFloatingRail.closed ~ #windyRailTogglePill {
+  display: inline-flex;
 }
 
 .rail-group-label {
@@ -3152,10 +3193,10 @@ body.theme-dark .advisory-desc {
 }
 
 .windy-rail-label {
-  font-size: 0.52rem;
+  font-size: 0.50rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   color: #94a3b8;
   line-height: 1;
 }
@@ -3212,6 +3253,110 @@ body.theme-dark .advisory-desc {
   height: 32px;
 }
 
+/* Header Live Lat/Lon Coordinates Badge */
+.map-header-coords-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #38bdf8;
+  font-family: var(--font-mono, monospace);
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  user-select: none;
+}
+
+.header-coords-icon {
+  font-size: 0.80rem;
+}
+
+/* Header Base Map Switcher Group (Satellite, Dark, Map) */
+.map-header-basemap-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.90);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 10px;
+  padding: 3px;
+  user-select: none;
+}
+
+.header-basemap-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  padding: 4px 10px;
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-family: var(--font-sans);
+}
+
+.header-basemap-btn:hover {
+  color: #f8fafc;
+  background: rgba(56, 189, 248, 0.15);
+}
+
+.header-basemap-btn.active {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.75), rgba(56, 189, 248, 0.5));
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+
+/* 1-Click Map Layers Drawer Toggle Button in Header */
+.header-layers-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 8px;
+  padding: 4px 12px;
+  color: #38bdf8;
+  font-size: 0.74rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  user-select: none;
+  font-family: var(--font-sans);
+}
+
+.header-layers-toggle-btn:hover,
+.header-layers-toggle-btn.active {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.65), rgba(56, 189, 248, 0.45));
+  color: #ffffff;
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+}
+
+.header-layers-toggle-btn .layers-arrow {
+  font-size: 0.65rem;
+  transition: transform 0.2s ease;
+}
+
+.header-layers-toggle-btn.active .layers-arrow {
+  transform: rotate(180deg);
+}
+
 /* Header Active Mode Status Chip */
 .map-header-status-badge {
   display: inline-flex;
@@ -3240,6 +3385,21 @@ body.theme-dark .advisory-desc {
   font-weight: 700;
   color: #f8fafc;
   letter-spacing: 0.03em;
+}
+
+/* Clean Empty Chat Placeholder */
+.chat-thread-container:empty::before {
+  content: '🌊 ORCA AI Marine Copilot ready. Ask navigation questions, weather, or fishing zones.';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #64748b;
+  font-size: 0.82rem;
+  text-align: center;
+  padding: 32px 20px;
+  font-style: italic;
+  letter-spacing: 0.02em;
 }
 
 /* 3. Real-Time Bottom Cursor Ocean Telemetry HUD */
@@ -3361,6 +3521,43 @@ body.theme-dark .advisory-desc {
 .legend-name {
   color: #f8fafc;
   font-family: var(--font-sans);
+}
+
+.unit-toggle-pill {
+  background: rgba(56, 189, 248, 0.2);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  color: #38bdf8;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.unit-toggle-pill:hover {
+  background: rgba(56, 189, 248, 0.35);
+  border-color: #38bdf8;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.clickable-unit-item {
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+
+.clickable-unit-item:hover {
+  background: rgba(56, 189, 248, 0.18);
+  color: #ffffff;
+}
+
+.clickable-unit-item:hover .tracker-val {
+  color: #38bdf8;
 }
 
 .legend-header-actions {
