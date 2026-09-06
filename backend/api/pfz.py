@@ -110,3 +110,30 @@ async def get_all_pfz_zones() -> Dict[str, Any]:
             all_zones.extend([z.dict() for z in zones])
     return {"source": "INCOIS (Indian National Centre for Ocean Information Services)", "zones": all_zones}
 
+@router.get("/local-fishermen")
+async def get_local_fishermen_pfz(
+    craft_type: Optional[str] = Query(None, description="Filter by craft type: 'artisanal' | 'mechanized'"),
+    state: Optional[str] = Query(None, description="Filter by state (e.g. Kerala, Tamil Nadu, Maharashtra)")
+) -> Dict[str, Any]:
+    """
+    Returns daily INCOIS Fish Landing Center (FLC) advisories tailored specifically
+    for local artisanal fishermen (OBM craft range <=15 NM, direct compass bearings, fuel ROI, vernacular names).
+    """
+    import os
+    import json
+    data_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "local_fishermen_pfz.json")
+    if os.path.exists(data_file):
+        with open(data_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            zones = data.get("zones", [])
+            if craft_type:
+                ct = craft_type.lower()
+                zones = [z for z in zones if ct in z.get("craft_suitability", "").lower()]
+            if state:
+                st = state.lower()
+                zones = [z for z in zones if st in z.get("state", "").lower()]
+            data["zones"] = zones
+            return data
+
+    return {"source": "INCOIS & CMFRI Local Fishermen Advisory", "zones": []}
+

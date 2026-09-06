@@ -2014,22 +2014,24 @@ body {
   box-sizing: border-box;
 }
 
-/* On-Map Live Vessel Location Dataset Overlay — Positioned at the BOTTOM of the Map */
+/* On-Map Live Vessel Location Dataset Overlay — Positioned at the BOTTOM of the Map (Centered, short width) */
 .map-ship-telemetry-bottom-overlay {
   position: absolute;
-  bottom: 24px;
-  left: 20px;
-  right: 20px;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(560px, calc(100% - 60px));
+  max-width: 560px;
   z-index: 460;
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(10px);
   border: 1.5px solid var(--border-medium);
-  border-radius: 14px;
-  padding: 12px 18px;
+  border-radius: 10px;
+  padding: 8px 12px;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   pointer-events: auto;
 }
 

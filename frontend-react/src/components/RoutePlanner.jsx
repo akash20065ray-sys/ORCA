@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Compass, Navigation, Crosshair, Download, Printer, FileText, CheckCircle2, X } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { Compass, Navigation, Crosshair, Download, Printer, FileText, CheckCircle2, X, RotateCcw } from 'lucide-react';
 
 const PORTS = [
   { id: 'kochi', name: 'Cochin Port (Kochi)', lat: 9.9656, lon: 76.2425 },
@@ -16,23 +18,27 @@ const PORTS = [
 ];
 
 export default function RoutePlanner({ onFocusRoute, onUpdateShipLocation }) {
-  // Mode: 'port' | 'gps' | 'custom'
+  // Mode: 'port' | 'gps' | 'custom' (Defaults to Kochi -> Colombo)
   const [originMode, setOriginMode] = useState('port');
-  const [selectedPortOrigin, setSelectedPortOrigin] = useState('mangalore');
-  const [customOrigin, setCustomOrigin] = useState({ lat: 12.9234, lon: 74.8156 });
+  const [selectedPortOrigin, setSelectedPortOrigin] = useState('kochi');
+  const [customOrigin, setCustomOrigin] = useState({ lat: 9.9656, lon: 76.2425 });
 
   const [destMode, setDestMode] = useState('port');
   const [selectedPortDest, setSelectedPortDest] = useState('colombo');
   const [customDest, setCustomDest] = useState({ lat: 6.9497, lon: 79.8433 });
 
-  const [cruisingSpeed, setCruisingSpeed] = useState(13.0);
-  const [vesselDraft, setVesselDraft] = useState(4.2);
+  const [cruisingSpeed, setCruisingSpeed] = useState(12.0);
+  const [vesselDraft, setVesselDraft] = useState(3.2);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [routes, setRoutes] = useState(null);
   const [activeRouteIndex, setActiveRouteIndex] = useState(1); // Default to Bravo (Optimal)
 
   const [showReportModal, setShowReportModal] = useState(false);
   const [isSavedOffline, setIsSavedOffline] = useState(false);
+
+  // Map instance refs for the Zoomed Geographic Map inside Passage Report
+  const reportMapRef = useRef(null);
+  const reportMapInstanceRef = useRef(null);
 
   // Live GPS Detector
   const handleDetectGPS = () => {
@@ -128,98 +134,308 @@ export default function RoutePlanner({ onFocusRoute, onUpdateShipLocation }) {
   const shipWave = +(0.8 + (shipWind / 30.0) * 1.8 + 0.3 * Math.cos(latF * 3.0)).toFixed(1);
   const shipSST = +(28.4 + 2.0 * Math.sin(lonF * 1.6) - 0.7 * latF).toFixed(1);
 
-  // Download standard GPX file for onboard marine GPS plotters (Garmin, Furuno, OpenCPN)
-  const handleDownloadGPX = () => {
+  // Initialize Zoomed Geographic Leaflet Map in the Passage Report Modal
+  useEffect(() => {
+    if (!showReportModal || !reportMapRef.current || !currentRoute || !currentRoute.waypoints) return;
+
+    if (reportMapInstanceRef.current) {
+      reportMapInstanceRef.current.remove();
+      reportMapInstanceRef.current = null;
+    }
+
+    try {
+      const map = L.map(reportMapRef.current, {
+        zoomControl: true,
+        attributionControl: false,
+      });
+      reportMapInstanceRef.current = map;
+
+      // High-Definition Satellite Imagery Tile Layer
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 18,
+      }).addTo(map);
+
+      // Route Polyline Track
+      const latlngs = currentRoute.waypoints.map((wp) => [wp.latitude, wp.longitude]);
+      const routeLine = L.polyline(latlngs, {
+        color: '#38bdf8',
+        weight: 4.5,
+        opacity: 0.95,
+      }).addTo(map);
+
+      // Waypoint Pins with Leg & Steer Info
+      currentRoute.waypoints.forEach((wp, idx) => {
+        const isStart = idx === 0;
+        const isEnd = idx === currentRoute.waypoints.length - 1;
+        const pinColor = isStart ? '#10b981' : isEnd ? '#ef4444' : '#38bdf8';
+        const marker = L.circleMarker([wp.latitude, wp.longitude], {
+          radius: isStart || isEnd ? 7 : 5,
+          fillColor: pinColor,
+          color: '#ffffff',
+          weight: 2,
+          fillOpacity: 1,
+        }).addTo(map);
+
+        marker.bindPopup(
+          `<strong>WP ${idx + 1}: ${wp.name}</strong><br>Lat: ${wp.latitude.toFixed(4)}°N, Lon: ${wp.longitude.toFixed(4)}°E<br>Leg: ${wp.segment_distance_nm ?? 0} NM · Course: ${wp.bearing_degrees ? Math.round(wp.bearing_degrees) + '°' : '—'}`
+        );
+      });
+
+      // Zoom tightly and fit the exact route bounding box
+      map.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
+
+      setTimeout(() => {
+        if (reportMapInstanceRef.current) {
+          reportMapInstanceRef.current.invalidateSize();
+          reportMapInstanceRef.current.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
+        }
+      }, 250);
+    } catch (e) {
+      console.error('Error mounting passage report map:', e);
+    }
+
+    return () => {
+      if (reportMapInstanceRef.current) {
+        reportMapInstanceRef.current.remove();
+        reportMapInstanceRef.current = null;
+      }
+    };
+  }, [showReportModal, currentRoute]);
+
+  // Directly Download Official Maritime Passage Plan Report (.html with embedded Leaflet satellite map)
+  const handleDownloadPassageReport = () => {
     if (!currentRoute || !currentRoute.waypoints) return;
-    const origName = (PORTS.find((p) => p.id === selectedPortOrigin)?.name || 'Origin').replace(/[^a-zA-Z0-9]/g, '_');
-    const destName = (PORTS.find((p) => p.id === selectedPortDest)?.name || 'Destination').replace(/[^a-zA-Z0-9]/g, '_');
-    const routeTitle = `ORCA_Voyage_${origName}_to_${destName}`;
+    const origObj = PORTS.find((p) => p.id === selectedPortOrigin) || { name: 'Cochin Port (Kochi)' };
+    const destObj = PORTS.find((p) => p.id === selectedPortDest) || { name: 'Port of Colombo' };
+    const origName = originMode === 'port' ? origObj.name : `${customOrigin.lat}°N, ${customOrigin.lon}°E`;
+    const destName = destMode === 'port' ? destObj.name : `${customDest.lat}°N, ${customDest.lon}°E`;
+    const fileName = `ORCA_Passage_Plan_${origName.replace(/[^a-zA-Z0-9]/g, '_')}_to_${destName.replace(/[^a-zA-Z0-9]/g, '_')}.html`;
 
-    const gpxContent = `<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="ORCA Ocean Intelligence Platform - SIH26176" xmlns="http://www.topografix.com/GPX/1/1">
-  <metadata>
-    <name>${routeTitle}</name>
-    <desc>Nautical Passage Track from ${origName} to ${destName} (Speed: ${cruisingSpeed} kt, Draft: ${vesselDraft} m, Distance: ${currentRoute.total_distance_nm} NM)</desc>
-    <time>${new Date().toISOString()}</time>
-  </metadata>
-  <trk>
-    <name>${currentRoute.route_name}</name>
-    <trkseg>
-${currentRoute.waypoints.map((wp) => `      <trkpt lat="${wp.latitude.toFixed(6)}" lon="${wp.longitude.toFixed(6)}">
-        <ele>0</ele>
-        <name>${wp.name}</name>
-        <desc>${wp.steer_instruction || ''} (Leg: ${wp.segment_distance_nm ?? 0} NM)</desc>
-      </trkpt>`).join('\n')}
-    </trkseg>
-  </trk>
-${currentRoute.waypoints.map((wp, i) => `  <wpt lat="${wp.latitude.toFixed(6)}" lon="${wp.longitude.toFixed(6)}">
-    <name>WP${i + 1}_${wp.name.replace(/[^a-zA-Z0-9]/g, '_')}</name>
-    <sym>Waypoint</sym>
-  </wpt>`).join('\n')}
-</gpx>`;
+    const waypointsJson = JSON.stringify(currentRoute.waypoints);
 
-    const blob = new Blob([gpxContent], { type: 'application/gpx+xml;charset=utf-8;' });
+    const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORCA Maritime Passage Plan - ${origName} to ${destName}</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #0f172a; color: #f1f5f9; margin: 0; padding: 24px; }
+    .container { max-width: 900px; margin: 0 auto; background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .header { border-bottom: 2px solid #0284c7; padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .tag { font-size: 11px; color: #38bdf8; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    h1 { margin: 4px 0 6px 0; font-size: 22px; color: #ffffff; }
+    .sub { font-size: 12px; color: #94a3b8; }
+    #map { height: 380px; width: 100%; border-radius: 8px; margin-bottom: 24px; border: 1px solid #475569; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    .card { background: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 8px; text-align: center; }
+    .card-lbl { font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 4px; }
+    .card-val { font-size: 18px; font-weight: 800; color: #38bdf8; }
+    .card-val.green { color: #10b981; }
+    .card-val.amber { color: #f59e0b; }
+    .roi-banner { background: rgba(16, 185, 129, 0.12); border: 1px solid #10b981; border-radius: 8px; padding: 12px 16px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 12px; }
+    th { background: #0f172a; color: #94a3b8; text-align: left; padding: 8px 10px; font-weight: 700; border-bottom: 1px solid #334155; }
+    td { padding: 8px 10px; border-bottom: 1px solid #334155; }
+    .mrcc-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 14px; font-size: 11px; margin-bottom: 24px; }
+    .mrcc-title { font-weight: 800; color: #ef4444; margin-bottom: 8px; display: block; }
+    .mrcc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; color: #cbd5e1; }
+    .btn-print { background: #0284c7; color: #ffffff; border: none; padding: 10px 20px; font-weight: 700; border-radius: 6px; cursor: pointer; float: right; font-size: 13px; }
+    @media print {
+      body { background: #ffffff; color: #000000; padding: 0; }
+      .container { border: none; box-shadow: none; max-width: 100%; }
+      .btn-print { display: none; }
+      #map { height: 320px; }
+      th { background: #f1f5f9; color: #334155; }
+      td { border-bottom: 1px solid #cbd5e1; }
+      .card { background: #f8fafc; border: 1px solid #e2e8f0; }
+      .card-val { color: #0284c7; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <div class="tag">ORCA MARITIME INTELLIGENCE · SIH26176</div>
+        <h1>Voyage Passage Plan: ${origName} → ${destName}</h1>
+        <div class="sub">Generated: ${new Date().toLocaleString()} · Compliant with COLREGS Rule 10 & SOLAS V/34</div>
+      </div>
+      <button class="btn-print" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+
+    <!-- Zoomed Geographic Map -->
+    <div id="map"></div>
+
+    <div class="grid">
+      <div class="card">
+        <span class="card-lbl">Total Distance</span>
+        <span class="card-val">${currentRoute.total_distance_nm} NM</span>
+      </div>
+      <div class="card">
+        <span class="card-lbl">Est. Duration</span>
+        <span class="card-val">${currentRoute.estimated_duration_hours} h</span>
+      </div>
+      <div class="card">
+        <span class="card-lbl">Safety Index</span>
+        <span class="card-val green">${currentRoute.safety_score}/100</span>
+      </div>
+      <div class="card">
+        <span class="card-lbl">Fuel Diesel</span>
+        <span class="card-val amber">${currentRoute.fuel_estimate_liters} L</span>
+      </div>
+    </div>
+
+    <div class="roi-banner">
+      <div>
+        <strong>Blue Economy Fuel ROI & Carbon Mitigation:</strong>
+        <span style="color:#94a3b8; margin-left:6px;">Laminar seaway routing saves ~${currentRoute.fuel_saved_liters || 75}L diesel (₹${(currentRoute.fuel_cost_savings_inr || 7050).toLocaleString()}).</span>
+      </div>
+      <strong style="color:#10b981;">-${currentRoute.co2_saved_kg || 201} kg CO₂</strong>
+    </div>
+
+    <h3 style="font-size:14px; margin-bottom:10px; color:#ffffff;">Turn-by-Turn Navigational Waypoints</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Waypoint Name</th>
+          <th>Coordinates</th>
+          <th>Leg Distance</th>
+          <th>True Course</th>
+          <th>Steering Directive</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${currentRoute.waypoints
+          .map(
+            (wp, idx) => `
+          <tr>
+            <td style="color:#94a3b8;">${idx + 1}</td>
+            <td style="font-weight:600;">${wp.name}</td>
+            <td style="font-family:monospace;">${wp.latitude.toFixed(4)}°N, ${wp.longitude.toFixed(4)}°E</td>
+            <td>${wp.segment_distance_nm ?? 0} NM</td>
+            <td>${wp.bearing_degrees ? Math.round(wp.bearing_degrees) + '°' : '—'}</td>
+            <td style="color:#38bdf8;">${wp.steer_instruction || 'Maintain Course'}</td>
+          </tr>
+        `
+          )
+          .join('')}
+      </tbody>
+    </table>
+
+    <div class="mrcc-box">
+      <span class="mrcc-title">INDIAN COAST GUARD MARITIME RESCUE COORDINATION (MRCC) EMERGENCY CHANNELS</span>
+      <div class="mrcc-grid">
+        <span>• MRCC Mumbai: 022-24388065 / VHF Ch 16 & 12</span>
+        <span>• MRCC Kochi: 0484-2216590 / VHF Ch 16 & 12</span>
+        <span>• MRCC Chennai: 044-23460405 / VHF Ch 16 & 12</span>
+        <span>• MRCC Port Blair: 03192-232681 / VHF Ch 16 & 12</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const waypoints = ${waypointsJson};
+    const map = L.map('map', { zoomControl: true, attributionControl: false });
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18 }).addTo(map);
+    const coords = waypoints.map(wp => [wp.latitude, wp.longitude]);
+    const line = L.polyline(coords, { color: '#38bdf8', weight: 4.5, opacity: 0.95 }).addTo(map);
+    waypoints.forEach((wp, idx) => {
+      const isStart = idx === 0;
+      const isEnd = idx === waypoints.length - 1;
+      const color = isStart ? '#10b981' : isEnd ? '#ef4444' : '#38bdf8';
+      L.circleMarker([wp.latitude, wp.longitude], { radius: isStart || isEnd ? 7 : 5, fillColor: color, color: '#ffffff', weight: 2, fillOpacity: 1 })
+        .bindPopup('<strong>WP ' + (idx + 1) + ': ' + wp.name + '</strong><br>' + wp.latitude.toFixed(4) + '°N, ' + wp.longitude.toFixed(4) + '°E')
+        .addTo(map);
+    });
+    map.fitBounds(line.getBounds(), { padding: [30, 30] });
+  </script>
+</body>
+</html>`;
+
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `${routeTitle}.gpx`);
+    link.setAttribute('download', fileName);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     setIsSavedOffline(true);
+
+    // Also open modal preview on screen
+    setShowReportModal(true);
   };
 
-  // Download KML file for Google Earth and mobile map viewers
-  const handleDownloadKML = () => {
-    if (!currentRoute || !currentRoute.waypoints) return;
-    const origName = (PORTS.find((p) => p.id === selectedPortOrigin)?.name || 'Origin').replace(/[^a-zA-Z0-9]/g, '_');
-    const destName = (PORTS.find((p) => p.id === selectedPortDest)?.name || 'Destination').replace(/[^a-zA-Z0-9]/g, '_');
-    const routeTitle = `ORCA_Voyage_${origName}_to_${destName}`;
-
-    const kmlContent = `<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2">
-  <Document>
-    <name>${routeTitle}</name>
-    <description>Nautical Passage Plan (${currentRoute.total_distance_nm} NM, ${currentRoute.estimated_duration_hours}h)</description>
-    <Placemark>
-      <name>${currentRoute.route_name}</name>
-      <LineString>
-        <coordinates>
-${currentRoute.waypoints.map((wp) => `          ${wp.longitude.toFixed(6)},${wp.latitude.toFixed(6)},0`).join('\n')}
-        </coordinates>
-      </LineString>
-    </Placemark>
-${currentRoute.waypoints.map((wp, i) => `    <Placemark>
-      <name>WP ${i + 1}: ${wp.name}</name>
-      <description>${wp.steer_instruction || ''}</description>
-      <Point>
-        <coordinates>${wp.longitude.toFixed(6)},${wp.latitude.toFixed(6)},0</coordinates>
-      </Point>
-    </Placemark>`).join('\n')}
-  </Document>
-</kml>`;
-
-    const blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `${routeTitle}.kml`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    setIsSavedOffline(true);
+  // Reset to default starting configuration: Kochi -> Colombo at 12 kt, 3.2 m draft
+  const handleResetDefaults = () => {
+    setOriginMode('port');
+    setSelectedPortOrigin('kochi');
+    setCustomOrigin({ lat: 9.9656, lon: 76.2425 });
+    setDestMode('port');
+    setSelectedPortDest('colombo');
+    setCustomDest({ lat: 6.9497, lon: 79.8433 });
+    setCruisingSpeed(12.0);
+    setVesselDraft(3.2);
+    setIsOptimizing(true);
+    fetch('/api/routes/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        origin: 'kochi',
+        destination: 'colombo',
+        vessel_speed_knots: 12.0,
+        vessel_draft_meters: 3.2,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setRoutes(data);
+        setActiveRouteIndex(data.length > 1 ? 1 : 0);
+        if (onFocusRoute && data.length > 0) {
+          onFocusRoute(data.length > 1 ? data[1] : data[0]);
+        }
+      })
+      .catch((err) => console.error('Reset defaults error:', err))
+      .finally(() => setIsOptimizing(false));
   };
 
   return (
     <div className="route-planner-panel">
-      <div className="panel-header">
-        <Compass size={20} className="panel-header-icon" />
-        <div>
-          <h3 className="panel-title">Dynamic Route Optimization</h3>
-          <span className="panel-sub">COLREGS Rule 10 & Real-Time Compass Waypoint Steering</span>
+      <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Compass size={20} className="panel-header-icon" />
+          <div>
+            <h3 className="panel-title">Dynamic Route Optimization</h3>
+            <span className="panel-sub">COLREGS Rule 10 & Real-Time Compass Waypoint Steering</span>
+          </div>
         </div>
+        <button
+          type="button"
+          onClick={handleResetDefaults}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px',
+            background: 'rgba(30, 41, 59, 0.85)',
+            border: '1px solid #334155',
+            color: '#94a3b8',
+            fontSize: '11px',
+            fontWeight: '600',
+            padding: '5px 9px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+          }}
+          title="Reset all route parameters to Cochin -> Colombo default route"
+        >
+          <RotateCcw size={12} />
+          <span>Default</span>
+        </button>
       </div>
 
       {/* Live Vessel Location Environmental Telemetry Card */}
@@ -493,49 +709,41 @@ ${currentRoute.waypoints.map((wp, i) => `    <Placemark>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <FileText size={16} style={{ color: '#38bdf8' }} />
-                  <span style={{ fontSize: '13px', fontWeight: '600', color: '#f8fafc' }}>Offline Voyage Package & Exports</span>
+                  <span style={{ fontSize: '13px', fontWeight: '600', color: '#f8fafc' }}>Official Navigation Passage Plan</span>
                 </div>
                 {isSavedOffline && (
                   <span style={{ fontSize: '11px', color: '#10b981', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <CheckCircle2 size={13} /> Cached on Device
+                    <CheckCircle2 size={13} /> Saved to Device
                   </span>
                 )}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-                <button
-                  type="button"
-                  className="btn-download-action"
-                  onClick={handleDownloadGPX}
-                  title="Download NMEA standard GPX file for Garmin, Furuno & OpenCPN plotters"
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px 10px', fontSize: '12px', fontWeight: '600', background: 'rgba(2, 132, 199, 0.15)', border: '1px solid #0284c7', color: '#38bdf8', borderRadius: '6px', cursor: 'pointer' }}
-                >
-                  <Download size={13} />
-                  <span>Download GPX</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="btn-download-action"
-                  onClick={handleDownloadKML}
-                  title="Download KML file for Google Earth and offline mobile mapping"
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px 10px', fontSize: '12px', fontWeight: '600', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10b981', color: '#34d399', borderRadius: '6px', cursor: 'pointer' }}
-                >
-                  <Download size={13} />
-                  <span>Download KML</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="btn-download-action"
-                  onClick={() => setShowReportModal(true)}
-                  title="Generate print-ready Passage Plan Briefing with MRCC emergency contacts"
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px 10px', fontSize: '12px', fontWeight: '600', background: 'rgba(99, 102, 241, 0.15)', border: '1px solid #6366f1', color: '#a5b4fc', borderRadius: '6px', cursor: 'pointer' }}
-                >
-                  <Printer size={13} />
-                  <span>Passage Report</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                className="btn-download-action primary"
+                onClick={handleDownloadPassageReport}
+                title="Directly download official passage briefing with embedded zoomed route map and turn-by-turn waypoints"
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  padding: '12px 16px',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                  border: 'none',
+                  color: '#ffffff',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(2, 132, 199, 0.25)',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <Download size={15} />
+                <span>Download Passage Report (with Zoomed Map)</span>
+              </button>
             </div>
           )}
 
@@ -622,6 +830,28 @@ ${currentRoute.waypoints.map((wp, i) => `    <Placemark>
                 <p style={{ fontSize: '11px', color: '#94a3b8', margin: '2px 0 0 0' }}>Deep-water laminar seaway saves approximately {currentRoute.fuel_saved_liters || 75}L diesel (₹{(currentRoute.fuel_cost_savings_inr || 7050).toLocaleString()}).</p>
               </div>
               <span style={{ fontSize: '13px', fontWeight: '700', color: '#10b981' }}>-{currentRoute.co2_saved_kg || 201} kg CO₂</span>
+            </div>
+
+            {/* Zoomed Geographic Leaflet Map of Route Corridor */}
+            <div style={{ marginBottom: '18px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <h4 style={{ fontSize: '13px', fontWeight: '700', color: '#e2e8f0', margin: 0 }}>
+                  🗺️ Navigational Route Corridor Map (Zoomed)
+                </h4>
+                <span style={{ fontSize: '11px', color: '#38bdf8' }}>Satellite Track · Waypoints 1 to {currentRoute.waypoints.length}</span>
+              </div>
+              <div
+                ref={reportMapRef}
+                id="passage-plan-zoomed-map"
+                style={{
+                  height: '280px',
+                  width: '100%',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  border: '1px solid #334155',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                }}
+              />
             </div>
 
             {/* Waypoint Manifest Table */}
