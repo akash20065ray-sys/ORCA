@@ -469,7 +469,7 @@ export default function PFZAdvisor({ onFocusPFZ }) {
       </div>
 
       {/* Fleet Profile Selector Pill Bar */}
-      <div className="fleet-profile-bar" style={{ margin: '14px 0 10px 0', background: 'rgba(15, 23, 42, 0.7)', padding: '10px 14px', borderRadius: '10px', border: '1px solid #1e293b' }}>
+      <div className="fleet-profile-bar" style={{ margin: '14px 0 10px 0', background: 'rgba(15, 23, 42, 0.7)', padding: '10px 14px', borderRadius: '10px', border: '1.5px solid #334155' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Anchor size={15} style={{ color: activeProfile.color }} />
@@ -523,7 +523,7 @@ export default function PFZAdvisor({ onFocusPFZ }) {
                   alignItems: 'flex-start',
                   padding: '8px 10px',
                   background: isSelected ? 'rgba(2, 132, 199, 0.18)' : '#0f172a',
-                  border: isSelected ? `2px solid ${p.color}` : '1px solid #1e293b',
+                  border: isSelected ? `2px solid ${p.color}` : '1.5px solid #334155',
                   borderRadius: '8px',
                   cursor: 'pointer',
                   textAlign: 'left',
@@ -555,7 +555,7 @@ export default function PFZAdvisor({ onFocusPFZ }) {
       </div>
 
       {/* Interactive Boat Launch Location Selector with Leaflet Mini-Map */}
-      <div className="launch-picker-container" style={{ margin: '12px 0 16px 0', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px 14px' }}>
+      <div className="launch-picker-container" style={{ margin: '12px 0 16px 0', background: 'rgba(15, 23, 42, 0.8)', border: '1.5px solid #334155', borderRadius: '10px', padding: '12px 14px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <MapPin size={16} style={{ color: '#38bdf8' }} />
@@ -990,11 +990,11 @@ export default function PFZAdvisor({ onFocusPFZ }) {
               })}
               style={{
                 background: '#0f172a',
-                border: isHazardous ? '1px solid rgba(239, 68, 68, 0.4)' : isSafe ? '1px solid #1e293b' : '1px solid rgba(245, 158, 11, 0.4)',
+                border: isHazardous ? '1.5px solid rgba(239, 68, 68, 0.6)' : isSafe ? '1.5px solid rgba(56, 189, 248, 0.45)' : '1.5px solid rgba(245, 158, 11, 0.6)',
                 borderRadius: '12px',
                 padding: '16px',
                 marginBottom: '16px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
               }}

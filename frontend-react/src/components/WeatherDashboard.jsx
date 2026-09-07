@@ -841,7 +841,7 @@ export default function WeatherDashboard() {
             }}
           >
             {/* 10M Surface Wind */}
-            <div className="kpi-card" style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '10px', padding: '14px' }}>
+            <div className="kpi-card" style={{ background: '#0f172a', border: '1.5px solid #334155', borderRadius: '10px', padding: '14px', boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)' }}>
               <div className="kpi-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                 <span className="kpi-lbl" style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8' }}>10M SURFACE WIND</span>
                 <Wind size={18} style={{ color: '#0284c7' }} />
@@ -861,7 +861,7 @@ export default function WeatherDashboard() {
             </div>
 
             {/* Significant Wave Height */}
-            <div className="kpi-card" style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '10px', padding: '14px' }}>
+            <div className="kpi-card" style={{ background: '#0f172a', border: '1.5px solid #334155', borderRadius: '10px', padding: '14px', boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)' }}>
               <div className="kpi-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                 <span className="kpi-lbl" style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8' }}>SIGNIFICANT WAVE HEIGHT</span>
                 <Waves size={18} style={{ color: '#06b6d4' }} />
@@ -881,7 +881,7 @@ export default function WeatherDashboard() {
             </div>
 
             {/* Sea Surface Temp (SST) */}
-            <div className="kpi-card" style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '10px', padding: '14px' }}>
+            <div className="kpi-card" style={{ background: '#0f172a', border: '1.5px solid #334155', borderRadius: '10px', padding: '14px', boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)' }}>
               <div className="kpi-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                 <span className="kpi-lbl" style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8' }}>SEA SURFACE TEMP (SST)</span>
                 <Thermometer size={18} style={{ color: '#10b981' }} />
@@ -901,7 +901,7 @@ export default function WeatherDashboard() {
             </div>
 
             {/* Barometric Pressure */}
-            <div className="kpi-card" style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '10px', padding: '14px' }}>
+            <div className="kpi-card" style={{ background: '#0f172a', border: '1.5px solid #334155', borderRadius: '10px', padding: '14px', boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)' }}>
               <div className="kpi-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                 <span className="kpi-lbl" style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8' }}>BAROMETRIC PRESSURE</span>
                 <Gauge size={18} style={{ color: '#f59e0b' }} />
@@ -921,7 +921,7 @@ export default function WeatherDashboard() {
             </div>
 
             {/* Optical Visibility */}
-            <div className="kpi-card" style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '10px', padding: '14px' }}>
+            <div className="kpi-card" style={{ background: '#0f172a', border: '1.5px solid #334155', borderRadius: '10px', padding: '14px', boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)' }}>
               <div className="kpi-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                 <span className="kpi-lbl" style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8' }}>OPTICAL VISIBILITY</span>
                 <Eye size={18} style={{ color: '#38bdf8' }} />
@@ -941,7 +941,7 @@ export default function WeatherDashboard() {
             </div>
 
             {/* Coastal Tidal Harmonic */}
-            <div className="kpi-card" style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '10px', padding: '14px' }}>
+            <div className="kpi-card" style={{ background: '#0f172a', border: '1.5px solid #334155', borderRadius: '10px', padding: '14px', boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)' }}>
               <div className="kpi-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                 <span className="kpi-lbl" style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8' }}>COASTAL TIDAL HARMONIC</span>
                 <Compass size={18} style={{ color: '#10b981' }} />
