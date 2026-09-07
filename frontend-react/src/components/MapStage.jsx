@@ -110,6 +110,50 @@ export default function MapStage({
   const [cursorCoords, setCursorCoords] = useState({ lat: 9.9312, lon: 76.2673 });
   const [isLocating, setIsLocating] = useState(false);
   const [userVessel, setUserVessel] = useState(null);
+  const [activePfzHotspots, setActivePfzHotspots] = useState([]);
+
+  // Dynamic INCOIS PFZ Hotspots Synchronization
+  useEffect(() => {
+    if (!focusedPFZ) {
+      setActivePfzHotspots([]);
+      return;
+    }
+
+    if (Array.isArray(focusedPFZ.allZones) && focusedPFZ.allZones.length > 0) {
+      setActivePfzHotspots(focusedPFZ.allZones);
+      return;
+    }
+
+    const oLat = focusedPFZ.origin_lat ?? focusedPFZ.latitude ?? focusedPFZ.lat;
+    const oLon = focusedPFZ.origin_lon ?? focusedPFZ.longitude ?? focusedPFZ.lon;
+
+    if (oLat != null && oLon != null) {
+      let isSubscribed = true;
+      fetch(`/api/pfz/forecast?lat=${oLat}&lon=${oLon}&craft_type=artisanal`)
+        .then((res) => {
+          if (!res.ok) throw new Error('PFZ fetch failed');
+          return res.json();
+        })
+        .then((data) => {
+          if (!isSubscribed) return;
+          const list = Array.isArray(data) ? data : data.zones || [];
+          if (list.length > 0) {
+            setActivePfzHotspots(list);
+          } else {
+            setActivePfzHotspots([focusedPFZ]);
+          }
+        })
+        .catch(() => {
+          if (isSubscribed) {
+            setActivePfzHotspots([focusedPFZ]);
+          }
+        });
+
+      return () => {
+        isSubscribed = false;
+      };
+    }
+  }, [focusedPFZ]);
 
   // Map Layer States — Clean, static High-Definition Satellite by default (no particles running)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -548,8 +592,8 @@ export default function MapStage({
       }
     }
 
-    // 2. INCOIS PFZ Fishing Zones (Pan-India Coastal Coverage from Official INCOIS Dataset)
-    if (vectorLayers.pfz || focusedPFZ) {
+    // 2. INCOIS PFZ Fishing Zones (Pan-India Coastal Coverage & Dynamic Location Hotspots)
+    if (vectorLayers.pfz || focusedPFZ || activePfzHotspots.length > 0) {
       const allIndiaPfzZones = [
         // Kerala & South Arabian Sea
         { lat: 9.850, lon: 75.880, name: 'Cochin Offshore Front (Vypeen)', species: 'Yellowfin Tuna, Mackerel', sst: '29.4°C', chl: '1.25 mg/m³', conf: '92%' },
@@ -588,96 +632,101 @@ export default function MapStage({
         { lat: 11.500, lon: 93.000, name: 'Port Blair Oceanic Ridge', species: 'Bigeye Tuna, Yellowfin Tuna, Marlin', sst: '29.3°C', chl: '1.10 mg/m³', conf: '97%' },
       ];
 
-      allIndiaPfzZones.forEach((spot) => {
-        const circle = L.circle([spot.lat, spot.lon], {
-          radius: 10000,
-          color: '#059669',
-          fillColor: '#10b981',
-          fillOpacity: 0.2,
-          weight: 1.6,
-          dashArray: '5, 5',
-        }).bindPopup(`<strong>🐟 INCOIS PFZ Zone</strong><br><strong>${spot.name}</strong><br>Target Species: <strong>${spot.species}</strong><br>SST: <strong>${spot.sst}</strong> · Chl-a: <strong>${spot.chl}</strong><br>Confidence Score: <strong>${spot.conf}</strong><br>Coordinates: ${spot.lat.toFixed(4)}°N, ${spot.lon.toFixed(4)}°E`);
-        group.addLayer(circle);
-      });
+      if (vectorLayers.pfz) {
+        allIndiaPfzZones.forEach((spot) => {
+          const circle = L.circle([spot.lat, spot.lon], {
+            radius: 10000,
+            color: '#059669',
+            fillColor: '#10b981',
+            fillOpacity: 0.2,
+            weight: 1.6,
+            dashArray: '5, 5',
+          }).bindPopup(`<strong>🐟 INCOIS PFZ Zone</strong><br><strong>${spot.name}</strong><br>Target Species: <strong>${spot.species}</strong><br>SST: <strong>${spot.sst}</strong> · Chl-a: <strong>${spot.chl}</strong><br>Confidence Score: <strong>${spot.conf}</strong><br>Coordinates: ${spot.lat.toFixed(4)}°N, ${spot.lon.toFixed(4)}°E`);
+          group.addLayer(circle);
+        });
+      }
 
-      const hasDest = focusedPFZ && ((focusedPFZ.latitude != null && focusedPFZ.longitude != null) || (focusedPFZ.lat != null && focusedPFZ.lon != null));
-      if (hasDest) {
-        let origLat = focusedPFZ.origin_lat ?? (shipLocation ? shipLocation.lat : null);
-        let origLon = focusedPFZ.origin_lon ?? (shipLocation ? shipLocation.lon : null);
+      const zonesToRender = activePfzHotspots.length > 0
+        ? activePfzHotspots
+        : (Array.isArray(focusedPFZ?.allZones) && focusedPFZ.allZones.length > 0
+            ? focusedPFZ.allZones
+            : (focusedPFZ ? [focusedPFZ] : []));
+
+      if (zonesToRender.length > 0) {
+        let origLat = focusedPFZ?.origin_lat ?? (shipLocation ? shipLocation.lat : null);
+        let origLon = focusedPFZ?.origin_lon ?? (shipLocation ? shipLocation.lon : null);
 
         if (origLat == null || origLon == null) {
-          const nameCheck = (focusedPFZ.landing_center || focusedPFZ.reference_port || focusedPFZ.sector || '').toLowerCase();
-          if (nameCheck.includes('munambam')) { origLat = 10.1833; origLon = 76.1667; }
-          else if (nameCheck.includes('mumbai') || nameCheck.includes('sassoon')) { origLat = 18.9142; origLon = 72.8278; }
-          else if (nameCheck.includes('chennai') || nameCheck.includes('kasimedu')) { origLat = 13.1189; origLon = 80.2978; }
-          else if (nameCheck.includes('visakhapatnam') || nameCheck.includes('vizag')) { origLat = 17.6868; origLon = 83.2185; }
-          else if (nameCheck.includes('veraval')) { origLat = 20.9000; origLon = 70.3667; }
-          else if (nameCheck.includes('goa') || nameCheck.includes('mormugao')) { origLat = 15.4187; origLon = 73.8010; }
-          else if (nameCheck.includes('mangalore')) { origLat = 12.9230; origLon = 74.8190; }
-          else if (nameCheck.includes('tuticorin')) { origLat = 8.7642; origLon = 78.1348; }
-          else if (nameCheck.includes('paradip')) { origLat = 20.2644; origLon = 86.6698; }
-          else if (shipLocation) { origLat = shipLocation.lat; origLon = shipLocation.lon; }
-          else { origLat = 9.9656; origLon = 76.2425; }
+          if (zonesToRender[0]?.origin_lat != null && zonesToRender[0]?.origin_lon != null) {
+            origLat = zonesToRender[0].origin_lat;
+            origLon = zonesToRender[0].origin_lon;
+          } else if (shipLocation) {
+            origLat = shipLocation.lat;
+            origLon = shipLocation.lon;
+          } else {
+            origLat = 9.9656;
+            origLon = 76.2425;
+          }
         }
 
-        const homeName = focusedPFZ.origin_name || focusedPFZ.landing_center || (shipLocation ? shipLocation.name : 'Home Port Departure');
+        const homeName = focusedPFZ?.origin_name || focusedPFZ?.landing_center || (shipLocation ? shipLocation.name : 'Vessel Departure Point');
 
         // 1. Departure harbor / Boat pin
         const harborIcon = L.divIcon({
           className: 'pfz-harbor-icon',
-          html: `<div style="background: #0284c7; width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid white; box-shadow: 0 0 14px #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 9px; color: white;">🚤</div>`,
-          iconSize: [16, 16],
-          iconAnchor: [8, 8],
+          html: `<div style="background: #0284c7; width: 28px; height: 28px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 16px #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 15px; color: white;">🚤</div>`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14],
         });
         const harborMarker = L.marker([origLat, origLon], { icon: harborIcon })
-          .bindPopup(`<strong>🚤 Departure Launch: ${homeName}</strong><br>Origin: ${origLat.toFixed(4)}°N, ${origLon.toFixed(4)}°E`);
+          .bindPopup(`<strong>🚤 Departure Launch: ${homeName}</strong><br>Coordinates: ${origLat.toFixed(4)}°N, ${origLon.toFixed(4)}°E<br><span style="color:#0284c7;font-weight:600;">Active Departure Origin</span>`);
         group.addLayer(harborMarker);
-
-        // Gather all target zones to render
-        const zonesToRender = Array.isArray(focusedPFZ.allZones) && focusedPFZ.allZones.length > 0
-          ? focusedPFZ.allZones
-          : [focusedPFZ];
 
         zonesToRender.forEach((zone, idx) => {
           const destLat = zone.latitude ?? zone.lat;
           const destLon = zone.longitude ?? zone.lon;
           if (destLat == null || destLon == null) return;
 
+          const isSamePoint = Math.abs(origLat - destLat) < 0.0008 && Math.abs(origLon - destLon) < 0.0008;
+
           const dynBearing = Math.round(calculateBearing(origLat, origLon, destLat, destLon));
           const dynCard = bearingToCardinal(dynBearing);
           const steerDeg = zone.bearing_deg || zone.bearing_degrees || dynBearing;
           const steerCard = zone.bearing_cardinal || dynCard;
-          const distNM = zone.distance_nm || (zone.distance_km ? (zone.distance_km * 0.54).toFixed(1) : 12);
+          const distNM = zone.distance_nm || (zone.distance_km ? +(zone.distance_km * 0.539957).toFixed(1) : 12);
           const isSafe = zone.safety_status === 'SAFE';
 
-          // Steering vector line
-          const navLine = L.polyline([[origLat, origLon], [destLat, destLon]], {
-            color: isSafe ? '#10b981' : '#f59e0b',
-            weight: 3.5,
-            dashArray: '6, 6',
-            opacity: 0.9,
-          }).bindPopup(`<strong>🧭 PFZ Steering Route #${idx + 1}</strong><br><strong>Steer ${steerCard} (${steerDeg}°)</strong><br>Distance: <strong>${distNM} NM</strong><br>Target: <strong>${zone.zone_name || zone.landing_center || zone.name || 'PFZ Hotspot'}</strong>`);
-          group.addLayer(navLine);
+          if (!isSamePoint) {
+            // Steering vector line
+            const navLine = L.polyline([[origLat, origLon], [destLat, destLon]], {
+              color: isSafe ? '#10b981' : '#f59e0b',
+              weight: 3.5,
+              dashArray: '6, 6',
+              opacity: 0.9,
+            }).bindPopup(`<strong>🧭 PFZ Steering Route #${idx + 1}</strong><br><strong>Steer ${steerCard} (${steerDeg}°)</strong><br>Distance: <strong>${distNM} NM</strong><br>Target: <strong>${zone.zone_name || zone.landing_center || zone.name || 'PFZ Hotspot'}</strong>`);
+            group.addLayer(navLine);
+          }
 
           // Hotspot circle with halo
           const activePfzCircle = L.circle([destLat, destLon], {
-            radius: 12000,
+            radius: 8500,
             color: isSafe ? '#059669' : '#d97706',
             fillColor: isSafe ? '#10b981' : '#f59e0b',
-            fillOpacity: 0.3,
-            weight: 2.5,
-          }).bindPopup(`<strong>🐟 #${idx + 1}: ${zone.zone_name || zone.sector || zone.name || 'PFZ Hotspot'}</strong><br>Confidence: <strong>${Math.round((zone.confidence_score || zone.catch_probability || 0.90) * 100)}%</strong><br>Steer: <strong>${steerDeg}° ${steerCard} (${distNM} NM)</strong><br>SST: <strong>${zone.sst_celsius || 28.5}°C</strong> · Chl-a: <strong>${zone.chlorophyll_mg_m3 || 1.6} mg/m³</strong><br>Species: <strong>${Array.isArray(zone.target_species) ? zone.target_species.join(', ') : 'Pelagic Tuna & Mackerel'}</strong><br>Net ROI: <strong style="color:#10b981;">₹${(zone.net_profit_roi_inr || 22000).toLocaleString()}</strong>`);
+            fillOpacity: 0.28,
+            weight: 2.2,
+          }).bindPopup(`<strong>🐟 #${idx + 1}: ${zone.zone_name || zone.sector || zone.name || 'INCOIS PFZ Hotspot'}</strong><br>Confidence: <strong>${Math.round((zone.confidence_score || zone.catch_probability || 0.90) * 100)}%</strong><br>Steer: <strong>${steerDeg}° ${steerCard} (${distNM} NM)</strong><br>SST: <strong>${zone.sst_celsius || 28.5}°C</strong> · Chl-a: <strong>${zone.chlorophyll_mg_m3 || 1.6} mg/m³</strong><br>Species: <strong>${Array.isArray(zone.target_species) ? zone.target_species.join(', ') : (zone.target_species || 'Pelagic Tuna & Mackerel')}</strong><br>Net ROI: <strong style="color:#10b981;">₹${(zone.net_profit_roi_inr || 22000).toLocaleString()}</strong><br>Status: <strong style="color:${isSafe ? '#10b981' : '#f59e0b'};">${isSafe ? 'SAFE CLEARANCE' : 'CAUTION'}</strong>`);
           group.addLayer(activePfzCircle);
 
-          // Center hotspot target pin
-          const targetPin = L.circleMarker([destLat, destLon], {
-            radius: 7,
-            fillColor: isSafe ? '#10b981' : '#f59e0b',
-            color: '#ffffff',
-            weight: 2.5,
-            fillOpacity: 1,
+          // Numbered badge pin
+          const badgeIcon = L.divIcon({
+            className: 'pfz-badge-marker',
+            html: `<div style="background: ${isSafe ? '#059669' : '#d97706'}; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.6);">#${idx + 1}</div>`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
           });
-          group.addLayer(targetPin);
+          const badgeMarker = L.marker([destLat, destLon], { icon: badgeIcon })
+            .bindPopup(`<strong>🐟 Hotspot #${idx + 1}: ${zone.zone_name || zone.name || 'PFZ Hotspot'}</strong><br>Steer: <strong>${steerCard} (${steerDeg}°) · ${distNM} NM</strong><br>Species: <strong>${Array.isArray(zone.target_species) ? zone.target_species.join(', ') : (zone.target_species || 'Pelagic Tuna & Mackerel')}</strong><br>Status: <strong style="color:${isSafe ? '#10b981' : '#f59e0b'};">${isSafe ? 'SAFE CLEARANCE' : 'CAUTION'}</strong>`);
+          group.addLayer(badgeMarker);
         });
       }
     }
@@ -964,7 +1013,7 @@ export default function MapStage({
       }).bindPopup('<strong>Naval Firing Range (Sector W-4)</strong><br>Strict military exclusion zone · Keep clear during live exercises');
       group.addLayer(navalPoly);
     }
-  }, [vectorLayers, focusedRoute, focusedPFZ, hideLayersControl]);
+  }, [vectorLayers, focusedRoute, focusedPFZ, activePfzHotspots, hideLayersControl]);
 
   // Focus Map on Route if requested
   useEffect(() => {
@@ -977,17 +1026,40 @@ export default function MapStage({
     }
   }, [focusedRoute]);
 
-  // Focus Map on PFZ if requested
+  // Focus and fit Map on PFZ if requested
   useEffect(() => {
-    if (!focusedPFZ || !mapInstanceRef.current) return;
-    const lat = focusedPFZ.latitude ?? focusedPFZ.lat;
-    const lon = focusedPFZ.longitude ?? focusedPFZ.lon;
-    if (lat != null && lon != null && !isNaN(lat) && !isNaN(lon)) {
-      mapInstanceRef.current.setView([lat, lon], 10, {
-        animate: true,
+    if (!mapInstanceRef.current) return;
+    if (activePfzHotspots.length > 0) {
+      const origLat = focusedPFZ?.origin_lat ?? (shipLocation ? shipLocation.lat : 9.9656);
+      const origLon = focusedPFZ?.origin_lon ?? (shipLocation ? shipLocation.lon : 76.2425);
+      const points = [[origLat, origLon]];
+      activePfzHotspots.forEach((z) => {
+        const lat = z.latitude ?? z.lat;
+        const lon = z.longitude ?? z.lon;
+        if (lat != null && lon != null) {
+          points.push([lat, lon]);
+        }
       });
+      if (points.length > 1) {
+        try {
+          const bounds = L.latLngBounds(points);
+          if (bounds.isValid()) {
+            mapInstanceRef.current.fitBounds(bounds, { padding: [60, 60], maxZoom: 11 });
+          }
+        } catch (e) {
+          console.warn('MapStage PFZ fitBounds skipped:', e);
+        }
+      }
+    } else if (focusedPFZ) {
+      const lat = focusedPFZ.latitude ?? focusedPFZ.lat;
+      const lon = focusedPFZ.longitude ?? focusedPFZ.lon;
+      if (lat != null && lon != null && !isNaN(lat) && !isNaN(lon)) {
+        mapInstanceRef.current.setView([lat, lon], 10, {
+          animate: true,
+        });
+      }
     }
-  }, [focusedPFZ]);
+  }, [focusedPFZ, activePfzHotspots]);
 
   // Helper unit formatting functions for live ship telemetry
   const formatSpeed = (kt) => {

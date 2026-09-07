@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, ShieldAlert } from 'lucide-react';
+import { Bell } from 'lucide-react';
 
 export default function Header({
   onOpenEmergency,
@@ -51,17 +51,6 @@ export default function Header({
         >
           <Bell size={18} />
           {alertCount > 0 && <span className="badge-count">{alertCount}</span>}
-        </button>
-
-        {/* Emergency Mayday Direct Trigger */}
-        <button
-          type="button"
-          className="btn-emergency-header"
-          onClick={onOpenEmergency}
-          title="Immediate GMDSS Mayday Relay to Coast Guard"
-        >
-          <ShieldAlert size={16} />
-          <span>MAYDAY</span>
         </button>
       </div>
     </header>

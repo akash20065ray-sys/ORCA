@@ -38,8 +38,8 @@ class Settings(BaseModel):
     OPEN_METEO_WEATHER_URL: str = "https://api.open-meteo.com/v1/forecast"
     
     # Coordinates of Reference Region (Default: Indian Ocean / Bay of Bengal / Arabian Sea)
-    DEFAULT_LAT: float = 13.0827
-    DEFAULT_LON: float = 80.2707 # Chennai Port
+    DEFAULT_LAT: float = 9.9656
+    DEFAULT_LON: float = 76.2425 # Cochin Port (Kochi baseline)
     DEFAULT_SEARCH_RADIUS_KM: float = 150.0
 
 settings = Settings()

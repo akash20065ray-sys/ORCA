@@ -2,7 +2,7 @@ import time
 from typing import Dict, Any, List, Optional
 from backend.utils.logger import logger
 from backend.utils.llm_client import llm_client
-from backend.utils.geo import resolve_location_name, COASTAL_PORT_REGISTRY
+from backend.utils.geo import resolve_location_name, COASTAL_PORT_REGISTRY, find_nearest_port
 from backend.config import settings
 
 class PlanningAgent:
@@ -79,7 +79,11 @@ class PlanningAgent:
             "ಬಂದರು", "ಪೋರ್ಟ್", "ಮಂಗಳೂರು", "ಮುಂಬೈ", "ಕೊಚ್ಚಿ",
             "ବନ୍ଦର", "ପୋର୍ଟ", "ପାରାଦୀପ", "ପାରାଦ୍ୱୀପ", "ମୁମ୍ବାଇ", "କୋଚି"
         ]
-        if any(v in q_low for v in display_verbs) and any(p in q_low for p in port_tokens):
+        marine_analytic_tokens = [
+            "chlorophyll", "chl", "sst", "temperature", "fish", "fishing", "pfz", "wave", "waves", "tuna",
+            "safety", "hazard", "route", "cyclone", "storm", "wind", "swell", "tide", "tides", "current", "currents", "safe"
+        ]
+        if any(v in q_low for v in display_verbs) and any(p in q_low for p in port_tokens) and not any(t in q_low for t in marine_analytic_tokens):
             loc = resolve_location_name(user_query)
             target_port_name = loc["name"] if loc else "Cochin Port (Kochi)"
             lat = loc["lat"] if loc else 9.9656
@@ -150,22 +154,65 @@ class PlanningAgent:
         intent = parsed_plan.get("intent", "general_marine_query")
         target_name = parsed_plan.get("target_location")
         
-        # Check current query first
+        # Check current query first for an explicit port or coordinate pattern
         resolved = resolve_location_name(user_query)
 
-        # If not resolved in current query, check explicit location_name from session
-        if not resolved and location_name:
-            resolved = resolve_location_name(location_name)
+        # Multi-turn coordinate handoff when no explicit port is spoken in the prompt:
+        if not resolved:
+            # 3A. Prioritize active user coordinates (from interactive map click, GPS, or vessel telemetry)
+            if user_location and "lat" in user_location and "lon" in user_location:
+                try:
+                    u_lat = float(user_location["lat"])
+                    u_lon = float(user_location["lon"])
+                    nearest_port, dist_km = find_nearest_port(u_lat, u_lon)
+                    if nearest_port and dist_km < 35.0:
+                        port_label = f"{nearest_port['name']} Waters ({dist_km:.1f} km)"
+                    else:
+                        port_label = f"Marine Coordinates ({u_lat:.4f}°N, {u_lon:.4f}°E)"
+                    resolved = {
+                        "lat": u_lat,
+                        "lon": u_lon,
+                        "name": location_name if (location_name and location_name not in ["None", "Default", "Active Nautical Position"]) else port_label,
+                        "state": nearest_port["state"] if nearest_port else "Coastal EEZ",
+                        "region": nearest_port["region"] if nearest_port else "Indian Ocean"
+                    }
+                except (ValueError, TypeError) as e:
+                    logger.warning(f"Error parsing user_location in planning agent: {e}")
 
-        # If still not resolved, scan previous turns in chat_history (newest first)
-        if not resolved and chat_history:
-            for msg in reversed(chat_history):
-                txt = msg.get("content", "")
-                if txt:
-                    past_resolved = resolve_location_name(txt)
-                    if past_resolved:
-                        resolved = past_resolved
-                        break
+            # 3B. Multi-turn context: scan previous turns in chat_history (newest first) for coordinates or ports
+            if not resolved and chat_history:
+                for msg in reversed(chat_history):
+                    # Check structured message metadata coordinates first
+                    meta = msg.get("metadata") or {}
+                    meta_coords = meta.get("coordinates") or meta.get("target_coordinates")
+                    if meta_coords and isinstance(meta_coords, dict):
+                        m_lat = meta_coords.get("latitude") or meta_coords.get("lat")
+                        m_lon = meta_coords.get("longitude") or meta_coords.get("lon")
+                        if m_lat is not None and m_lon is not None:
+                            try:
+                                m_lat = float(m_lat)
+                                m_lon = float(m_lon)
+                                nearest_p, d_km = find_nearest_port(m_lat, m_lon)
+                                resolved = {
+                                    "lat": m_lat,
+                                    "lon": m_lon,
+                                    "name": meta.get("target_location") or (nearest_p["name"] if nearest_p and d_km < 35 else f"Waypoint ({m_lat:.3f}°N, {m_lon:.3f}°E)")
+                                }
+                                break
+                            except (ValueError, TypeError):
+                                pass
+
+                    # Check text content of previous messages
+                    txt = msg.get("content", "")
+                    if txt:
+                        past_resolved = resolve_location_name(txt)
+                        if past_resolved:
+                            resolved = past_resolved
+                            break
+
+            # 3C. Check explicit location_name from session if still not resolved
+            if not resolved and location_name and location_name not in ["None", "Default", "Indian Coastal Waters"]:
+                resolved = resolve_location_name(location_name)
 
         lat = settings.DEFAULT_LAT
         lon = settings.DEFAULT_LON
@@ -174,10 +221,6 @@ class PlanningAgent:
             lat = resolved["lat"]
             lon = resolved["lon"]
             target_name = resolved["name"]
-        elif user_location and "lat" in user_location and "lon" in user_location:
-            lat = user_location["lat"]
-            lon = user_location["lon"]
-            target_name = location_name or "Active Nautical Position"
         elif intent in ["greeting", "out_of_domain"]:
             target_name = target_name or "Indian Coastal Waters"
         elif intent in ["marine_knowledge", "project_knowledge"]:

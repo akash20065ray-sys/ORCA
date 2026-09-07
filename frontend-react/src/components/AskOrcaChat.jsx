@@ -1325,21 +1325,107 @@ export default function AskOrcaChat({
 
         {/* Input Area */}
         <div className="chat-input-area">
-          {/* Quick Action Chips Bar (Universal 1-click maritime queries in active language) */}
+          {/* Quick Action Chips Bar (Universal 1-click maritime overlays & queries in active language) */}
           <div className="quick-actions-strip">
             <button
               type="button"
               className="quick-chip-pill"
-              onClick={() => handleSend(selectedLang === 'mr' ? 'वर्तमान सागरी हवामान आणि लाटांची स्थिती सांगा' : selectedLang === 'hi' ? 'वर्तमान समुद्री मौसम और लहरों की स्थिति बताएं' : 'What is the current sea state, wave height, and wind conditions?')}
-              title="Current wave height, swell & wind status"
+              onClick={() => {
+                onMapAction?.({ type: 'weather', mode: 'waves' });
+                handleSend(selectedLang === 'mr' ? 'वर्तमान लाटांची उंची आणि समुद्राची स्थिती सांगा' : selectedLang === 'hi' ? 'वर्तमान समुद्री लहरें और समुद्र की स्थिति बताएं' : 'What is the current wave height, swell period, and sea state?');
+              }}
+              title="Activate Waves stream overlay on map"
             >
-              🌊 {selectedLang === 'mr' ? 'लाटा व हवामान' : selectedLang === 'hi' ? 'लहरें और मौसम' : 'Waves & Weather'}
+              🌊 {selectedLang === 'mr' ? 'लाटा' : selectedLang === 'hi' ? 'लहरें' : 'Waves'}
             </button>
             <button
               type="button"
               className="quick-chip-pill"
-              onClick={() => handleSend(selectedLang === 'mr' ? 'माझ्या स्थानाजवळील संभाव्य मासेमारी क्षेत्र (PFZ) आणि टूना हॉटस्पॉट दाखवा' : selectedLang === 'hi' ? 'निकटतम संभावित मत्स्य पालन क्षेत्र (PFZ) और टूना हॉटस्पॉट दिखाएं' : 'Show nearest potential fishing zones (PFZ) and tuna hotspots')}
-              title="Find nearest INCOIS fishing hotspots relative to home location"
+              onClick={() => {
+                onMapAction?.({ type: 'weather', mode: 'wind' });
+                handleSend(selectedLang === 'mr' ? 'सागरी वाऱ्याचा वेग, झोत आणि दिशा सांगा' : selectedLang === 'hi' ? 'समुद्री हवा की गति, दिशा और झोंके बताएं' : 'What is the ocean wind speed, gust velocity, and wind direction?');
+              }}
+              title="Activate Wind stream overlay on map"
+            >
+              💨 {selectedLang === 'mr' ? 'वारा' : selectedLang === 'hi' ? 'हवा' : 'Wind'}
+            </button>
+            <button
+              type="button"
+              className="quick-chip-pill"
+              onClick={() => {
+                onMapAction?.({ type: 'weather', mode: 'currents' });
+                handleSend(selectedLang === 'mr' ? 'सागरी प्रवाह आणि पाण्याचा वेग सांगा' : selectedLang === 'hi' ? 'समुद्री धाराएं और बहाव की गति बताएं' : 'What is the ocean current drift and surface circulation?');
+              }}
+              title="Activate Ocean Currents stream overlay on map"
+            >
+              🌀 {selectedLang === 'mr' ? 'प्रवाह' : selectedLang === 'hi' ? 'धाराएं' : 'Currents'}
+            </button>
+            <button
+              type="button"
+              className="quick-chip-pill"
+              onClick={() => {
+                onMapAction?.({ type: 'weather', mode: 'sst' });
+                handleSend(selectedLang === 'mr' ? 'समुद्राच्या पृष्ठभागाचे तापमान (SST) किती आहे?' : selectedLang === 'hi' ? 'समुद्र की सतह का तापमान (SST) कितना है?' : 'What is the sea surface temperature (SST) and thermal gradient?');
+              }}
+              title="Activate Sea Surface Temperature (SST) heatmap on map"
+            >
+              🌡️ {selectedLang === 'mr' ? 'तापमान (SST)' : selectedLang === 'hi' ? 'तापमान (SST)' : 'SST'}
+            </button>
+            <button
+              type="button"
+              className="quick-chip-pill"
+              onClick={() => {
+                const targetLat = selectedMapTarget?.lat ?? shipLocation?.lat ?? 9.9656;
+                const targetLon = selectedMapTarget?.lon ?? shipLocation?.lon ?? 76.2425;
+                const targetName = selectedMapTarget
+                  ? `Selected Location (${targetLat.toFixed(3)}°N, ${targetLon.toFixed(3)}°E)`
+                  : (shipLocation?.name ?? 'Cochin Port (Kochi)');
+
+                if (onMapAction) {
+                  onMapAction({ type: 'weather', mode: 'none' });
+                  fetch(`/api/pfz/forecast?lat=${targetLat.toFixed(4)}&lon=${targetLon.toFixed(4)}&craft_type=artisanal`)
+                    .then((res) => res.json())
+                    .then((zones) => {
+                      const list = Array.isArray(zones) ? zones : zones.zones || [];
+                      onMapAction({
+                        type: 'pfz',
+                        data: {
+                          latitude: list[0]?.latitude ?? targetLat,
+                          longitude: list[0]?.longitude ?? targetLon,
+                          origin_lat: targetLat,
+                          origin_lon: targetLon,
+                          origin_name: targetName,
+                          landing_center: targetName,
+                          name: `${targetName} PFZ Region`,
+                          allZones: list,
+                        },
+                        allZones: list,
+                      });
+                    })
+                    .catch(() => {
+                      onMapAction({
+                        type: 'pfz',
+                        data: {
+                          latitude: targetLat,
+                          longitude: targetLon,
+                          origin_lat: targetLat,
+                          origin_lon: targetLon,
+                          origin_name: targetName,
+                          landing_center: targetName,
+                          name: `${targetName} PFZ Region`,
+                        },
+                      });
+                    });
+                }
+                handleSend(
+                  selectedLang === 'mr'
+                    ? `माझ्या स्थानाजवळील संभाव्य मासेमारी क्षेत्र (PFZ) आणि टूना हॉटस्पॉट दाखवा (${targetName})`
+                    : selectedLang === 'hi'
+                    ? `निकटतम संभावित मत्स्य पालन क्षेत्र (PFZ) और टूना हॉटस्पॉट दिखाएं (${targetName})`
+                    : `Show nearest potential fishing zones (PFZ) and tuna hotspots for ${targetName}`
+                );
+              }}
+              title="Calculate and display INCOIS PFZ hotspots from active location on map"
             >
               🐟 {selectedLang === 'mr' ? 'मासेमारी क्षेत्र (PFZ)' : selectedLang === 'hi' ? 'मत्स्य क्षेत्र (PFZ)' : 'PFZ Hotspots'}
             </button>
@@ -1352,7 +1438,7 @@ export default function AskOrcaChat({
                 }
                 handleSend(selectedLang === 'mr' ? 'नकाशावरील सर्व सागरी स्तर, खोली आणि उपग्रह डेटा स्पष्ट करा' : selectedLang === 'hi' ? 'मानचित्र की सभी समुद्री परतें, गहराई और उपग्रह डेटा समझाएं' : 'Show and explain active ocean GIS map layers, bathymetry, buoys, and satellite overlays');
               }}
-              title="Toggle and inspect active GIS ocean layers & bathymetry"
+              title="Toggle active marine GIS map layers, bathymetry & buoys"
             >
               🗺️ {selectedLang === 'mr' ? 'नकाशा स्तर' : selectedLang === 'hi' ? 'मानचित्र परतें' : 'Map Layers'}
             </button>

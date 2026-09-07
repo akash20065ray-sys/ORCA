@@ -268,7 +268,7 @@ async def broadcast_distress_beacon(req: DistressSignalRequest):
     )
 
     gmdss_text = (
-        f"MAYDAY GMDSS DISTRESS TELEGRAM\n"
+        f"MAYDAY MAYDAY MAYDAY — GMDSS DISTRESS TELEGRAM\n"
         f"DISPATCH ID: {dispatch_token}\n"
         f"RECIPIENT: {target_rec}\n"
         f"VESSEL: {vessel_val} (CALLSIGN: {callsign_val})\n"
