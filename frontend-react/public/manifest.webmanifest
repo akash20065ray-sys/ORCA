@@ -1,0 +1,20 @@
+{
+  "name": "ORCA — Autonomous Marine Intelligence & Route Optimization",
+  "short_name": "ORCA Marine",
+  "description": "Agentic AI Marine Decision-Support Platform with 8 Collaborative Specialized Agents, Dynamic Route Engine, INCOIS PFZ Hotspots, and GMDSS Emergency Distress Beacon.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#020813",
+  "theme_color": "#030b17",
+  "categories": ["navigation", "weather", "productivity"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

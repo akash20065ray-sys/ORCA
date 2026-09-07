@@ -44,7 +44,16 @@ class ORCAOrchestrator:
             "response_synthesis_agent": response_synthesis_agent
         }
 
-    def process_query(self, user_query: str, user_location: Optional[Dict[str, float]] = None, language: str = "en") -> OrchestrationResult:
+    def process_query(
+        self,
+        user_query: str,
+        user_location: Optional[Dict[str, float]] = None,
+        location_name: Optional[str] = None,
+        chat_history: Optional[List[Dict[str, Any]]] = None,
+        language: str = "auto",
+        attachment: Optional[Dict[str, Any]] = None,
+        session_id: Optional[str] = None
+    ) -> OrchestrationResult:
         start_time = time.time()
         query_id = str(uuid.uuid4())
         logger.info(f"=== [ORCA Pipeline Start] Query ID: {query_id} | '{user_query}' | Lang: {language} ===")
@@ -53,10 +62,49 @@ class ORCAOrchestrator:
         context: Dict[str, Any] = {}
 
         # ----------------------------------------------------
+        # Step 0: Multimodal Ingestion Engine (Files, PDFs, Images)
+        # ----------------------------------------------------
+        attachment_data = None
+        if attachment and attachment.get("base64"):
+            try:
+                from backend.utils.document_processor import document_processor
+                doc_start = time.time()
+                attachment_data = document_processor.process_attachment(
+                    base64_data=attachment["base64"],
+                    filename=attachment.get("filename", "marine_document"),
+                    content_type=attachment.get("content_type", "")
+                )
+                doc_dur = round((time.time() - doc_start) * 1000, 2)
+                execution_trace.append(AgentTraceStep(
+                    agent_name="document_processor",
+                    agent_title="0. Multimodal Ingestion Engine",
+                    status="completed",
+                    duration_ms=doc_dur,
+                    summary=f"Ingested {attachment_data.get('file_type', 'file')}: {attachment_data.get('filename')}. Extracted {len(attachment_data.get('extracted_text', ''))} characters.",
+                    output_preview={
+                        "filename": attachment_data.get("filename"),
+                        "file_type": attachment_data.get("file_type"),
+                        "coordinates": attachment_data.get("coordinates")
+                    }
+                ))
+                if attachment_data.get("coordinates") and not user_location:
+                    user_location = {
+                        "lat": attachment_data["coordinates"]["latitude"],
+                        "lon": attachment_data["coordinates"]["longitude"]
+                    }
+            except Exception as e:
+                logger.error(f"Error processing attachment in orchestrator: {e}", exc_info=True)
+
+        # ----------------------------------------------------
         # Step 1: Planning Agent (LLM-powered orchestrator)
         # ----------------------------------------------------
         p_start = time.time()
-        plan = planning_agent.plan(user_query, user_location)
+        plan = planning_agent.plan(
+            user_query=user_query,
+            user_location=user_location,
+            location_name=location_name,
+            chat_history=chat_history
+        )
         p_dur = round((time.time() - p_start) * 1000, 2)
         
         execution_trace.append(AgentTraceStep(
@@ -69,6 +117,61 @@ class ORCAOrchestrator:
         ))
 
         selected = plan.get("selected_agents", [])
+        intent = plan.get("intent", "general_marine_query")
+
+        # Fast-path for conversational greetings, domain guardrails, project architecture, scientific FAQs & port directory
+        if intent in ["greeting", "out_of_domain", "marine_knowledge", "project_knowledge", "port_inquiry"] and not attachment_data:
+            s_start = time.time()
+            synth_res = response_synthesis_agent.synthesize(
+                user_query,
+                plan,
+                context,
+                language=language,
+                attachment_data=attachment_data,
+                chat_history=chat_history
+            )
+            s_dur = round((time.time() - s_start) * 1000, 2)
+            detected_lang = synth_res.get("detected_language", language)
+            execution_trace.append(AgentTraceStep(
+                agent_name="response_synthesis_agent",
+                agent_title="8. Response Synthesis Agent",
+                status="completed",
+                duration_ms=s_dur,
+                summary=f"Synthesized authoritative response for {intent} in language: {detected_lang}.",
+                output_preview={"intent": intent, "language": detected_lang}
+            ))
+            total_time_ms = round((time.time() - start_time) * 1000, 2)
+            result = OrchestrationResult(
+                query_id=query_id,
+                query_text=user_query,
+                intent=intent,
+                target_location=plan.get("target_location", "Indian Maritime Waters"),
+                target_coordinates=plan.get("coordinates", {}),
+                selected_agents=selected,
+                execution_trace=execution_trace,
+                synthesized_response=synth_res.get("synthesized_text", ""),
+                risk_assessment=None,
+                telemetry=None,
+                forecast_timeline=None,
+                pfz_advisories=None,
+                routes=None,
+                active_hazards=None,
+                evidence_citations=[],
+                detected_language=detected_lang,
+                attachment_metadata=None,
+                processing_time_ms=total_time_ms
+            )
+            supabase_db.log_query_audit({
+                "query_id": query_id,
+                "user_query": user_query,
+                "detected_intent": result.intent,
+                "selected_agents": result.selected_agents,
+                "target_location": result.target_location,
+                "risk_level": "N/A",
+                "processing_time_ms": total_time_ms
+            })
+            logger.info(f"=== [ORCA Pipeline Finished (Fast-Path)] Total time: {total_time_ms} ms ===")
+            return result
         
         # ----------------------------------------------------
         # Step 2: Marine Data Retrieval Agent
@@ -183,16 +286,24 @@ class ORCAOrchestrator:
         # Step 8: Response Synthesis Agent (ISRO & Grounded Citations)
         # ----------------------------------------------------
         s_start = time.time()
-        synth_res = response_synthesis_agent.synthesize(user_query, plan, context, language=language)
+        synth_res = response_synthesis_agent.synthesize(
+            user_query=user_query,
+            plan=plan,
+            context=context,
+            language=language,
+            attachment_data=attachment_data,
+            chat_history=chat_history
+        )
         s_dur = round((time.time() - s_start) * 1000, 2)
+        detected_lang = synth_res.get("detected_language", language)
         
         execution_trace.append(AgentTraceStep(
             agent_name="response_synthesis_agent",
             agent_title="8. Response Synthesis Agent",
             status="completed",
             duration_ms=s_dur,
-            summary="Synthesized evidence-backed marine intelligence assessment.",
-            output_preview={"citations_count": len(synth_res.get("citations", []))}
+            summary=f"Synthesized evidence-backed marine intelligence assessment in {detected_lang}.",
+            output_preview={"citations_count": len(synth_res.get("citations", [])), "language": detected_lang}
         ))
 
         # Assemble Telemetry Object
@@ -251,6 +362,13 @@ class ORCAOrchestrator:
             routes=routes,
             active_hazards=hazards,
             evidence_citations=citations,
+            detected_language=detected_lang,
+            attachment_metadata={
+                "filename": attachment_data.get("filename"),
+                "file_type": attachment_data.get("file_type"),
+                "has_coordinates": bool(attachment_data.get("coordinates")),
+                "coordinates": attachment_data.get("coordinates")
+            } if attachment_data else None,
             processing_time_ms=total_time_ms
         )
 

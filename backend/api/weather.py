@@ -58,24 +58,44 @@ async def get_weather_forecast(
     - Real-time Sea Surface Temperature (SST) and thermal stability
     - Coastal tide heights & tidal flood/ebb trends
     """
+    # Default baseline port
     target_lat = 9.9656
     target_lon = 76.2425
     loc_name = "Cochin Port (Kochi, Kerala)"
 
-    if port:
-        resolved = resolve_location_name(port)
+    # Safely extract values regardless of FastAPI Query or direct invocation
+    port_str = port if isinstance(port, str) else None
+    hours_int = hours if isinstance(hours, int) else 24
+
+    lat_val = None
+    lon_val = None
+    try:
+        if lat is not None and not hasattr(lat, "default"):
+            lat_val = float(lat)
+        if lon is not None and not hasattr(lon, "default"):
+            lon_val = float(lon)
+    except (ValueError, TypeError):
+        pass
+
+    if port_str and port_str.lower() not in ["gps", "custom"] and lat_val is None:
+        resolved = resolve_location_name(port_str)
         if resolved:
             target_lat = resolved["lat"]
             target_lon = resolved["lon"]
             loc_name = resolved["name"]
 
-    if lat is not None and lon is not None:
-        target_lat = lat
-        target_lon = lon
-        loc_name = f"Custom Position ({lat:.3f}°N, {lon:.3f}°E)"
+    if lat_val is not None and lon_val is not None:
+        target_lat = lat_val
+        target_lon = lon_val
+        from backend.utils.geo import find_nearest_port
+        nearest, dist_km = find_nearest_port(target_lat, target_lon)
+        if nearest and dist_km <= 35.0:
+            loc_name = f"Off {nearest['name']} ({target_lat:.3f}°N, {target_lon:.3f}°E)"
+        else:
+            loc_name = f"Maritime Location ({target_lat:.3f}°N, {target_lon:.3f}°E)"
 
     # 1. Fetch Marine & Weather from Open-Meteo
-    marine_res = open_meteo_connector.fetch_data(target_lat, target_lon, forecast_hours=min(72, max(12, hours or 24)))
+    marine_res = open_meteo_connector.fetch_data(target_lat, target_lon, forecast_hours=min(72, max(12, hours_int)))
     
     # 2. Fetch SST from Ocean Connector
     ocean_res = ocean_sst_chl_connector.fetch_data(target_lat, target_lon)
@@ -83,8 +103,72 @@ async def get_weather_forecast(
     # 3. Tide Model
     tide_data = _calculate_tide_model(target_lat, target_lon)
 
+    # 4. Regional Advisories & Port Signals
+    from backend.data_connectors.advisories import marine_advisories_connector
+    hazards = marine_advisories_connector.fetch_data()
+
     current_dict = marine_res.get("current", {})
     timeline = marine_res.get("timeline", [])
+    next_12 = timeline[:12] if len(timeline) >= 12 else timeline
+
+    # Calculate 12-Hour Operational Safe Window for Local Fishermen
+    safe_hours_count = 0
+    unsafe_hour_found = None
+    for item in next_12:
+        if item.get("is_safe", True):
+            safe_hours_count += 1
+        elif unsafe_hour_found is None:
+            unsafe_hour_found = item
+
+    curr_wave = current_dict.get("wave_height_m", 1.3)
+    curr_wind = current_dict.get("wind_speed_kts", 14.0)
+    curr_swell = current_dict.get("swell_wave_height_m", 1.1)
+
+    if unsafe_hour_found:
+        safe_window = (
+            f"🟢 Best Fishing Window: Next {safe_hours_count} hours. "
+            f"⚠️ Sea turns choppy around {unsafe_hour_found.get('hour_display', 'afternoon')} "
+            f"(Waves {unsafe_hour_found.get('wave_height_m', 2.0)}m, Wind {unsafe_hour_found.get('wind_speed_kts', 20)} kts). "
+            f"Artisanal skiffs advised to head back to jetty beforehand."
+        )
+    else:
+        safe_window = (
+            f"🟢 Stable Oceanic Window: Entire next 12 hours favourable for coastal and offshore fishing. "
+            f"Waves under 1.6m and gentle breeze ({curr_wind:.0f} kts)."
+        )
+
+    # Determine Port Danger Warning Signal (IMD 1-11)
+    if curr_wind >= 48 or curr_wave >= 4.0:
+        port_sig = {"signal": 7, "name": "Danger Signal No. 7", "status": "SEVERE GALE / CYCLONE THREAT", "action": "Total prohibition on all marine operations."}
+    elif curr_wind >= 28 or curr_wave >= 2.5:
+        port_sig = {"signal": 3, "name": "Local Cautionary Signal No. 3", "status": "SQUALLY WEATHER THREAT", "action": "Small crafts must remain in sheltered harbour."}
+    elif curr_wind >= 20 or curr_wave >= 1.8:
+        port_sig = {"signal": 2, "name": "Warning Signal No. 2", "status": "SWELL & CHOP WARNING", "action": "Artisanal vessels exercise extreme vigilance."}
+    else:
+        port_sig = {"signal": 1, "name": "Cautionary Signal No. 1", "status": "FAIR WEATHER / SQUALL WATCH", "action": "Normal operations permitted with standard lifejackets."}
+
+    # Cyclone Status
+    cyclone_alert = None
+    for h in hazards:
+        if h.advisory_type == "CYCLONE" or "cyclone" in h.title.lower() or "depression" in h.title.lower():
+            cyclone_alert = {
+                "active": True,
+                "title": h.title,
+                "severity": h.severity,
+                "issuing_authority": h.issuing_authority,
+                "description": h.description
+            }
+            break
+
+    # Kallakkadal / Swell Surge Alert
+    kallakkadal_surge = None
+    if curr_swell >= 2.0 or current_dict.get("wave_period_s", 7.0) >= 12.0:
+        kallakkadal_surge = {
+            "active": True,
+            "title": "INCOIS Kallakkadal / Swell Surge Advisory",
+            "swell_height_m": curr_swell,
+            "advisory": "High energy swell waves crossing shelf. Beware of sudden breaker surges and beach inundation at boat landing jetties."
+        }
 
     return {
         "location": {
@@ -95,16 +179,21 @@ async def get_weather_forecast(
         "current": {
             "temperature_celsius": current_dict.get("temperature_c", 29.2),
             "sst_celsius": ocean_res.get("sst_celsius", 28.6),
-            "wind_speed_knots": current_dict.get("wind_speed_kts", 14.0),
+            "wind_speed_knots": curr_wind,
             "wind_gusts_knots": current_dict.get("wind_gusts_kts", 18.5),
             "wind_direction_deg": current_dict.get("wind_direction_deg", 235),
-            "wave_height_meters": current_dict.get("wave_height_m", 1.3),
-            "swell_wave_height_meters": current_dict.get("swell_wave_height_m", 1.1),
+            "wave_height_meters": curr_wave,
+            "swell_wave_height_meters": curr_swell,
             "wave_period_seconds": current_dict.get("wave_period_s", 7.8),
             "surface_pressure_hpa": current_dict.get("surface_pressure_hpa", 1011.5),
             "weather_condition": current_dict.get("weather_condition", "Partly Cloudy")
         },
+        "safe_window_summary": safe_window,
+        "port_danger_signal": port_sig,
+        "cyclone_alert": cyclone_alert,
+        "kallakkadal_surge": kallakkadal_surge,
         "tides": tide_data,
+        "next_12_hours": next_12,
         "timeline": timeline[:hours],
         "data_provenance": {
             "atmospheric_source": "Open-Meteo High-Resolution Global Forecast",

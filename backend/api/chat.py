@@ -21,7 +21,12 @@ class ChatRequest(BaseModel):
     session_id: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
-    language: Optional[str] = "en" # "en", "ta", "hi", "ml", "te", "bn", "gu"
+    location_name: Optional[str] = None
+    language: Optional[str] = "auto" # "auto", "en", "hi", "ta", "ml", "te", "bn", "gu", "mr", "kn", "ur", "pa"
+    chat_history: Optional[List[Dict[str, Any]]] = None
+    attachment_base64: Optional[str] = None
+    attachment_name: Optional[str] = None
+    attachment_type: Optional[str] = None
 
 class VoiceChatRequest(BaseModel):
     transcript: Optional[str] = None
@@ -29,24 +34,53 @@ class VoiceChatRequest(BaseModel):
     session_id: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
-    language: Optional[str] = "en"
+    location_name: Optional[str] = None
+    language: Optional[str] = "auto"
+    chat_history: Optional[List[Dict[str, Any]]] = None
 
 @router.post("", response_model=OrchestrationResult)
 async def process_chat_query(req: ChatRequest):
     if not req.query or not req.query.strip():
         raise HTTPException(status_code=400, detail="Query text cannot be empty.")
     
+    session_id = req.session_id or str(uuid.uuid4())
+    stored_session = chat_sessions_store.get(session_id, {})
+
     user_coords = None
     if req.latitude is not None and req.longitude is not None:
         user_coords = {"lat": req.latitude, "lon": req.longitude}
+    elif stored_session.get("last_coordinates"):
+        user_coords = stored_session.get("last_coordinates")
 
-    session_id = req.session_id or str(uuid.uuid4())
+    location_name = req.location_name or stored_session.get("last_location_name")
+
+    history = req.chat_history
+    if not history and stored_session.get("messages"):
+        history = [
+            {
+                "role": "user" if "query" in m else "assistant",
+                "content": m.get("query") or m.get("result", {}).get("synthesized_response", "")
+            }
+            for m in stored_session["messages"][-6:]
+        ]
+
+    attachment_payload = None
+    if req.attachment_base64:
+        attachment_payload = {
+            "base64": req.attachment_base64,
+            "filename": req.attachment_name or "uploaded_attachment",
+            "content_type": req.attachment_type or "application/octet-stream"
+        }
 
     try:
         result = orca_orchestrator.process_query(
             user_query=req.query.strip(),
             user_location=user_coords,
-            language=req.language or "en"
+            location_name=location_name,
+            chat_history=history,
+            language=req.language or "auto",
+            attachment=attachment_payload,
+            session_id=session_id
         )
 
         # Store in session history
@@ -60,8 +94,18 @@ async def process_chat_query(req: ChatRequest):
             }
 
         chat_sessions_store[session_id]["updated_at"] = time.time()
+        if result.target_coordinates:
+            chat_sessions_store[session_id]["last_coordinates"] = {
+                "lat": result.target_coordinates.get("latitude", 0.0),
+                "lon": result.target_coordinates.get("longitude", 0.0)
+            }
+        if result.target_location:
+            chat_sessions_store[session_id]["last_location_name"] = result.target_location
+
         chat_sessions_store[session_id]["messages"].append({
             "query": req.query,
+            "attachment_name": req.attachment_name,
+            "attachment_type": req.attachment_type,
             "result": result.model_dump(),
             "timestamp": time.time()
         })
@@ -83,6 +127,14 @@ async def stream_chat_query(req: ChatRequest):
 
     session_id = req.session_id or str(uuid.uuid4())
 
+    attachment_payload = None
+    if req.attachment_base64:
+        attachment_payload = {
+            "base64": req.attachment_base64,
+            "filename": req.attachment_name or "uploaded_attachment",
+            "content_type": req.attachment_type or "application/octet-stream"
+        }
+
     async def sse_event_generator():
         try:
             # Stage 1: Intent & Routing
@@ -101,7 +153,8 @@ async def stream_chat_query(req: ChatRequest):
             result = orca_orchestrator.process_query(
                 user_query=req.query.strip(),
                 user_location=user_coords,
-                language=req.language or "en"
+                language=req.language or "auto",
+                attachment=attachment_payload
             )
 
             # Stage 4: Synthesis & Complete
@@ -218,3 +271,14 @@ async def delete_chat_session(session_id: str) -> Dict[str, Any]:
     if session_id in chat_sessions_store:
         del chat_sessions_store[session_id]
     return {"status": "deleted", "session_id": session_id}
+
+@router.get("/languages")
+async def get_supported_languages() -> Dict[str, Any]:
+    """Returns the comprehensive registry of supported Indic and English maritime languages."""
+    from backend.services.language_service import language_service
+    return {
+        "status": "success",
+        "languages": language_service.get_supported_languages(),
+        "total_languages": len(language_service.get_supported_languages())
+    }
+

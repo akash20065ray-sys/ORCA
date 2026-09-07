@@ -13,6 +13,22 @@ const BASEMAP_TILES = {
   openseamap: 'https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',
 };
 
+// Great-circle bearing and 16-point cardinal compass heading calculation
+function calculateBearing(lat1, lon1, lat2, lon2) {
+  if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) return 245;
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const toDeg = (rad) => (rad * 180) / Math.PI;
+  const y = Math.sin(toRad(lon2 - lon1)) * Math.cos(toRad(lat2));
+  const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) - Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(toRad(lon2 - lon1));
+  const bearing = (toDeg(Math.atan2(y, x)) + 360) % 360;
+  return Math.round(bearing);
+}
+
+function bearingToCardinal(deg) {
+  const cardinals = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+  return cardinals[Math.round(deg / 22.5) % 16];
+}
+
 export default function MapStage({
   focusedRoute,
   focusedPFZ,
@@ -24,6 +40,13 @@ export default function MapStage({
   mapTargetLocation = null,
   externalWindyMode = undefined,
   externalVectorLayers = undefined,
+  onSelectMapLocation = null,
+  routePickMode = null,
+  onCancelRoutePick = null,
+  onSelectRoutePoint = null,
+  routeOrigin = null,
+  routeDestination = null,
+  onDragRouteEndpoint = null,
 }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -31,6 +54,57 @@ export default function MapStage({
   const windyEngineRef = useRef(null);
   const vectorLayerGroupRef = useRef(null);
   const userMarkerRef = useRef(null);
+  const targetBeaconMarkerRef = useRef(null);
+  const onSelectMapLocationRef = useRef(onSelectMapLocation);
+  const routePickModeRef = useRef(routePickMode);
+  const onSelectRoutePointRef = useRef(onSelectRoutePoint);
+  const onDragRouteEndpointRef = useRef(onDragRouteEndpoint);
+
+  useEffect(() => {
+    onSelectMapLocationRef.current = onSelectMapLocation;
+  }, [onSelectMapLocation]);
+
+  useEffect(() => {
+    routePickModeRef.current = routePickMode;
+  }, [routePickMode]);
+
+  useEffect(() => {
+    onSelectRoutePointRef.current = onSelectRoutePoint;
+  }, [onSelectRoutePoint]);
+
+  useEffect(() => {
+    onDragRouteEndpointRef.current = onDragRouteEndpoint;
+  }, [onDragRouteEndpoint]);
+
+  // Dynamic Crosshair Cursor for Route Map Picking Mode
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    const container = mapInstanceRef.current.getContainer();
+    if (container) {
+      if (routePickMode) {
+        container.style.cursor = 'crosshair';
+        container.classList.add('map-picking-active');
+      } else {
+        container.style.cursor = '';
+        container.classList.remove('map-picking-active');
+      }
+    }
+  }, [routePickMode]);
+
+  // Smooth fit route bounding box when focusedRoute changes
+  useEffect(() => {
+    if (!focusedRoute || !focusedRoute.waypoints || focusedRoute.waypoints.length === 0 || !mapInstanceRef.current) return;
+    try {
+      const container = mapInstanceRef.current.getContainer();
+      if (!container || !container.clientWidth || !container.clientHeight) return;
+      const bounds = L.latLngBounds(focusedRoute.waypoints.map((w) => [w.latitude, w.longitude]));
+      if (bounds.isValid()) {
+        mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50], maxZoom: 11 });
+      }
+    } catch (e) {
+      console.warn('MapStage fitBounds skipped safely:', e);
+    }
+  }, [focusedRoute]);
 
   // Permanent live cursor coordinates tracking
   const [cursorCoords, setCursorCoords] = useState({ lat: 9.9312, lon: 76.2673 });
@@ -136,24 +210,71 @@ export default function MapStage({
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     // Track mouse coordinates and sample active layer telemetry under cursor
-    map.on('mousemove', (e) => {
-      if (e.latlng) {
-        const lat = +e.latlng.lat.toFixed(4);
-        const lon = +e.latlng.lng.toFixed(4);
-        setCursorCoords({ lat, lon });
-        if (windyEngineRef.current) {
-          const tele = windyEngineRef.current.getTelemetryAt(lat, lon);
-          setHoverTelemetry(tele);
-        }
+  map.on('mousemove', (e) => {
+    if (e.latlng) {
+      const lat = +e.latlng.lat.toFixed(4);
+      const lon = +e.latlng.lng.toFixed(4);
+      setCursorCoords({ lat, lon });
+      if (windyEngineRef.current) {
+        const tele = windyEngineRef.current.getTelemetryAt(lat, lon);
+        setHoverTelemetry(tele);
       }
-    });
+    }
+  });
 
-    // Initialize Base Tiles (High-Definition Esri World Imagery Satellite)
-    const baseTile = L.tileLayer(BASEMAP_TILES.satellite, {
-      maxZoom: 19,
-      attribution: 'Esri, Maxar, Earthstar Geographics',
-    }).addTo(map);
-    tileLayerRef.current = baseTile;
+  // Click anywhere on map to set nautical target and notify ORCA Chatbot or select route point
+  map.on('click', (e) => {
+    if (e.latlng) {
+      const lat = +e.latlng.lat.toFixed(4);
+      const lon = +e.latlng.lng.toFixed(4);
+      setCursorCoords({ lat, lon });
+
+      // If user is currently picking a Route Departure or Destination on map
+      if (routePickModeRef.current && onSelectRoutePointRef.current) {
+        onSelectRoutePointRef.current({ lat, lon });
+        return;
+      }
+
+      // Drop/update radar pulse beacon on clicked location
+      if (targetBeaconMarkerRef.current) {
+        map.removeLayer(targetBeaconMarkerRef.current);
+        targetBeaconMarkerRef.current = null;
+      }
+
+      const pulseIcon = L.divIcon({
+        className: 'orca-target-pulse-container',
+        html: `
+          <div style="position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+            <div style="position: absolute; width: 36px; height: 36px; border-radius: 50%; background: rgba(6, 182, 212, 0.4); animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+            <div style="position: absolute; width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(14, 165, 233, 0.9); background: rgba(2, 132, 199, 0.5);"></div>
+            <div style="position: relative; width: 12px; height: 12px; border-radius: 50%; background: #38bdf8; border: 2px solid #ffffff; box-shadow: 0 0 10px #0284c7;"></div>
+          </div>
+        `,
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
+      });
+
+      const marker = L.marker([lat, lon], { icon: pulseIcon }).addTo(map);
+      marker.bindTooltip(`📍 ${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E`, {
+        direction: 'top',
+        offset: [0, -12],
+        className: 'orca-location-tooltip',
+      });
+
+      targetBeaconMarkerRef.current = marker;
+
+      if (onSelectMapLocationRef.current) {
+        onSelectMapLocationRef.current({ lat, lon });
+      }
+    }
+  });
+
+  // Initialize Base Tiles (High-Definition Esri World Imagery Satellite)
+  const baseTile = L.tileLayer(BASEMAP_TILES.satellite, {
+    maxZoom: 19,
+    attribution: 'Esri, Maxar, Earthstar Geographics',
+  }).addTo(map);
+  tileLayerRef.current = baseTile;
 
     // Initialize Vector Layer Group
     const vectorGroup = L.layerGroup().addTo(map);
@@ -233,13 +354,54 @@ export default function MapStage({
     }
   }, [externalVectorLayers]);
 
-  // Smooth Fly-to target location (e.g. from Chatbot inquiries)
+  // Smooth Fly-to target location & drop pulsing radar beacon (e.g. from Chatbot inquiries)
   useEffect(() => {
     if (!mapTargetLocation || !mapInstanceRef.current) return;
-    mapInstanceRef.current.flyTo([mapTargetLocation.lat, mapTargetLocation.lon], mapTargetLocation.zoom || 9, {
+    const targetLat = Number(mapTargetLocation.lat ?? mapTargetLocation.latitude);
+    const targetLon = Number(mapTargetLocation.lon ?? mapTargetLocation.longitude);
+    if (isNaN(targetLat) || isNaN(targetLon)) return;
+
+    mapInstanceRef.current.flyTo([targetLat, targetLon], mapTargetLocation.zoom || 11, {
       animate: true,
-      duration: 1.5,
+      duration: 1.8,
+      easeLinearity: 0.25
     });
+
+    setCursorCoords({ lat: targetLat, lon: targetLon });
+
+    // Clean up previous beacon marker if present
+    if (targetBeaconMarkerRef.current) {
+      mapInstanceRef.current.removeLayer(targetBeaconMarkerRef.current);
+      targetBeaconMarkerRef.current = null;
+    }
+
+    // Drop high-tech glowing radar pulse marker
+    const pulseIcon = L.divIcon({
+      className: 'orca-target-pulse-container',
+      html: `
+        <div style="position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+          <div style="position: absolute; width: 36px; height: 36px; border-radius: 50%; background: rgba(6, 182, 212, 0.4); animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+          <div style="position: absolute; width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(14, 165, 233, 0.9); background: rgba(2, 132, 199, 0.5);"></div>
+          <div style="position: relative; width: 12px; height: 12px; border-radius: 50%; background: #38bdf8; border: 2px solid #ffffff; box-shadow: 0 0 10px #0284c7;"></div>
+        </div>
+      `,
+      iconSize: [36, 36],
+      iconAnchor: [18, 18],
+    });
+
+    const marker = L.marker([targetLat, targetLon], { icon: pulseIcon }).addTo(mapInstanceRef.current);
+    const title = mapTargetLocation.title || mapTargetLocation.name || 'Chatbot Intelligence Target';
+    marker.bindPopup(`
+      <div style="font-family: system-ui, sans-serif; padding: 2px; min-width: 170px;">
+        <div style="font-weight: 700; color: #0284c7; font-size: 13px; margin-bottom: 4px;">📍 ${title}</div>
+        <div style="font-size: 11px; color: #334155; line-height: 1.4;">
+          <strong>Coordinates:</strong> ${targetLat.toFixed(4)}°N, ${targetLon.toFixed(4)}°E<br/>
+          <span style="color: #059669; font-weight: 600;">● Real-time GPS Locked</span>
+        </div>
+      </div>
+    `).openPopup();
+
+    targetBeaconMarkerRef.current = marker;
   }, [mapTargetLocation]);
 
   // Update Vector Overlays
@@ -262,14 +424,85 @@ export default function MapStage({
         focusedRoute.waypoints.forEach((wp, i) => {
           const isStart = i === 0;
           const isEnd = i === focusedRoute.waypoints.length - 1;
-          const pin = L.circleMarker([wp.latitude, wp.longitude], {
-            radius: isStart || isEnd ? 7 : 5,
-            fillColor: isStart ? '#10b981' : isEnd ? '#ef4444' : '#ffffff',
-            color: '#0284c7',
-            weight: 2.5,
-            fillOpacity: 1,
-          }).bindPopup(`<strong>Waypoint ${i + 1}: ${wp.name}</strong><br>Latitude: ${wp.latitude.toFixed(4)}°, Longitude: ${wp.longitude.toFixed(4)}°<br>Leg: ${wp.segment_distance_nm ?? wp.leg_distance_nm ?? 0} NM`);
-          group.addLayer(pin);
+
+          if (isStart) {
+            const iconA = L.divIcon({
+              className: 'orca-endpoint-pin-container',
+              html: `
+                <div class="orca-map-pin origin" title="Departure Point (A) - Drag to adjust">
+                  <div class="pin-head"><span>A</span></div>
+                  <div class="pin-point"></div>
+                  <div class="pin-pulse"></div>
+                </div>
+              `,
+              iconSize: [32, 38],
+              iconAnchor: [16, 38],
+              popupAnchor: [0, -38],
+            });
+            const markerA = L.marker([wp.latitude, wp.longitude], {
+              icon: iconA,
+              draggable: true,
+            }).addTo(group);
+            markerA.bindPopup(`
+              <div style="font-family: system-ui, sans-serif; padding: 2px; min-width: 175px;">
+                <div style="font-weight: 800; color: #10b981; font-size: 13px; margin-bottom: 2px;">🟢 DEPARTURE POINT (A)</div>
+                <div style="font-weight: 700; color: #1e293b; font-size: 12px;">${wp.name}</div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 3px;">${wp.latitude.toFixed(4)}°N, ${wp.longitude.toFixed(4)}°E</div>
+                <div style="font-size: 10px; color: #0284c7; font-weight: 600; margin-top: 6px; padding-top: 4px; border-top: 1px solid #e2e8f0;">
+                  ⇄ Drag marker on map to recalculate route
+                </div>
+              </div>
+            `);
+            markerA.on('dragend', (evt) => {
+              const pos = evt.target.getLatLng();
+              if (onDragRouteEndpointRef.current) {
+                onDragRouteEndpointRef.current('origin', { lat: +pos.lat.toFixed(4), lon: +pos.lng.toFixed(4) });
+              }
+            });
+          } else if (isEnd) {
+            const iconB = L.divIcon({
+              className: 'orca-endpoint-pin-container',
+              html: `
+                <div class="orca-map-pin destination" title="Destination Point (B) - Drag to adjust">
+                  <div class="pin-head"><span>B</span></div>
+                  <div class="pin-point"></div>
+                  <div class="pin-pulse"></div>
+                </div>
+              `,
+              iconSize: [32, 38],
+              iconAnchor: [16, 38],
+              popupAnchor: [0, -38],
+            });
+            const markerB = L.marker([wp.latitude, wp.longitude], {
+              icon: iconB,
+              draggable: true,
+            }).addTo(group);
+            markerB.bindPopup(`
+              <div style="font-family: system-ui, sans-serif; padding: 2px; min-width: 175px;">
+                <div style="font-weight: 800; color: #ef4444; font-size: 13px; margin-bottom: 2px;">🔴 DESTINATION POINT (B)</div>
+                <div style="font-weight: 700; color: #1e293b; font-size: 12px;">${wp.name}</div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 3px;">${wp.latitude.toFixed(4)}°N, ${wp.longitude.toFixed(4)}°E</div>
+                <div style="font-size: 10px; color: #0284c7; font-weight: 600; margin-top: 6px; padding-top: 4px; border-top: 1px solid #e2e8f0;">
+                  ⇄ Drag marker on map to recalculate route
+                </div>
+              </div>
+            `);
+            markerB.on('dragend', (evt) => {
+              const pos = evt.target.getLatLng();
+              if (onDragRouteEndpointRef.current) {
+                onDragRouteEndpointRef.current('destination', { lat: +pos.lat.toFixed(4), lon: +pos.lng.toFixed(4) });
+              }
+            });
+          } else {
+            const pin = L.circleMarker([wp.latitude, wp.longitude], {
+              radius: 5,
+              fillColor: '#ffffff',
+              color: '#0284c7',
+              weight: 2.5,
+              fillOpacity: 1,
+            }).bindPopup(`<strong>Waypoint ${i + 1}: ${wp.name}</strong><br>Latitude: ${wp.latitude.toFixed(4)}°, Longitude: ${wp.longitude.toFixed(4)}°<br>Leg: ${wp.segment_distance_nm ?? wp.leg_distance_nm ?? 0} NM`);
+            group.addLayer(pin);
+          }
         });
       } else {
         // Route Bravo (Recommended: Safe Deep Water Corridor)
@@ -367,15 +600,85 @@ export default function MapStage({
         group.addLayer(circle);
       });
 
-      if (focusedPFZ && focusedPFZ.latitude && focusedPFZ.longitude) {
-        const activePfzCircle = L.circle([focusedPFZ.latitude, focusedPFZ.longitude], {
-          radius: 14000,
-          color: '#059669',
-          fillColor: '#10b981',
-          fillOpacity: 0.38,
-          weight: 3.2,
-        }).bindPopup(`<strong>🐟 ${focusedPFZ.zone_name || focusedPFZ.sector || focusedPFZ.name || 'Focused PFZ Hotspot'}</strong><br>Confidence: ${Math.round((focusedPFZ.confidence_score || focusedPFZ.catch_probability || 0.90) * 100)}%<br>SST: ${focusedPFZ.sst_celsius || 28.5}°C · Chl-a: ${focusedPFZ.chlorophyll_mg_m3 || 1.6} mg/m³<br>Target Species: ${Array.isArray(focusedPFZ.target_species) ? focusedPFZ.target_species.join(', ') : 'Pelagic Tuna & Mackerel'}`);
-        group.addLayer(activePfzCircle);
+      const hasDest = focusedPFZ && ((focusedPFZ.latitude != null && focusedPFZ.longitude != null) || (focusedPFZ.lat != null && focusedPFZ.lon != null));
+      if (hasDest) {
+        let origLat = focusedPFZ.origin_lat ?? (shipLocation ? shipLocation.lat : null);
+        let origLon = focusedPFZ.origin_lon ?? (shipLocation ? shipLocation.lon : null);
+
+        if (origLat == null || origLon == null) {
+          const nameCheck = (focusedPFZ.landing_center || focusedPFZ.reference_port || focusedPFZ.sector || '').toLowerCase();
+          if (nameCheck.includes('munambam')) { origLat = 10.1833; origLon = 76.1667; }
+          else if (nameCheck.includes('mumbai') || nameCheck.includes('sassoon')) { origLat = 18.9142; origLon = 72.8278; }
+          else if (nameCheck.includes('chennai') || nameCheck.includes('kasimedu')) { origLat = 13.1189; origLon = 80.2978; }
+          else if (nameCheck.includes('visakhapatnam') || nameCheck.includes('vizag')) { origLat = 17.6868; origLon = 83.2185; }
+          else if (nameCheck.includes('veraval')) { origLat = 20.9000; origLon = 70.3667; }
+          else if (nameCheck.includes('goa') || nameCheck.includes('mormugao')) { origLat = 15.4187; origLon = 73.8010; }
+          else if (nameCheck.includes('mangalore')) { origLat = 12.9230; origLon = 74.8190; }
+          else if (nameCheck.includes('tuticorin')) { origLat = 8.7642; origLon = 78.1348; }
+          else if (nameCheck.includes('paradip')) { origLat = 20.2644; origLon = 86.6698; }
+          else if (shipLocation) { origLat = shipLocation.lat; origLon = shipLocation.lon; }
+          else { origLat = 9.9656; origLon = 76.2425; }
+        }
+
+        const homeName = focusedPFZ.origin_name || focusedPFZ.landing_center || (shipLocation ? shipLocation.name : 'Home Port Departure');
+
+        // 1. Departure harbor / Boat pin
+        const harborIcon = L.divIcon({
+          className: 'pfz-harbor-icon',
+          html: `<div style="background: #0284c7; width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid white; box-shadow: 0 0 14px #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 9px; color: white;">🚤</div>`,
+          iconSize: [16, 16],
+          iconAnchor: [8, 8],
+        });
+        const harborMarker = L.marker([origLat, origLon], { icon: harborIcon })
+          .bindPopup(`<strong>🚤 Departure Launch: ${homeName}</strong><br>Origin: ${origLat.toFixed(4)}°N, ${origLon.toFixed(4)}°E`);
+        group.addLayer(harborMarker);
+
+        // Gather all target zones to render
+        const zonesToRender = Array.isArray(focusedPFZ.allZones) && focusedPFZ.allZones.length > 0
+          ? focusedPFZ.allZones
+          : [focusedPFZ];
+
+        zonesToRender.forEach((zone, idx) => {
+          const destLat = zone.latitude ?? zone.lat;
+          const destLon = zone.longitude ?? zone.lon;
+          if (destLat == null || destLon == null) return;
+
+          const dynBearing = Math.round(calculateBearing(origLat, origLon, destLat, destLon));
+          const dynCard = bearingToCardinal(dynBearing);
+          const steerDeg = zone.bearing_deg || zone.bearing_degrees || dynBearing;
+          const steerCard = zone.bearing_cardinal || dynCard;
+          const distNM = zone.distance_nm || (zone.distance_km ? (zone.distance_km * 0.54).toFixed(1) : 12);
+          const isSafe = zone.safety_status === 'SAFE';
+
+          // Steering vector line
+          const navLine = L.polyline([[origLat, origLon], [destLat, destLon]], {
+            color: isSafe ? '#10b981' : '#f59e0b',
+            weight: 3.5,
+            dashArray: '6, 6',
+            opacity: 0.9,
+          }).bindPopup(`<strong>🧭 PFZ Steering Route #${idx + 1}</strong><br><strong>Steer ${steerCard} (${steerDeg}°)</strong><br>Distance: <strong>${distNM} NM</strong><br>Target: <strong>${zone.zone_name || zone.landing_center || zone.name || 'PFZ Hotspot'}</strong>`);
+          group.addLayer(navLine);
+
+          // Hotspot circle with halo
+          const activePfzCircle = L.circle([destLat, destLon], {
+            radius: 12000,
+            color: isSafe ? '#059669' : '#d97706',
+            fillColor: isSafe ? '#10b981' : '#f59e0b',
+            fillOpacity: 0.3,
+            weight: 2.5,
+          }).bindPopup(`<strong>🐟 #${idx + 1}: ${zone.zone_name || zone.sector || zone.name || 'PFZ Hotspot'}</strong><br>Confidence: <strong>${Math.round((zone.confidence_score || zone.catch_probability || 0.90) * 100)}%</strong><br>Steer: <strong>${steerDeg}° ${steerCard} (${distNM} NM)</strong><br>SST: <strong>${zone.sst_celsius || 28.5}°C</strong> · Chl-a: <strong>${zone.chlorophyll_mg_m3 || 1.6} mg/m³</strong><br>Species: <strong>${Array.isArray(zone.target_species) ? zone.target_species.join(', ') : 'Pelagic Tuna & Mackerel'}</strong><br>Net ROI: <strong style="color:#10b981;">₹${(zone.net_profit_roi_inr || 22000).toLocaleString()}</strong>`);
+          group.addLayer(activePfzCircle);
+
+          // Center hotspot target pin
+          const targetPin = L.circleMarker([destLat, destLon], {
+            radius: 7,
+            fillColor: isSafe ? '#10b981' : '#f59e0b',
+            color: '#ffffff',
+            weight: 2.5,
+            fillOpacity: 1,
+          });
+          group.addLayer(targetPin);
+        });
       }
     }
 
@@ -677,9 +980,13 @@ export default function MapStage({
   // Focus Map on PFZ if requested
   useEffect(() => {
     if (!focusedPFZ || !mapInstanceRef.current) return;
-    mapInstanceRef.current.setView([focusedPFZ.latitude, focusedPFZ.longitude], 10, {
-      animate: true,
-    });
+    const lat = focusedPFZ.latitude ?? focusedPFZ.lat;
+    const lon = focusedPFZ.longitude ?? focusedPFZ.lon;
+    if (lat != null && lon != null && !isNaN(lat) && !isNaN(lon)) {
+      mapInstanceRef.current.setView([lat, lon], 10, {
+        animate: true,
+      });
+    }
   }, [focusedPFZ]);
 
   // Helper unit formatting functions for live ship telemetry
@@ -761,6 +1068,31 @@ export default function MapStage({
 
   return (
     <div className="map-stage-container">
+      {/* Top Floating Map Picking Mode Guidance Banner */}
+      {routePickMode && (
+        <div className={`map-picking-floating-banner ${routePickMode}`}>
+          <div className="picking-banner-left">
+            <span className={`picking-pulse-orb ${routePickMode}`} />
+            <div className="picking-text-group">
+              <span className="picking-badge-label">
+                {routePickMode === 'origin' ? 'SELECT DEPARTURE POINT (A)' : 'SELECT DESTINATION POINT (B)'}
+              </span>
+              <span className="picking-instruction">Click anywhere on the water or coastline to lock position</span>
+            </div>
+          </div>
+          {onCancelRoutePick && (
+            <button
+              type="button"
+              className="btn-cancel-map-picking"
+              onClick={onCancelRoutePick}
+              title="Cancel map selection"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Leaflet Map DOM Root */}
       <div ref={mapContainerRef} className="leaflet-map-canvas" />
 
@@ -816,112 +1148,22 @@ export default function MapStage({
         </div>
       </div>
 
-      {/* When in Route Planner: Live Vessel Dataset HUD positioned at the BOTTOM of the map with Unit Toggles */}
+      {/* When in Route Planner: Compact, Simple Live Vessel HUD (Small and Simple as requested) */}
       {hideLayersControl && shipLocation && (
-        <div className="map-ship-telemetry-bottom-overlay">
-          <div className="telemetry-overlay-header">
-            <div className="header-left">
-              <span className="live-pulse-dot" />
-              <span className="overlay-title">LIVE SHIP TELEMETRY DATASET</span>
-              <span className="overlay-loc-name">{shipLocation.name || 'Active Vessel Position'}</span>
-            </div>
-
-            {/* Real-time Unit Converters (User requested: change km/h, m/s, m, ft, °C, °F) */}
-            <div className="telemetry-unit-controls">
-              <div className="unit-toggle-pill">
-                <span className="unit-label">Speed:</span>
-                <button
-                  type="button"
-                  className={`btn-unit ${speedUnit === 'kt' ? 'active' : ''}`}
-                  onClick={() => setSpeedUnit('kt')}
-                >
-                  kt
-                </button>
-                <button
-                  type="button"
-                  className={`btn-unit ${speedUnit === 'km/h' ? 'active' : ''}`}
-                  onClick={() => setSpeedUnit('km/h')}
-                >
-                  km/h
-                </button>
-                <button
-                  type="button"
-                  className={`btn-unit ${speedUnit === 'm/s' ? 'active' : ''}`}
-                  onClick={() => setSpeedUnit('m/s')}
-                >
-                  m/s
-                </button>
-              </div>
-
-              <div className="unit-toggle-pill">
-                <span className="unit-label">Wave:</span>
-                <button
-                  type="button"
-                  className={`btn-unit ${waveUnit === 'm' ? 'active' : ''}`}
-                  onClick={() => setWaveUnit('m')}
-                >
-                  m
-                </button>
-                <button
-                  type="button"
-                  className={`btn-unit ${waveUnit === 'ft' ? 'active' : ''}`}
-                  onClick={() => setWaveUnit('ft')}
-                >
-                  ft
-                </button>
-              </div>
-
-              <div className="unit-toggle-pill">
-                <span className="unit-label">Temp:</span>
-                <button
-                  type="button"
-                  className={`btn-unit ${tempUnit === 'c' ? 'active' : ''}`}
-                  onClick={() => setTempUnit('c')}
-                >
-                  °C
-                </button>
-                <button
-                  type="button"
-                  className={`btn-unit ${tempUnit === 'f' ? 'active' : ''}`}
-                  onClick={() => setTempUnit('f')}
-                >
-                  °F
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="overlay-metrics-row">
-            <div className="metric-chip">
-              <span className="chip-lbl">COORDINATES</span>
-              <span className="chip-val">Latitude: {shipLocation.lat.toFixed(4)}°, Longitude: {shipLocation.lon.toFixed(4)}°</span>
-            </div>
-            <div className="metric-chip">
-              <span className="chip-lbl">WIND SPEED</span>
-              <span className="chip-val">
-                {liveTelemetry ? formatSpeed(liveTelemetry.windKt) : formatSpeed(15.2)} WSW
-              </span>
-            </div>
-            <div className="metric-chip">
-              <span className="chip-lbl">SWELL WAVE</span>
-              <span className="chip-val">
-                {liveTelemetry ? formatWave(liveTelemetry.waveM) : formatWave(1.3)}
-              </span>
-            </div>
-            <div className="metric-chip">
-              <span className="chip-lbl">SST WATER</span>
-              <span className="chip-val">
-                {liveTelemetry ? formatTemp(liveTelemetry.sstC) : formatTemp(28.5)}
-              </span>
-            </div>
-            <div className="metric-chip">
-              <span className="chip-lbl">BAROMETER</span>
-              <span className="chip-val">{liveTelemetry ? `${liveTelemetry.pressureHpa} hPa` : '1012 hPa'}</span>
-            </div>
-            <div className="metric-chip green">
-              <span className="chip-lbl">PASSAGE STATUS</span>
-              <span className="chip-val">{liveTelemetry ? liveTelemetry.seaState : 'Safe Sea State'}</span>
-            </div>
+        <div className="map-ship-telemetry-bottom-overlay compact-route-hud">
+          <div className="compact-hud-content">
+            <span className="live-pulse-dot" />
+            <span className="compact-loc">
+              📍 <strong>{shipLocation.name?.split('(')[0]?.trim() || 'Ship Position'}:</strong> {shipLocation.lat.toFixed(4)}°N, {shipLocation.lon.toFixed(4)}°E
+            </span>
+            <span className="compact-sep">·</span>
+            <span className="compact-val">💨 {liveTelemetry ? formatSpeed(liveTelemetry.windKt) : '15.2 kt'} WSW</span>
+            <span className="compact-sep">·</span>
+            <span className="compact-val">🌊 {liveTelemetry ? formatWave(liveTelemetry.waveM) : '1.3m'}</span>
+            <span className="compact-sep">·</span>
+            <span className="compact-val">🌡️ {liveTelemetry ? formatTemp(liveTelemetry.sstC) : '28.5°C'}</span>
+            <span className="compact-sep">·</span>
+            <span className="compact-status">🟢 Safe Sea State</span>
           </div>
         </div>
       )}

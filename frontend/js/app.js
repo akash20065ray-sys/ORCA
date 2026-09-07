@@ -370,12 +370,12 @@ function startHomeVoiceInput() {
  r.lang = 'en-IN';
  r.interimResults = false;
  r.onresult = e => {
- const text = e.results[0][0].transcript;
- const input = document.getElementById('homeDockInput');
- if (input) {
- input.value = text;
- submitHomeDockChat();
- }
+  const text = e.results[0][0].transcript;
+  const input = document.getElementById('homeDockInput');
+  if (input) {
+  input.value = text;
+  // User reviews/edits and clicks submit arrow manually
+  }
  };
  r.start();
 }
@@ -457,6 +457,7 @@ function switchView(viewName) {
     } catch(e) {}
   };
   invalidateAll();
+  setTimeout(invalidateAll, 60);
   setTimeout(invalidateAll, 60);
   setTimeout(invalidateAll, 160);
   setTimeout(invalidateAll, 360);
@@ -975,22 +976,22 @@ function setupSpeechRecognition() {
  speechRecognizer.interimResults = false;
  speechRecognizer.lang = 'en-IN';
 
- speechRecognizer.onresult = (e) => {
- const text = e.results[0][0].transcript;
- if (currentView === 'home') {
- const hInput = document.getElementById('homeDockInput');
- if (hInput) {
- hInput.value = text;
- submitHomeDockChat();
- }
- } else {
- const vInput = document.getElementById('viewChatInput');
- if (vInput) {
- vInput.value = text;
- submitChatMessage();
- }
- }
- };
+  speechRecognizer.onresult = (e) => {
+  const text = e.results[0][0].transcript;
+  if (currentView === 'home') {
+  const hInput = document.getElementById('homeDockInput');
+  if (hInput) {
+  hInput.value = text;
+  // User reviews/edits and clicks submit arrow manually
+  }
+  } else {
+  const vInput = document.getElementById('viewChatInput');
+  if (vInput) {
+  vInput.value = text;
+  // User reviews/edits and clicks submit arrow manually
+  }
+  }
+  };
 
  speechRecognizer.onend = () => { isVoiceListening = false; };
 }

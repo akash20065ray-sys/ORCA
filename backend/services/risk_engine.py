@@ -131,7 +131,7 @@ class MarineRiskEngine:
         else:
             overall_risk = RiskLevel.LOW
             is_safe = True
-            advisory = "FAVOURABLE & SAFE. Sea and weather parameters are well within normal operating thresholds."
+            advisory = "Current data indicates relatively favorable conditions. Risk is assessed as LOW based on available data. Verify the latest marine advisory before departure."
 
         if not precautions:
             precautions.append("Maintain standard VHF watch on Channel 16 and wear approved life jackets.")

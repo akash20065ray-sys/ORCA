@@ -1,7 +1,6 @@
 /**
  * ORCA Windy-Style Native Canvas Animation & Marine Thermal Heatmap Engine
  * High-performance 60 FPS HTML5 Canvas 2D vector field particle system & static ocean heatmaps.
- * SIH26176 — Smart India Hackathon Enterprise Design System
  */
 
 export const WINDY_COLOR_RAMP = [

@@ -18,6 +18,7 @@ class InSituSensorConnector(BaseDataConnector):
     def __init__(self):
         super().__init__(name="National Data Buoy Programme & Coastal Tide Gauges", source_id="in_situ_sensors", ttl_seconds=900)
         self.marine_api_url = "https://marine-api.open-meteo.com/v1/marine"
+        self._cooldown_until = 0.0
         self.buoys = [
             {"id": "BUOY-BD08", "name": "OMNI Deep Sea Buoy BD08", "lat": 18.20, "lon": 89.70, "region": "Bay of Bengal", "depth_m": 2200, "basin": "bay_of_bengal"},
             {"id": "BUOY-BD09", "name": "OMNI Deep Sea Buoy BD09", "lat": 17.50, "lon": 89.10, "region": "Bay of Bengal", "depth_m": 2100, "basin": "bay_of_bengal"},
@@ -34,6 +35,12 @@ class InSituSensorConnector(BaseDataConnector):
         Fetch live SST, wave height, wave period, and ocean current from Open-Meteo Marine API.
         Returns a dict with live values or None values if the API call fails.
         """
+        import time
+        if time.time() < self._cooldown_until:
+            return {"sst": None, "wave_height": None, "wave_period": None,
+                    "current_velocity": None, "current_direction": None,
+                    "time": None, "is_live": False}
+
         params = {
             "latitude": lat,
             "longitude": lon,
@@ -41,7 +48,7 @@ class InSituSensorConnector(BaseDataConnector):
             "timezone": "auto"
         }
         try:
-            with httpx.Client(timeout=4.0) as client:
+            with httpx.Client(timeout=httpx.Timeout(0.35, connect=0.2, read=0.2)) as client:
                 res = client.get(self.marine_api_url, params=params)
                 if res.status_code == 200:
                     data = res.json()
@@ -56,7 +63,8 @@ class InSituSensorConnector(BaseDataConnector):
                         "is_live": True
                     }
         except Exception as e:
-            logger.warning(f"Live buoy marine API request failed ({e}). Using calibrated regional model.")
+            self._cooldown_until = time.time() + 300.0
+            logger.warning(f"Live buoy marine API request failed ({e}). Using calibrated regional model for next 5m.")
 
         return {"sst": None, "wave_height": None, "wave_period": None,
                 "current_velocity": None, "current_direction": None,

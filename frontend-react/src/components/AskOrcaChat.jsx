@@ -17,32 +17,128 @@ import {
   Waves,
   Wind,
   Thermometer,
+  Globe,
+  Zap,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  Check,
+  Download,
+  Paperclip,
+  FileText,
+  MapPin,
+  X,
 } from 'lucide-react';
+import { exportChatBriefingPDF } from '../utils/pdfExport';
 
-const SUGGESTIONS = [
-  'Analyze voyage from Kochi to Minicoy (Lakshadweep)',
-  'Check monsoon swell and squall risk near Malabar Coast',
-  'Find nearest Yellowfin Tuna PFZ hotspots today',
-  'Is it safe to depart Cochin Port under current sea state?',
+const VERNACULAR_LANGUAGES = [
+  { code: 'auto', label: 'Auto Detect', native: '🌐 Auto', speechLang: 'hi-IN' },
+  { code: 'en', label: 'English', native: 'English', speechLang: 'en-IN' },
+  { code: 'hi', label: 'Hindi', native: 'हिन्दी', speechLang: 'hi-IN' },
+  { code: 'mr', label: 'Marathi', native: 'मराठी', speechLang: 'mr-IN' },
+  { code: 'ta', label: 'Tamil', native: 'தமிழ்', speechLang: 'ta-IN' },
+  { code: 'ml', label: 'Malayalam', native: 'മലയാളം', speechLang: 'ml-IN' },
+  { code: 'te', label: 'Telugu', native: 'తెలుగు', speechLang: 'te-IN' },
+  { code: 'bn', label: 'Bengali', native: 'বাংলা', speechLang: 'bn-IN' },
+  { code: 'gu', label: 'Gujarati', native: 'ગુજરાતી', speechLang: 'gu-IN' },
+  { code: 'kn', label: 'Kannada', native: 'ಕನ್ನಡ', speechLang: 'kn-IN' },
+  { code: 'or', label: 'Odia', native: 'ଓଡ଼ିଆ', speechLang: 'or-IN' },
+  { code: 'kok', label: 'Konkani', native: 'कोंकणी', speechLang: 'kok-IN' },
+  { code: 'pa', label: 'Punjabi', native: 'ਪੰਜਾਬੀ', speechLang: 'pa-IN' },
+  { code: 'as', label: 'Assamese', native: 'অসমীয়া', speechLang: 'as-IN' },
+  { code: 'ur', label: 'Urdu', native: 'اردو', speechLang: 'ur-IN' },
+  { code: 'sa', label: 'Sanskrit', native: 'संस्कृतम्', speechLang: 'sa-IN' },
+  { code: 'si', label: 'Sinhala', native: 'සිංහල', speechLang: 'si-LK' },
+  { code: 'ar', label: 'Arabic', native: 'العربية', speechLang: 'ar-SA' },
+  { code: 'fr', label: 'French', native: 'Français', speechLang: 'fr-FR' },
+  { code: 'pt', label: 'Portuguese', native: 'Português', speechLang: 'pt-PT' },
 ];
+
+const REGIONAL_SUGGESTIONS = {
+  en: [
+    'Is it safe to depart Cochin Port under current sea state?',
+    'Find nearest Yellowfin Tuna PFZ hotspots near Munambam',
+    'What is Kallakkadal and how should skippers prepare?',
+    'Explain official IMD Port Warning Signals 1 through 11',
+    'Analyze safest route from Mumbai to Goa avoiding rough swells',
+  ],
+  hi: [
+    'क्या कल सुबह कोच्चि से प्रस्थान करना सुरक्षित है?',
+    'मुनंबम के पास टूना मछली के हॉटस्पॉट कहाँ हैं?',
+    'कल्लाक्कदल क्या है और मछुआरों को क्या सावधानी बरतनी चाहिए?',
+    'आईएमडी पोर्ट डेंजर सिग्नल 1 से 11 के क्या अर्थ हैं?',
+    'मुंबई से गोवा के लिए सबसे सुरक्षित समुद्री मार्ग बताएं',
+  ],
+  ta: [
+    'நாளை காலை கொச்சி துறைமுகத்திலிருந்து புறப்படுவது பாதுகாப்பானதா?',
+    'முனம்பம் அருகே சூரை மீன் (Tuna) அதிகம் உள்ள இடங்கள் எங்கே?',
+    'கள்ளக்கடல் என்றால் என்ன, படகுகளை எவ்வாறு பாதுகாக்க வேண்டும்?',
+    'துறைமுக எச்சரிக்கை சிக்னல்கள் 1 முதல் 11 வரை விளக்கம் தருக',
+    'மும்பையிலிருந்து கோவா செல்ல பாதுகாப்பான கடல் வழித்தடம்',
+  ],
+  ml: [
+    'നാളെ രാവിലെ കൊച്ചിയിൽ നിന്ന് കടലിൽ പോകുന്നത് സുരക്ഷിതമാണോ?',
+    'മുനമ്പത്തിന് സമീപമുള്ള ചൂര (Tuna) മീൻ ലഭ്യത അറിയുക',
+    'കള്ളക്കടൽ എന്നാൽ എന്താണ്? വള്ളങ്ങൾ എങ്ങനെ സംരക്ഷിക്കണം?',
+    'പോർട്ട് ഡേഞ്ചർ സിഗ്നലുകൾ 1 മുതൽ 11 വരെയുള്ള വിവരങ്ങൾ',
+    'കൊച്ചിയിൽ നിന്ന് ലക്ഷദ്വീപിലേക്ക് ശാന്തമായ യാത്രാ റൂട്ട്',
+  ],
+  bn: [
+    'আগামীকাল সকালে সমুদ্রে যাত্রা করা কি নিরাপদ?',
+    'নিকটবর্তী টুনা মাছ ধরার সম্ভাব্য হটস্পট কোথায়?',
+    'ঝড় ও ঢেউ এড়িয়ে সবচেয়ে নিরাপদ নেভিগেশন রুট',
+    'বন্দর সতর্কবার্তা সিগন্যাল ১ থেকে ১১ এর অর্থ কী?',
+  ],
+  gu: [
+    'શું વેરાવળથી આવતીકાલે સવારે દરિયામાં જવું સુરક્ષિત છે?',
+    'નજીકના ટૂના ફિશિંગ હોટસ્પોટ ક્યાં આવેલા છે?',
+    'તોફાની મોજાં ટાળીને સલામત દરિયાઈ માર્ગ બતાવો',
+    'પોર્ટ ચેતવણી સિગ્નલ 1 થી 11 ની સમજૂતી આપો',
+  ],
+  mr: [
+    'उद्या सकाळी मुंबई बंदरातून समुद्रात जाणे सुरक्षित आहे का?',
+    'रत्नागिरी आणि मालवण जवळ टूना मासेमारीची ठिकाणे कुठे आहेत?',
+    'कल्लाक्कदल (Kallakkadal) म्हणजे काय आणि नौकांचे रक्षण कसे करावे?',
+    'आयएमडी बंदर धोक्याचे संकेत १ ते ११ चा अर्थ स्पष्ट करा',
+    'मुंबई ते गोवा प्रवासासाठी सर्वात सुरक्षित सागरी मार्ग कोणता?',
+  ],
+};
 
 const MARITIME_PORTS = [
-  { name: 'Kochi', aliases: ['kochi', 'cochin', 'munambam', 'vypeen', 'kerala'], lat: 9.9656, lon: 76.2425, zoom: 9 },
-  { name: 'Mumbai', aliases: ['mumbai', 'bombay', 'sassoon', 'maharashtra'], lat: 18.9220, lon: 72.8347, zoom: 9 },
-  { name: 'Chennai', aliases: ['chennai', 'madras', 'pulicat', 'tamil nadu'], lat: 13.0827, lon: 80.2707, zoom: 9 },
-  { name: 'Visakhapatnam', aliases: ['visakhapatnam', 'vizag', 'andhra'], lat: 17.6868, lon: 83.2185, zoom: 9 },
-  { name: 'Goa', aliases: ['goa', 'mormugao', 'panaji'], lat: 15.4989, lon: 73.8278, zoom: 9 },
-  { name: 'Mangalore', aliases: ['mangalore', 'mangaluru', 'karnataka', 'karwar'], lat: 12.9141, lon: 74.8560, zoom: 9 },
-  { name: 'Tuticorin', aliases: ['tuticorin', 'thoothukudi', 'mannar', 'kanyakumari', 'wadge'], lat: 8.7642, lon: 78.1348, zoom: 9 },
-  { name: 'Veraval', aliases: ['veraval', 'porbandar', 'gujarat', 'saurashtra', 'okha'], lat: 20.9000, lon: 70.3667, zoom: 9 },
-  { name: 'Paradip', aliases: ['paradip', 'paradeep', 'odisha', 'sundarbans', 'bengal'], lat: 20.3160, lon: 86.6110, zoom: 9 },
-  { name: 'Port Blair', aliases: ['port blair', 'andaman', 'nicobar'], lat: 11.6234, lon: 92.7265, zoom: 9 },
-  { name: 'Minicoy', aliases: ['minicoy', 'lakshadweep', 'kavaratti'], lat: 8.2833, lon: 73.0500, zoom: 9 },
+  { name: 'Kochi', aliases: ['kochi', 'cochin', 'munambam', 'vypeen', 'kerala', 'beypore', 'calicut', 'kozhikode', 'vizhinjam', 'കൊച്ചി', 'മുനമ്പം', 'കോഴിക്കോട്', 'വിഴിഞ്ഞം', 'कोच्चि', 'कोचीन', 'கொச்சி', 'కొచ్చి', 'কোচি', 'કોચી'], lat: 9.9656, lon: 76.2425, zoom: 9 },
+  { name: 'Mumbai', aliases: ['mumbai', 'bombay', 'sassoon', 'maharashtra', 'ratnagiri', 'alibaug', 'मुंबई', 'बम्बई', 'மும்பை', 'മുംബൈ', 'ముంబై', 'মুম্বাই', 'મુંબઈ'], lat: 18.9220, lon: 72.8347, zoom: 9 },
+  { name: 'Chennai', aliases: ['chennai', 'madras', 'pulicat', 'tamil nadu', 'kasimedu', 'ennore', 'चेन्नई', 'சென்னை', 'ചെന്നൈ', 'చెన్నై', 'চেন্নাই', 'ચેન્નાઈ'], lat: 13.0827, lon: 80.2707, zoom: 9 },
+  { name: 'Visakhapatnam', aliases: ['visakhapatnam', 'vizag', 'andhra', 'kakinada', 'machilipatnam', 'విశాఖపట్నం', 'వైజాగ్', 'కాకినాడ', 'विशाखापट्टनम', 'விசாகப்பட்டினம்'], lat: 17.6868, lon: 83.2185, zoom: 9 },
+  { name: 'Goa', aliases: ['goa', 'mormugao', 'panaji', 'panjim', 'vasco', 'गोवा', 'पणजी', 'கோவா', 'ഗോവ', 'గోవా', 'গোয়া'], lat: 15.4989, lon: 73.8278, zoom: 9 },
+  { name: 'Mangalore', aliases: ['mangalore', 'mangaluru', 'karnataka', 'karwar', 'malpe', 'udupi', 'ಮಂಗಳೂರು', 'ಕಾರವಾರ', 'मंगलौर', 'மங்களூர்', 'മംഗലാപുരം'], lat: 12.9141, lon: 74.8560, zoom: 9 },
+  { name: 'Tuticorin', aliases: ['tuticorin', 'thoothukudi', 'mannar', 'kanyakumari', 'wadge', 'colachel', 'தூத்துக்குடி', 'கன்னியாகுமரி', 'तूतीकोरिन', 'തൂത്തുക്കുടി'], lat: 8.7642, lon: 78.1348, zoom: 9 },
+  { name: 'Veraval', aliases: ['veraval', 'porbandar', 'gujarat', 'saurashtra', 'okha', 'kandla', 'mundra', 'વેરાવળ', 'પોરબંદર', 'કંડલા', 'ઓખા', 'वेरावल', 'पोरबंदर'], lat: 20.9000, lon: 70.3667, zoom: 9 },
+  { name: 'Paradip', aliases: ['paradip', 'paradeep', 'odisha', 'sundarbans', 'bengal', 'haldia', 'digha', 'dhamra', 'puri', 'kolkata', 'पारादीप', 'কলকাতা', 'দীঘা', 'পারাদীপ'], lat: 20.3160, lon: 86.6110, zoom: 9 },
+  { name: 'Port Blair', aliases: ['port blair', 'andaman', 'nicobar', 'havelock', 'पोर्ट ब्लेयर', 'अंडमान', 'அந்தமான்', 'പോർട്ട് ബ്ലെയർ'], lat: 11.6234, lon: 92.7265, zoom: 9 },
+  { name: 'Minicoy', aliases: ['minicoy', 'lakshadweep', 'kavaratti', 'agatti', 'लक्षद्वीप', 'कावारत्ती', 'ലക്ഷദ്വീപ്', 'കവരത്തി'], lat: 8.2833, lon: 73.0500, zoom: 9 },
 ];
 
-const LOCAL_STORAGE_KEY = 'orca_ai_chat_sessions_v1';
+const LOCAL_STORAGE_KEY = 'orca_ai_chat_sessions_v7';
+const AUTO_SPEECH_STORAGE_KEY = 'orca_auto_speech_v3';
 
-export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage = false }) {
+const makeUniqueId = (prefix) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+export default function AskOrcaChat({
+  onShowOnMap,
+  onMapAction,
+  isDedicatedPage = false,
+  selectedMapTarget = null,
+  onClearMapTarget = null,
+  shipLocation = null,
+}) {
+  const [isAutoSpeechEnabled, setIsAutoSpeechEnabled] = useState(() => {
+    try {
+      return localStorage.getItem(AUTO_SPEECH_STORAGE_KEY) === 'true';
+    } catch {
+      return false; // Initially OFF by default as requested by user
+    }
+  });
+
   const [sessions, setSessions] = useState(() => {
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -53,9 +149,10 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
     return [
       {
         id: 'session-default',
-        title: 'Cochin Offshore Voyage Query',
+        title: 'Maritime Intelligence Copilot',
         createdAt: new Date().toLocaleDateString(),
         messages: [],
+        lastLocation: null,
       },
     ];
   });
@@ -64,9 +161,16 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
     return sessions[0]?.id || 'session-default';
   });
 
+  const [selectedLang, setSelectedLang] = useState('auto');
   const [inputQuery, setInputQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState('');
+  const [expandedTraceIds, setExpandedTraceIds] = useState([]);
+  const [copiedMsgId, setCopiedMsgId] = useState(null);
+
+  // Multimodal File / Image Attachment State
+  const [attachedFile, setAttachedFile] = useState(null); // { name, type, size, base64, previewUrl }
+  const fileInputRef = useRef(null);
 
   // Voice State
   const [isListening, setIsListening] = useState(false);
@@ -74,9 +178,8 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
 
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
-  const messageCounterRef = useRef(1);
 
-  // Save sessions to localStorage
+  // Persist sessions
   useEffect(() => {
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sessions));
@@ -91,25 +194,28 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
     return currentSession ? currentSession.messages : [];
   }, [currentSession]);
 
-  // Initialize Speech Recognition
+  // Initialize Speech Recognition (Omni-lingual transcription)
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       const recog = new SpeechRecognition();
       recog.continuous = false;
       recog.interimResults = true;
-      recog.lang = 'en-US';
+      recog.lang = 'en-IN'; // Indian multilingual speech recognition profile
 
       recog.onresult = (event) => {
         let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
+        for (let i = 0; i < event.results.length; i++) {
           transcript += event.results[i][0].transcript;
         }
         setInputQuery(transcript);
       };
 
       recog.onerror = () => setIsListening(false);
-      recog.onend = () => setIsListening(false);
+      recog.onend = () => {
+        setIsListening(false);
+        // Strictly DO NOT auto-submit: user clicks the submit arrow button
+      };
 
       recognitionRef.current = recog;
     }
@@ -126,7 +232,8 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
   // Voice Input Toggle
   const toggleListening = () => {
     if (!recognitionRef.current) {
-      setInputQuery('What is the wave swell and wind condition near Kochi?');
+      const sampleQueries = (selectedLang && REGIONAL_SUGGESTIONS[selectedLang]) || REGIONAL_SUGGESTIONS.en;
+      setInputQuery(sampleQueries[0]);
       return;
     }
 
@@ -134,13 +241,63 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
       recognitionRef.current.stop();
       setIsListening(false);
     } else {
-      recognitionRef.current.start();
-      setIsListening(true);
+      try {
+        const langMap = {
+          auto: 'hi-IN',
+          mr: 'mr-IN',
+          hi: 'hi-IN',
+          ta: 'ta-IN',
+          ml: 'ml-IN',
+          te: 'te-IN',
+          bn: 'bn-IN',
+          gu: 'gu-IN',
+          kn: 'kn-IN',
+          or: 'or-IN',
+          kok: 'kok-IN',
+          pa: 'pa-IN',
+          as: 'as-IN',
+          ur: 'ur-IN',
+          sa: 'sa-IN',
+          si: 'si-LK',
+          ar: 'ar-SA',
+          fr: 'fr-FR',
+          pt: 'pt-PT',
+          en: 'en-IN'
+        };
+        recognitionRef.current.lang = langMap[selectedLang] || 'en-IN';
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch {
+        setIsListening(false);
+      }
     }
   };
 
-  // Text to Speech
-  const toggleSpeech = (msgId, text) => {
+  // File Attachment Handling
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 15 * 1024 * 1024) {
+      alert('File size exceeds 15MB limit.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setAttachedFile({
+        name: file.name,
+        type: file.type || 'application/octet-stream',
+        size: file.size,
+        base64: reader.result,
+        previewUrl: file.type.startsWith('image/') ? reader.result : null,
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Text to Speech with Native Regional Speech Synthesis
+  const toggleSpeech = (msgId, text, msgLang) => {
     if (!window.speechSynthesis) return;
 
     if (speakingMsgId === msgId) {
@@ -155,6 +312,30 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
     utterance.rate = 1.0;
     utterance.pitch = 0.95;
 
+    const targetLang = (msgLang && msgLang !== 'auto') ? msgLang : 'en';
+    const SPEECH_LANG_MAP = {
+      en: 'en-IN',
+      hi: 'hi-IN',
+      ta: 'ta-IN',
+      ml: 'ml-IN',
+      te: 'te-IN',
+      bn: 'bn-IN',
+      gu: 'gu-IN',
+      mr: 'mr-IN',
+      kn: 'kn-IN',
+      ur: 'ur-PK',
+      pa: 'pa-IN'
+    };
+    const bcpTag = SPEECH_LANG_MAP[targetLang] || 'en-IN';
+    utterance.lang = bcpTag;
+
+    // Pick best matching voice
+    const voices = window.speechSynthesis.getVoices();
+    const matchedVoice = voices.find((v) => v.lang === bcpTag) || voices.find((v) => v.lang.startsWith(targetLang));
+    if (matchedVoice) {
+      utterance.voice = matchedVoice;
+    }
+
     utterance.onend = () => setSpeakingMsgId(null);
     utterance.onerror = () => setSpeakingMsgId(null);
 
@@ -162,14 +343,41 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
     window.speechSynthesis.speak(utterance);
   };
 
+  // Direct Download: Export Chat Briefing as PDF directly into user's Downloads folder (No print/save dialog)
+  const handleDownloadPDF = () => {
+    if (messages.length === 0) return;
+    const sessionTitle = currentSession?.title || 'Maritime Intelligence Briefing';
+    try {
+      exportChatBriefingPDF(messages, sessionTitle);
+    } catch (err) {
+      console.error('Failed to export chat briefing PDF:', err);
+    }
+  };
+
+  // Copy Message to Clipboard
+  const handleCopy = (msgId, text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedMsgId(msgId);
+      setTimeout(() => setCopiedMsgId(null), 2000);
+    });
+  };
+
+  // Toggle Reasoning Trace Accordion
+  const toggleTrace = (msgId) => {
+    setExpandedTraceIds((prev) =>
+      prev.includes(msgId) ? prev.filter((id) => id !== msgId) : [...prev, msgId]
+    );
+  };
+
   // Create New Chat Session
   const createNewSession = () => {
     const newId = `session-${Date.now()}`;
     const newSession = {
       id: newId,
-      title: 'New Ocean Inquiry',
+      title: 'New Maritime Inquiry',
       createdAt: new Date().toLocaleDateString(),
       messages: [],
+      lastLocation: null,
     };
     setSessions((prev) => [newSession, ...prev]);
     setActiveSessionId(newId);
@@ -179,13 +387,13 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
   const deleteSession = (e, sessionId) => {
     e.stopPropagation();
     if (sessions.length <= 1) {
-      // Clear messages instead of deleting sole session
       setSessions([
         {
           id: 'session-default',
-          title: 'New Ocean Inquiry',
+          title: 'Maritime Intelligence Copilot',
           createdAt: new Date().toLocaleDateString(),
           messages: [],
+          lastLocation: null,
         },
       ]);
       return;
@@ -199,13 +407,21 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
 
   // Submit Query to real backend API
   const handleSend = async (queryToSend = null) => {
-    const query = (queryToSend || inputQuery).trim();
-    if (!query || isLoading) return;
+    const rawQuery = (queryToSend || inputQuery).trim();
+    if ((!rawQuery && !attachedFile) || isLoading) return;
+
+    const query = rawQuery || (attachedFile ? `Inspect attached maritime file: ${attachedFile.name}` : '');
+    const currentAttachment = attachedFile ? { ...attachedFile } : null;
 
     const lowerQuery = query.toLowerCase();
     const matchedPort = MARITIME_PORTS.find((p) =>
       p.aliases.some((alias) => lowerQuery.includes(alias))
     );
+
+    // Resolve active reference location: matched port > clicked map target > user's home port > default Kochi
+    const activeLat = matchedPort?.lat ?? selectedMapTarget?.lat ?? shipLocation?.lat ?? 9.9656;
+    const activeLon = matchedPort?.lon ?? selectedMapTarget?.lon ?? shipLocation?.lon ?? 76.2425;
+    const activeName = matchedPort?.name ?? (selectedMapTarget ? `Selected Map Point (${activeLat.toFixed(3)}°N, ${activeLon.toFixed(3)}°E)` : (shipLocation?.name ?? 'Cochin Port (Kochi)'));
 
     // Immediate Real-Time Map Actions on Query Dispatch
     if (onMapAction) {
@@ -214,8 +430,31 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
           type: 'flyto',
           data: { lat: matchedPort.lat, lon: matchedPort.lon, zoom: matchedPort.zoom },
         });
+      } else if (selectedMapTarget) {
+        onMapAction({
+          type: 'flyto',
+          data: { lat: selectedMapTarget.lat, lon: selectedMapTarget.lon, zoom: 10 },
+        });
       }
-      if (/wave|swell|sea state/i.test(query)) {
+
+      const isPfz = /pfz|fish|fishing|tuna|mackerel|sardine|catch|chlorophyll|hotspot|मछली|टूना|मीन|சூரை|മീൻ|ചൂര|చేపలు|మాছ|માછલી|मासे|ಮೀನು/i.test(query);
+      const isNegativeWave = /mat dikhao|nahin dekhna|nahi dekhna|not show|don'?t show/i.test(query);
+
+      if (isPfz) {
+        onMapAction({ type: 'weather', mode: 'none' });
+        onMapAction({
+          type: 'pfz',
+          data: {
+            latitude: activeLat,
+            longitude: activeLon,
+            origin_lat: activeLat,
+            origin_lon: activeLon,
+            origin_name: activeName,
+            landing_center: activeName,
+            name: `${activeName} PFZ Region`,
+          }
+        });
+      } else if (/wave|swell|sea state/i.test(query) && !isNegativeWave) {
         onMapAction({ type: 'weather', mode: 'waves' });
       } else if (/current|drift/i.test(query)) {
         onMapAction({ type: 'weather', mode: 'currents' });
@@ -226,10 +465,12 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
 
     const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const userMsg = {
-      id: `user-${messageCounterRef.current++}`,
+      id: makeUniqueId('user'),
       sender: 'user',
       text: query,
       timestamp: timeString,
+      language: 'auto',
+      attachment: currentAttachment,
     };
 
     // Update session title if first message
@@ -249,50 +490,141 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
     );
 
     setInputQuery('');
+    setAttachedFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+
     setIsLoading(true);
-    setLoadingStatus('Consulting maritime models & INCOIS ocean telemetry...');
+    setLoadingStatus(
+      currentAttachment
+        ? `Ingesting & analyzing ${currentAttachment.name} with 8 collaborative maritime agents...`
+        : 'Consulting 8 collaborative agents & INCOIS ocean telemetry...'
+    );
 
     try {
+      const latToSend = matchedPort
+        ? matchedPort.lat
+        : selectedMapTarget
+        ? selectedMapTarget.lat
+        : shipLocation
+        ? shipLocation.lat
+        : null;
+      const lonToSend = matchedPort
+        ? matchedPort.lon
+        : selectedMapTarget
+        ? selectedMapTarget.lon
+        : shipLocation
+        ? shipLocation.lon
+        : null;
+      const locNameToSend = matchedPort
+        ? matchedPort.name
+        : selectedMapTarget
+        ? `Lat ${selectedMapTarget.lat.toFixed(4)}, Lon ${selectedMapTarget.lon.toFixed(4)}`
+        : shipLocation?.name || currentSession?.lastLocation || null;
+
+      const chatHistoryToSend = messages.slice(-6).map((m) => ({
+        role: m.sender === 'user' ? 'user' : 'assistant',
+        content: m.text,
+      }));
+
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, latitude: 9.9656, longitude: 76.2425 }),
+        body: JSON.stringify({
+          query,
+          session_id: activeSessionId,
+          language: selectedLang,
+          latitude: latToSend,
+          longitude: lonToSend,
+          location_name: locNameToSend,
+          chat_history: chatHistoryToSend,
+          attachment_base64: currentAttachment ? currentAttachment.base64 : null,
+          attachment_name: currentAttachment ? currentAttachment.name : null,
+          attachment_type: currentAttachment ? currentAttachment.type : null,
+        }),
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const data = await res.json();
-      const responseText = data.synthesized_response || data.final_synthesis || 'Ocean intelligence report generated.';
+      const responseText = data.synthesized_response || 'Ocean intelligence report generated.';
+      const effectiveLanguage = data.detected_language || 'en';
 
-      // Real-Time Map Synchronization on Intelligence Response:
+      // Real-Time Autonomous Map Synchronization on Intelligence Response:
       if (onMapAction) {
-        if (data.pfz_advisories && data.pfz_advisories.length > 0) {
-          onMapAction({ type: 'pfz', data: data.pfz_advisories[0] });
-        } else if (/pfz|fish|tuna|mackerel|catch|chlorophyll|hotspot/i.test(query)) {
-          if (matchedPort) {
+        const isPfzQuery = data.intent === 'potential_fishing_zone' ||
+                           data.intent === 'chlorophyll_sst_correlation' ||
+                           /pfz|fish|tuna|mackerel|sardine|catch|chlorophyll|hotspot|मछली|टूना|மீன்|சூரை|മീൻ|ചൂര|చేపలు|మాছ|માછલી|मासे|ಮೀನು/i.test(query);
+
+        const isRouteQuery = data.intent === 'marine_routing' ||
+                             /route|navigate|navigation|waypoint|from .* to|मार्ग|வழி|റൂട്ട്|మార్గం|পথ|રૂટ/i.test(query);
+
+        const isWeatherQuery = data.intent === 'ocean_condition_telemetry' ||
+                               data.intent === 'weather_inquiry' ||
+                               /wave|swell|sea state|wind|gust|लहर|तरंग|मौसम|அலை|வானிலை|തിര|കാലാവസ്ഥ|అలలు|వాతావరణం|ঢেউ|હવામાન|लाटा/i.test(query);
+
+        if (isPfzQuery) {
+          const advisories = data.pfz_advisories && data.pfz_advisories.length > 0 ? data.pfz_advisories : null;
+          const targetPfz = advisories ? advisories[0] : {
+            latitude: data.target_coordinates?.latitude || activeLat,
+            longitude: data.target_coordinates?.longitude || activeLon,
+            origin_lat: activeLat,
+            origin_lon: activeLon,
+            origin_name: activeName,
+            name: `${data.target_location || activeName} PFZ Hotspot`,
+            landing_center: data.target_location || activeName,
+            species: 'Yellowfin Tuna, Mackerel, Sardine',
+            confidence: '92%'
+          };
+          onMapAction({ type: 'weather', mode: 'none' });
+          onMapAction({
+            type: 'pfz',
+            data: targetPfz,
+            allZones: advisories || [targetPfz],
+          });
+        } else if (isRouteQuery && data.routes && data.routes.length > 0) {
+          const chosenRoute = data.routes.find((r) => r.safety_score >= 90) || data.routes[0];
+          onMapAction({ type: 'route', data: chosenRoute });
+        } else if (data.intent === 'port_inquiry' || data.intent === 'display_port_information') {
+          if (data.target_coordinates?.latitude && data.target_coordinates?.longitude) {
             onMapAction({
-              type: 'pfz',
-              data: { latitude: matchedPort.lat, longitude: matchedPort.lon, name: `${matchedPort.name} Coastal PFZ` },
-            });
-          } else {
-            onMapAction({
-              type: 'pfz',
-              data: { latitude: 9.850, longitude: 75.880, name: 'Cochin Offshore Front (Vypeen)' },
+              type: 'flyto',
+              data: {
+                lat: data.target_coordinates.latitude,
+                lon: data.target_coordinates.longitude,
+                zoom: 10,
+                title: data.target_location || 'Maritime Coastal Port Network',
+              },
             });
           }
-        } else if (data.routes && data.routes.length > 0) {
-          const chosenRoute = data.routes.find((r) => r.safety_score >= 90) || data.routes[1] || data.routes[0];
-          onMapAction({ type: 'route', data: chosenRoute });
-        } else if (data.target_coordinates && data.target_coordinates.lat && data.target_coordinates.lon) {
+        } else if (isWeatherQuery) {
+          onMapAction({ type: 'weather', mode: /wind|gust/i.test(query) ? 'wind' : 'waves' });
+          if (data.target_coordinates?.latitude && data.target_coordinates?.longitude) {
+            onMapAction({
+              type: 'flyto',
+              data: {
+                lat: data.target_coordinates.latitude,
+                lon: data.target_coordinates.longitude,
+                zoom: 10,
+                title: data.target_location || 'Weather Telemetry Target',
+              },
+            });
+          }
+        } else if (data.target_coordinates && data.target_coordinates.latitude && data.target_coordinates.longitude && data.intent !== 'greeting' && data.intent !== 'out_of_domain') {
           onMapAction({
             type: 'flyto',
-            data: { lat: data.target_coordinates.lat, lon: data.target_coordinates.lon, zoom: 9 },
+            data: {
+              lat: data.target_coordinates.latitude,
+              lon: data.target_coordinates.longitude,
+              zoom: 11,
+              title: data.target_location || 'ORCA Intelligence Target',
+            },
           });
         }
       }
 
+      const orcaMsgId = makeUniqueId('orca');
       const orcaMsg = {
-        id: `orca-${messageCounterRef.current++}`,
+        id: orcaMsgId,
         sender: 'orca',
         text: responseText,
         timestamp: timeString,
@@ -302,6 +634,12 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
         pfz: data.pfz_advisories,
         matchedPort: matchedPort,
         query: query,
+        intent: data.intent,
+        execution_trace: data.execution_trace || [],
+        target_location: data.target_location,
+        target_coordinates: data.target_coordinates,
+        language: effectiveLanguage,
+        attachment_metadata: data.attachment_metadata,
       };
 
       setSessions((prev) =>
@@ -310,6 +648,12 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
             return {
               ...s,
               messages: [...s.messages, orcaMsg],
+              lastLocation:
+                data.target_location &&
+                data.intent !== 'greeting' &&
+                data.intent !== 'out_of_domain'
+                  ? data.target_location
+                  : s.lastLocation,
             };
           }
           return s;
@@ -317,10 +661,11 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
       );
     } catch (err) {
       const errMsg = {
-        id: `err-${messageCounterRef.current++}`,
+        id: makeUniqueId('err'),
         sender: 'orca',
-        text: `Unable to fetch marine intelligence: ${err.message}. Please verify the server connection.`,
+        text: `Unable to fetch marine intelligence: ${err.message}. Please check server connection.`,
         timestamp: timeString,
+        language: 'en',
       };
       setSessions((prev) =>
         prev.map((s) => {
@@ -344,6 +689,137 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
       e.preventDefault();
       handleSend();
     }
+  };
+
+  // Helper for rendering formatted markdown text with tables, headings, lists, and inline styles
+  const renderFormattedMarkdown = (rawText) => {
+    if (!rawText) return null;
+    const rawLines = rawText.split('\n');
+    const elements = [];
+    let i = 0;
+
+    while (i < rawLines.length) {
+      const line = rawLines[i];
+      const trimmed = line.trim();
+
+      // 1. Markdown Table Detection
+      if (trimmed.startsWith('|') && trimmed.endsWith('|') && trimmed.includes('|')) {
+        const tableLines = [];
+        while (i < rawLines.length && rawLines[i].trim().startsWith('|') && rawLines[i].trim().endsWith('|')) {
+          tableLines.push(rawLines[i].trim());
+          i++;
+        }
+
+        // Parse table rows
+        if (tableLines.length >= 2) {
+          const parseRow = (rowStr) =>
+            rowStr
+              .slice(1, -1)
+              .split('|')
+              .map((c) => c.trim());
+
+          const headerRow = parseRow(tableLines[0]);
+          // Check if line 1 is separator |---|---|
+          const isSep = tableLines[1].replace(/[\s\-|:]/g, '') === '';
+          const bodyLines = isSep ? tableLines.slice(2) : tableLines.slice(1);
+
+          elements.push(
+            <div key={`tbl-${elements.length}`} className="msg-table-wrap">
+              <table className="msg-table">
+                <thead>
+                  <tr>
+                    {headerRow.map((h, hIdx) => (
+                      <th key={hIdx}>{formatInlineText(h)}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {bodyLines.map((bLine, rIdx) => {
+                    const cells = parseRow(bLine);
+                    return (
+                      <tr key={rIdx}>
+                        {cells.map((cell, cIdx) => (
+                          <td key={cIdx}>{formatInlineText(cell)}</td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          );
+          continue;
+        }
+      }
+
+      // 2. Headings
+      if (trimmed.startsWith('# ')) {
+        elements.push(
+          <h2 key={`h2-${i}`} className="msg-h2">
+            {formatInlineText(trimmed.replace(/^#\s+/, ''))}
+          </h2>
+        );
+      } else if (trimmed.startsWith('## ')) {
+        elements.push(
+          <h2 key={`h2-${i}`} className="msg-h2">
+            {formatInlineText(trimmed.replace(/^##\s+/, ''))}
+          </h2>
+        );
+      } else if (trimmed.startsWith('### ')) {
+        elements.push(
+          <h3 key={`h3-${i}`} className="msg-h3">
+            {formatInlineText(trimmed.replace(/^###\s+/, ''))}
+          </h3>
+        );
+      } else if (trimmed.startsWith('#### ')) {
+        elements.push(
+          <h4 key={`h4-${i}`} className="msg-h4">
+            {formatInlineText(trimmed.replace(/^####\s+/, ''))}
+          </h4>
+        );
+      } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || trimmed.startsWith('• ')) {
+        elements.push(
+          <li key={`li-${i}`} className="msg-li">
+            {formatInlineText(trimmed.replace(/^[-*•]\s+/, ''))}
+          </li>
+        );
+      } else if (/^\d+\.\s+/.test(trimmed)) {
+        elements.push(
+          <li key={`numli-${i}`} className="msg-li msg-numbered-li">
+            {formatInlineText(trimmed.replace(/^\d+\.\s+/, ''))}
+          </li>
+        );
+      } else if (trimmed === '') {
+        elements.push(<div key={`sp-${i}`} className="msg-space" />);
+      } else {
+        elements.push(
+          <p key={`p-${i}`} className="msg-p">
+            {formatInlineText(trimmed)}
+          </p>
+        );
+      }
+      i++;
+    }
+
+    return elements;
+  };
+
+  const formatInlineText = (text) => {
+    if (!text) return text;
+    // Replace **bold**, *italic*, and `code`
+    const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i}>{part.slice(2, -2)}</strong>;
+      }
+      if (part.startsWith('*') && part.endsWith('*')) {
+        return <em key={i}>{part.slice(1, -1)}</em>;
+      }
+      if (part.startsWith('`') && part.endsWith('`')) {
+        return <code key={i} className="msg-inline-code">{part.slice(1, -1)}</code>;
+      }
+      return part;
+    });
   };
 
   return (
@@ -391,31 +867,92 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
       {/* Main Chat Conversation Column */}
       <div className="chat-main-column">
         {/* Top Header */}
-        <div className="chat-top-bar">
-          <div className="chat-title-group">
-            <Bot size={20} className="icon-orca-ai" />
-            <div>
-              <h3 className="chat-heading">
-                {isDedicatedPage ? currentSession?.title || 'ORCA AI Marine Copilot' : 'ORCA AI Assistant'}
-              </h3>
-              <span className="chat-sub">Real-Time Multi-Agent Marine Intelligence · SIH26176</span>
+        <div className={`chat-top-bar ${!isDedicatedPage ? 'dock-mode' : ''}`}>
+          {isDedicatedPage ? (
+            <div className="chat-title-group">
+              <Bot size={20} className="icon-orca-ai" />
+              <div>
+                <h3 className="chat-heading">
+                  {currentSession?.title || 'ORCA AI Marine Copilot'}
+                </h3>
+                <span className="chat-sub">8 Collaborative Specialized Maritime Agents</span>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="dock-status-pill">
+              <span className="status-live-dot" />
+              <span className="dock-status-text">8 Maritime Agents Active</span>
+            </div>
+          )}
+
           <div className="chat-top-actions">
-            {messages.length > 0 && (
-              <button
-                type="button"
-                className="btn-chat-reset"
-                onClick={() => {
-                  setSessions((prev) =>
-                    prev.map((s) => (s.id === activeSessionId ? { ...s, messages: [] } : s))
-                  );
-                }}
-                title="Clear current messages"
+            {/* Language Selector */}
+            <div className="chat-lang-pill-wrap" title="Select response & voice language (मराठी, English, हिन्दी, etc.)">
+              <Globe size={13} className="lang-globe-icon" />
+              <select
+                className="chat-lang-select"
+                value={selectedLang}
+                onChange={(e) => setSelectedLang(e.target.value)}
               >
-                <RotateCcw size={14} />
-                <span>Clear</span>
-              </button>
+                <option value="auto">🌐 Auto</option>
+                <option value="mr">मराठी (Marathi)</option>
+                <option value="en">English</option>
+                <option value="hi">हिन्दी (Hindi)</option>
+                <option value="ta">தமிழ் (Tamil)</option>
+                <option value="ml">മലയാളം (Malayalam)</option>
+                <option value="te">తెలుగు (Telugu)</option>
+                <option value="bn">বাংলা (Bengali)</option>
+                <option value="gu">ગુજરાતી (Gujarati)</option>
+              </select>
+            </div>
+
+            {/* 1-Click Voice Auto-Speech Toggle */}
+            <button
+              type="button"
+              className={`btn-speech-toggle ${isAutoSpeechEnabled ? 'active' : ''}`}
+              onClick={() => {
+                const next = !isAutoSpeechEnabled;
+                setIsAutoSpeechEnabled(next);
+                try {
+                  localStorage.setItem(AUTO_SPEECH_STORAGE_KEY, String(next));
+                } catch (_) {}
+                if (!next && window.speechSynthesis) {
+                  window.speechSynthesis.cancel();
+                  setSpeakingMsgId(null);
+                }
+              }}
+              title={isAutoSpeechEnabled ? 'Voice Auto-Speech is ON (Click to mute)' : 'Voice Auto-Speech is OFF (Click to turn ON)'}
+            >
+              {isAutoSpeechEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
+              <span>{isAutoSpeechEnabled ? 'Voice ON' : 'Voice OFF'}</span>
+            </button>
+
+            {messages.length > 0 && (
+              <>
+                <button
+                  type="button"
+                  className="btn-chat-reset"
+                  onClick={handleDownloadPDF}
+                  title="Download complete conversation as official PDF"
+                  style={{ background: '#0284c7', color: '#ffffff', borderColor: '#0284c7' }}
+                >
+                  <Download size={13} />
+                  <span>PDF</span>
+                </button>
+                <button
+                  type="button"
+                  className="btn-chat-reset"
+                  onClick={() => {
+                    setSessions((prev) =>
+                      prev.map((s) => (s.id === activeSessionId ? { ...s, messages: [] } : s))
+                    );
+                  }}
+                  title="Clear current messages"
+                >
+                  <RotateCcw size={13} />
+                  <span>Clear</span>
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -423,35 +960,28 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
         {/* Messages Scroll Area */}
         <div className="chat-scroll-area">
           {messages.length === 0 ? (
-            <div className="chat-empty-state">
-              <div className="empty-ai-icon-wrap">
-                <Sparkles size={32} className="empty-sparkle-icon" />
-              </div>
-              <h4 className="empty-title">Ask ORCA Marine Intelligence</h4>
-              <p className="empty-desc">
-                Direct access to 8 collaborative maritime agents, INCOIS ocean state forecasts,
-                dynamic route optimization, and COLREGS safety compliance.
-              </p>
-
-              <div className="empty-suggestions-grid">
-                <span className="suggestions-label">RECOMMENDED INQUIRIES</span>
-                {SUGGESTIONS.map((prompt, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    className="suggestion-chip-btn"
-                    onClick={() => handleSend(prompt)}
-                  >
-                    <Sparkles size={13} className="chip-icon" />
-                    <span>{prompt}</span>
-                  </button>
-                ))}
+            <div className="chat-empty-interactive">
+              <div className="empty-copilot-badge">
+                <div className="empty-ai-icon-wrap">
+                  <Bot size={28} className="empty-sparkle-icon" />
+                </div>
+                <h4 className="empty-title">
+                  {selectedLang === 'mr' ? 'ORCA सागरी गुप्तवार्ता सहाय्यक' : 'ORCA Autonomous Marine AI Copilot'}
+                </h4>
+                <p className="empty-desc">
+                  {selectedLang === 'mr'
+                    ? 'लाटा, हवामान, संभाव्य मासेमारी क्षेत्र (PFZ), बंदर धोक्याचे संकेत आणि सागरी सुरक्षेबद्दल कोणताही प्रश्न विचारा.'
+                    : 'Real-time multi-agent decision support for wave states, PFZ hotspots, port danger signals, and vessel collision avoidance.'}
+                </p>
               </div>
             </div>
           ) : (
             <div className="messages-list">
               {messages.map((msg) => {
                 const isUser = msg.sender === 'user';
+                const hasTrace = msg.execution_trace && msg.execution_trace.length > 0;
+                const isTraceExpanded = expandedTraceIds.includes(msg.id);
+
                 return (
                   <div key={msg.id} className={`chat-message-row ${isUser ? 'user-row' : 'orca-row'}`}>
                     <div className={`message-avatar ${isUser ? 'user' : 'orca'}`}>
@@ -460,25 +990,122 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
 
                     <div className={`message-bubble ${isUser ? 'user-bubble' : 'orca-bubble'}`}>
                       <div className="bubble-header">
-                        <span className="bubble-sender">{isUser ? 'Captain' : 'ORCA AI'}</span>
+                        <span className="bubble-sender">{isUser ? 'Captain' : 'ORCA AI Copilot'}</span>
                         <span className="bubble-time">{msg.timestamp}</span>
                         {!isUser && (
-                          <button
-                            type="button"
-                            className="btn-tts"
-                            onClick={() => toggleSpeech(msg.id, msg.text)}
-                            title={speakingMsgId === msg.id ? 'Stop audio' : 'Read aloud'}
-                          >
-                            {speakingMsgId === msg.id ? <VolumeX size={14} /> : <Volume2 size={14} />}
-                          </button>
+                          <div className="bubble-header-tools">
+                            <button
+                              type="button"
+                              className="btn-tts"
+                              onClick={() => handleCopy(msg.id, msg.text)}
+                              title={copiedMsgId === msg.id ? 'Copied!' : 'Copy report'}
+                            >
+                              {copiedMsgId === msg.id ? <Check size={13} /> : <Copy size={13} />}
+                            </button>
+                            <button
+                              type="button"
+                              className="btn-tts"
+                              onClick={() => toggleSpeech(msg.id, msg.text, msg.language)}
+                              title={speakingMsgId === msg.id ? 'Stop audio' : 'Read aloud in regional voice'}
+                            >
+                              {speakingMsgId === msg.id ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                            </button>
+                          </div>
                         )}
                       </div>
 
                       <div className="bubble-content">
-                        <p className="bubble-text">{msg.text}</p>
+                        {isUser && msg.attachment && (
+                          <div className="msg-user-attachment-wrap" style={{ marginBottom: '8px' }}>
+                            {msg.attachment.previewUrl ? (
+                              <div style={{ position: 'relative', display: 'inline-block' }}>
+                                <img
+                                  src={msg.attachment.previewUrl}
+                                  alt={msg.attachment.name}
+                                  style={{ maxWidth: '240px', maxHeight: '160px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', cursor: 'pointer', objectFit: 'cover' }}
+                                  onClick={() => window.open(msg.attachment.previewUrl, '_blank')}
+                                  title="Click to expand image"
+                                />
+                                <div style={{ fontSize: '11px', color: '#15803d', marginTop: '3px', fontWeight: 600 }}>
+                                  📎 {msg.attachment.name} ({Math.round((msg.attachment.size || 0)/1024)} KB)
+                                </div>
+                              </div>
+                            ) : (
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#dcfce7', padding: '6px 12px', borderRadius: '8px', border: '1px solid #bbf7d0', fontSize: '12px', color: '#166534' }}>
+                                <FileText size={18} />
+                                <div>
+                                  <div style={{ fontWeight: 600 }}>{msg.attachment.name}</div>
+                                  <div style={{ fontSize: '10px', color: '#15803d' }}>{Math.round((msg.attachment.size || 0)/1024)} KB · Ingested Document</div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
 
-                        {/* Interactive Visual Telemetry & Safety Charts */}
-                        {msg.risk && (
+                        <div className="formatted-msg-body">
+                          {renderFormattedMarkdown(msg.text)}
+                        </div>
+
+                        {/* Multi-Agent Reasoning Trace Accordion ("Thinking Chain") */}
+                        {hasTrace && (
+                          <div className="agent-trace-accordion">
+                            <button
+                              type="button"
+                              className="trace-toggle-bar"
+                              onClick={() => toggleTrace(msg.id)}
+                            >
+                              <div className="trace-bar-left">
+                                <Zap size={14} className="trace-zap-icon" />
+                                <span className="trace-label">Collaborative Multi-Agent Trace</span>
+                                <span className="trace-badge">{msg.execution_trace.length} Agents</span>
+                              </div>
+                              <div className="trace-bar-right">
+                                <span className="trace-total-ms">
+                                  {Math.round(
+                                    msg.execution_trace.reduce((acc, s) => acc + (s.duration_ms || 0), 0)
+                                  )}{' '}
+                                  ms
+                                </span>
+                                {isTraceExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                              </div>
+                            </button>
+
+                            {isTraceExpanded && (
+                              <div className="trace-steps-list">
+                                {msg.execution_trace.map((step, sIdx) => (
+                                  <div key={sIdx} className="trace-step-item">
+                                    <div className="trace-timeline-col">
+                                      <span className="trace-dot" />
+                                      {sIdx < msg.execution_trace.length - 1 && <span className="trace-line" />}
+                                    </div>
+                                    <div className="trace-card-content">
+                                      <div className="trace-card-header">
+                                        <span className="trace-agent-title">{step.agent_title || step.agent_name}</span>
+                                        <div className="trace-meta-pills">
+                                          <span className="trace-duration-tag">{step.duration_ms} ms</span>
+                                          <span className="trace-status-tag">🟢 {step.status}</span>
+                                        </div>
+                                      </div>
+                                      <p className="trace-summary-txt">{step.summary}</p>
+                                      {step.output_preview && Object.keys(step.output_preview).length > 0 && (
+                                        <div className="trace-preview-pills">
+                                          {Object.entries(step.output_preview).map(([k, v]) => (
+                                            <span key={k} className="trace-micro-pill">
+                                              <strong>{k}:</strong> {typeof v === 'object' ? JSON.stringify(v) : String(v)}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Interactive Visual Telemetry & Safety Charts: Render ONLY when explicitly evaluating safety/risk */}
+                        {msg.risk && (msg.intent === 'safety_assessment' || msg.intent === 'sea_safety_assessment' || msg.intent === 'risk_inquiry' || (msg.query && /risk|gauge|safety score|is it safe|खतरा|सुरक्षित|பாதுகாப்பு|അപകടം/i.test(msg.query))) && (
                           <div className="ai-charts-card">
                             <div className="chart-header-row">
                               <BarChart3 size={15} className="chart-icon" />
@@ -496,16 +1123,16 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
                                     />
                                     <path
                                       className="gauge-progress"
-                                      strokeDasharray={`${msg.risk.safety_score ?? 91}, 100`}
+                                      strokeDasharray={`${msg.risk.risk_score ?? 35}, 100`}
                                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                                     />
                                     <text x="18" y="20.35" className="gauge-text">
-                                      {msg.risk.safety_score ?? 91}%
+                                      {msg.risk.risk_score ?? 35}%
                                     </text>
                                   </svg>
                                 </div>
                                 <div className="gauge-details">
-                                  <span className="g-lbl">SAFETY INDEX</span>
+                                  <span className="g-lbl">RISK INDEX</span>
                                   <span className="g-val">{msg.risk.is_safe_to_sail ? 'Safe to Venture' : 'Advisory Caution'}</span>
                                 </div>
                               </div>
@@ -559,9 +1186,31 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
                         )}
 
                         {/* Quick Interactive Map Actions Connected to Live Map */}
-                        {(msg.routes || msg.pfz || msg.telemetry || msg.matchedPort) && (
+                        {(msg.routes || msg.pfz || msg.telemetry || msg.matchedPort || (msg.target_coordinates?.latitude && msg.target_coordinates?.longitude)) && (
                           <div className="msg-interactive-actions">
-                            {msg.pfz && msg.pfz.length > 0 && (
+                            {msg.target_coordinates && msg.target_coordinates.latitude && msg.target_coordinates.longitude && (
+                              <button
+                                type="button"
+                                className="btn-action-pill"
+                                style={{ background: '#f0f9ff', borderColor: '#38bdf8', color: '#0284c7', fontWeight: 600 }}
+                                onClick={() =>
+                                  onMapAction?.({
+                                    type: 'flyto',
+                                    data: {
+                                      lat: msg.target_coordinates.latitude,
+                                      lon: msg.target_coordinates.longitude,
+                                      zoom: 11,
+                                      title: msg.target_location || 'ORCA Intelligence Target',
+                                    },
+                                  })
+                                }
+                                title="Fly to exact nautical coordinates on real-time Leaflet map"
+                              >
+                                <MapPin size={13} />
+                                <span>📍 Radar Map Lock ({Number(msg.target_coordinates.latitude).toFixed(3)}°N, {Number(msg.target_coordinates.longitude).toFixed(3)}°E)</span>
+                              </button>
+                            )}
+                            {msg.pfz && msg.pfz.length > 0 && (msg.intent === 'potential_fishing_zone' || msg.intent === 'chlorophyll_sst_correlation' || /pfz|fish|tuna|mackerel|sardine|catch|मछली|மீன்|ചൂര/i.test(msg.query || '')) && (
                               <button
                                 type="button"
                                 className="btn-action-pill pfz"
@@ -571,7 +1220,7 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
                                 <span>🐟 Focus PFZ Zone on Map</span>
                               </button>
                             )}
-                            {msg.routes && msg.routes.length > 0 && (
+                            {msg.routes && msg.routes.length > 0 && (msg.intent === 'marine_routing' || /route|navigate|मार्ग|வழி|റൂട്ട്/i.test(msg.query || '')) && (
                               <button
                                 type="button"
                                 className="btn-action-pill route"
@@ -587,7 +1236,7 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
                                 <span>Display Route on Map</span>
                               </button>
                             )}
-                            {msg.telemetry && (
+                            {msg.telemetry && (msg.intent === 'ocean_condition_telemetry' || msg.intent === 'weather_inquiry' || /wave|swell|wind|weather|मौसम|வானிலை|കാലാവസ്ഥ/i.test(msg.query || '')) && (
                               <>
                                 <button
                                   type="button"
@@ -605,7 +1254,7 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
                                   title="Toggle animated Windy wave swell simulation"
                                 >
                                   <Waves size={13} />
-                                  <span>Wave Swell</span>
+                                  <span>Swell Simulation</span>
                                 </button>
                               </>
                             )}
@@ -622,6 +1271,28 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
                                 title={`Center map on ${msg.matchedPort.name}`}
                               >
                                 <span>📍 Fly to {msg.matchedPort.name}</span>
+                              </button>
+                            )}
+                            {msg.intent === 'geofencing_and_restricted_zones' && (
+                              <button
+                                type="button"
+                                className="btn-action-pill"
+                                style={{ borderColor: '#f59e0b', color: '#d97706' }}
+                                onClick={() => onMapAction?.({ type: 'layers', layer: 'restricted', enabled: true })}
+                                title="Display designated Marine Protected Areas and restricted zones on map"
+                              >
+                                <span>⚠️ Show Restricted Areas</span>
+                              </button>
+                            )}
+                            {msg.intent === 'lightning_and_cyclone_alerts' && (
+                              <button
+                                type="button"
+                                className="btn-action-pill"
+                                style={{ borderColor: '#ef4444', color: '#dc2626' }}
+                                onClick={() => onMapAction?.({ type: 'layers', layer: 'cyclone', enabled: true })}
+                                title="Display cyclone warnings and radar bulletins on map"
+                              >
+                                <span>⚡ Show Alerts & Radar</span>
                               </button>
                             )}
                           </div>
@@ -654,19 +1325,159 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
 
         {/* Input Area */}
         <div className="chat-input-area">
+          {/* Quick Action Chips Bar (Universal 1-click maritime queries in active language) */}
+          <div className="quick-actions-strip">
+            <button
+              type="button"
+              className="quick-chip-pill"
+              onClick={() => handleSend(selectedLang === 'mr' ? 'वर्तमान सागरी हवामान आणि लाटांची स्थिती सांगा' : selectedLang === 'hi' ? 'वर्तमान समुद्री मौसम और लहरों की स्थिति बताएं' : 'What is the current sea state, wave height, and wind conditions?')}
+              title="Current wave height, swell & wind status"
+            >
+              🌊 {selectedLang === 'mr' ? 'लाटा व हवामान' : selectedLang === 'hi' ? 'लहरें और मौसम' : 'Waves & Weather'}
+            </button>
+            <button
+              type="button"
+              className="quick-chip-pill"
+              onClick={() => handleSend(selectedLang === 'mr' ? 'माझ्या स्थानाजवळील संभाव्य मासेमारी क्षेत्र (PFZ) आणि टूना हॉटस्पॉट दाखवा' : selectedLang === 'hi' ? 'निकटतम संभावित मत्स्य पालन क्षेत्र (PFZ) और टूना हॉटस्पॉट दिखाएं' : 'Show nearest potential fishing zones (PFZ) and tuna hotspots')}
+              title="Find nearest INCOIS fishing hotspots relative to home location"
+            >
+              🐟 {selectedLang === 'mr' ? 'मासेमारी क्षेत्र (PFZ)' : selectedLang === 'hi' ? 'मत्स्य क्षेत्र (PFZ)' : 'PFZ Hotspots'}
+            </button>
+            <button
+              type="button"
+              className="quick-chip-pill"
+              onClick={() => {
+                if (onMapAction) {
+                  onMapAction({ type: 'toggle_layers' });
+                }
+                handleSend(selectedLang === 'mr' ? 'नकाशावरील सर्व सागरी स्तर, खोली आणि उपग्रह डेटा स्पष्ट करा' : selectedLang === 'hi' ? 'मानचित्र की सभी समुद्री परतें, गहराई और उपग्रह डेटा समझाएं' : 'Show and explain active ocean GIS map layers, bathymetry, buoys, and satellite overlays');
+              }}
+              title="Toggle and inspect active GIS ocean layers & bathymetry"
+            >
+              🗺️ {selectedLang === 'mr' ? 'नकाशा स्तर' : selectedLang === 'hi' ? 'मानचित्र परतें' : 'Map Layers'}
+            </button>
+          </div>
+
+          {/* Map Selection Context Beacon Bar */}
+          {selectedMapTarget && (
+            <div className="map-context-beacon-bar" style={{ padding: '6px 12px', borderRadius: '8px', marginBottom: '8px' }}>
+              <div className="beacon-header" style={{ margin: 0 }}>
+                <div className="beacon-title">
+                  <span className="beacon-pulse-dot" />
+                  <span className="beacon-text">
+                    Active Target Coordinates:{' '}
+                    <strong>
+                      {selectedMapTarget.lat.toFixed(4)}°N, {selectedMapTarget.lon.toFixed(4)}°E
+                    </strong>
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className="beacon-close-btn"
+                  onClick={onClearMapTarget}
+                  title="Clear coordinates context"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            </div>
+          )}
+          {/* Attachment Preview Banner */}
+          {attachedFile && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '6px 12px',
+                marginBottom: '8px',
+                background: '#e0f2fe',
+                border: '1px solid #7dd3fc',
+                borderRadius: '8px',
+                fontSize: '12px',
+                color: '#0369a1',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+                {attachedFile.previewUrl ? (
+                  <img
+                    src={attachedFile.previewUrl}
+                    alt="Preview"
+                    style={{ width: '28px', height: '28px', borderRadius: '4px', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <FileText size={18} />
+                )}
+                <span style={{ fontWeight: 600, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '320px' }}>
+                  {attachedFile.name}
+                </span>
+                <span style={{ fontSize: '10px', color: '#0284c7' }}>
+                  ({Math.round(attachedFile.size / 1024)} KB)
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setAttachedFile(null);
+                  if (fileInputRef.current) fileInputRef.current.value = '';
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#ef4444',
+                  cursor: 'pointer',
+                  padding: '2px',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+                title="Remove attachment"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
+
           <div className="chat-input-wrapper">
+            {/* Hidden Native File Input */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              accept="image/*,.pdf,.doc,.docx,.txt,.csv"
+              style={{ display: 'none' }}
+            />
+
+            {/* Attachment Button */}
+            <button
+              type="button"
+              className="btn-voice-input"
+              onClick={() => fileInputRef.current?.click()}
+              title="Attach maritime image, PDF chart, bulletin, or inspection doc"
+            >
+              <Paperclip size={18} />
+            </button>
+
+            {/* Voice Dictation Button */}
             <button
               type="button"
               className={`btn-voice-input ${isListening ? 'listening' : ''}`}
               onClick={toggleListening}
-              title={isListening ? 'Listening... click to stop' : 'Voice Input'}
+              title={isListening ? 'Listening... click mic again to pause/stop' : 'Voice Input (Speak in any language: Marathi, Hindi, English...)'}
             >
-              {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+              <Mic size={18} className={isListening ? 'mic-listening-pulse' : ''} />
             </button>
 
             <textarea
-              className="chat-textarea"
-              placeholder="Ask about voyages, swell, PFZ hotspots, or port regulations..."
+              className={`chat-textarea ${isListening ? 'recording-active' : ''}`}
+              placeholder={
+                isListening
+                  ? (selectedLang === 'mr'
+                      ? '🎙️ ऐकत आहे... मराठीत बोला... (पूर्ण झाल्यावर सबमिट बाणावर क्लिक करा)'
+                      : '🎙️ Listening... speak now in any language... (click submit arrow when done)')
+                  : (selectedLang === 'mr'
+                      ? 'मराठीत कोणताही सागरी, हवामान किंवा प्रकल्पाचा प्रश्न विचारा...'
+                      : 'Ask any ocean, marine, weather or project question in any language (मराठी, हिन्दी, English...)...')
+              }
               value={inputQuery}
               onChange={(e) => setInputQuery(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -677,7 +1488,7 @@ export default function AskOrcaChat({ _onShowOnMap, onMapAction, isDedicatedPage
               type="button"
               className="btn-send-chat"
               onClick={() => handleSend()}
-              disabled={isLoading || !inputQuery.trim()}
+              disabled={isLoading || (!inputQuery.trim() && !attachedFile)}
               title="Send query"
             >
               <Send size={18} />

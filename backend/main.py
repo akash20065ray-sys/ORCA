@@ -23,7 +23,6 @@ from backend.api import chat, map, routes, pfz, health, emergency, weather, aler
 async def lifespan(app: FastAPI):
     logger.info("================================================================")
     logger.info(f" 🐋 {settings.PROJECT_NAME} initialized successfully!")
-    logger.info(f" 🏆 SIH Problem Statement ID: {settings.SIH_PROBLEM_ID}")
     logger.info(f" 🌐 Server running at: http://{settings.HOST}:{settings.PORT}")
     logger.info("================================================================")
     yield
@@ -32,7 +31,7 @@ async def lifespan(app: FastAPI):
 # Create FastAPI app
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description="Agentic AI Marine Decision-Support Platform with 8 Collaborative Specialized Agents (SIH26176)",
+    description="Agentic AI Marine Decision-Support Platform with 8 Collaborative Specialized Agents",
     version=settings.VERSION,
     lifespan=lifespan
 )
@@ -87,6 +86,34 @@ async def serve_icons():
     base_icons = os.path.join(base_frontend_dir, "icons.svg")
     if os.path.exists(base_icons):
         return FileResponse(base_icons, media_type="image/svg+xml")
+    return FileResponse(os.path.join(dist_dir, "index.html"))
+
+@app.get("/manifest.webmanifest")
+@app.get("/manifest.json")
+async def serve_manifest():
+    dist_manifest = os.path.join(dist_dir, "manifest.webmanifest")
+    if os.path.exists(dist_manifest):
+        return FileResponse(dist_manifest, media_type="application/manifest+json")
+    base_manifest = os.path.join(base_frontend_dir, "manifest.webmanifest")
+    if os.path.exists(base_manifest):
+        return FileResponse(base_manifest, media_type="application/manifest+json")
+    react_public_manifest = os.path.join(os.path.dirname(base_frontend_dir), "frontend-react", "public", "manifest.webmanifest")
+    if os.path.exists(react_public_manifest):
+        return FileResponse(react_public_manifest, media_type="application/manifest+json")
+    return {"name": "ORCA Marine", "short_name": "ORCA"}
+
+@app.get("/sw.js")
+async def serve_service_worker():
+    headers = {"Service-Worker-Allowed": "/", "Cache-Control": "no-cache"}
+    dist_sw = os.path.join(dist_dir, "sw.js")
+    if os.path.exists(dist_sw):
+        return FileResponse(dist_sw, media_type="application/javascript", headers=headers)
+    base_sw = os.path.join(base_frontend_dir, "sw.js")
+    if os.path.exists(base_sw):
+        return FileResponse(base_sw, media_type="application/javascript", headers=headers)
+    react_public_sw = os.path.join(os.path.dirname(base_frontend_dir), "frontend-react", "public", "sw.js")
+    if os.path.exists(react_public_sw):
+        return FileResponse(react_public_sw, media_type="application/javascript", headers=headers)
     return FileResponse(os.path.join(dist_dir, "index.html"))
 
 @app.get("/")

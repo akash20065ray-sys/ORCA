@@ -14,9 +14,18 @@ class Settings(BaseModel):
     PORT: int = int(os.getenv("PORT", 8000))
     DEBUG: bool = os.getenv("DEBUG", "True").lower() in ("true", "1")
     
-    # LLM Settings
+    # LLM Settings (Multi-Provider: Claude, Sarvam AI, OpenAI, Gemini, Groq)
     ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
-    DEFAULT_CLAUDE_MODEL: str = "claude-3-5-sonnet-20241022"
+    DEFAULT_CLAUDE_MODEL: str = os.getenv("DEFAULT_CLAUDE_MODEL", "claude-3-5-sonnet-20241022")
+    SARVAM_API_KEY: str = os.getenv("SARVAM_API_KEY", "")
+    DEFAULT_SARVAM_MODEL: str = os.getenv("DEFAULT_SARVAM_MODEL", "sarvam-105b-conversations")
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+    DEFAULT_OPENAI_MODEL: str = os.getenv("DEFAULT_OPENAI_MODEL", "gpt-4o-mini")
+    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
+    DEFAULT_GROQ_MODEL: str = os.getenv("DEFAULT_GROQ_MODEL", "llama-3.3-70b-versatile")
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+    DEFAULT_GEMINI_MODEL: str = os.getenv("DEFAULT_GEMINI_MODEL", "gemini-3.6-flash")
+    LLM_TIMEOUT_SECONDS: float = float(os.getenv("LLM_TIMEOUT_SECONDS", 8.0))
     
     # Supabase / PostGIS
     SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")

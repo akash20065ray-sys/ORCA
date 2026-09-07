@@ -37,7 +37,7 @@ export default function Header({
         </div>
         <div className="brand-text">
           <span className="brand-title">ORCA</span>
-          <span className="brand-sub">Ocean Intelligence Platform · SIH26176</span>
+          <span className="brand-sub">Autonomous Ocean Intelligence & Navigation</span>
         </div>
       </div>
 

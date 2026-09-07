@@ -19,8 +19,10 @@ class OceanSSTChlorophyllConnector(BaseDataConnector):
     def __init__(self):
         super().__init__(name="Live Satellite Oceanography & Copernicus Marine Service", source_id="ocean_sst_chl", ttl_seconds=900)
         self.marine_api_url = "https://marine-api.open-meteo.com/v1/marine"
+        self._cooldown_until = 0.0
 
     def fetch_data(self, latitude: float, longitude: float) -> Dict[str, Any]:
+        import time
         cache_key = self._get_cache_key(lat=round(latitude, 2), lon=round(longitude, 2))
         cached = self.get_from_cache(cache_key)
         if cached:
@@ -40,28 +42,31 @@ class OceanSSTChlorophyllConnector(BaseDataConnector):
             "timezone": "auto"
         }
 
-        try:
-            with httpx.Client(timeout=4.0) as client:
-                res = client.get(self.marine_api_url, params=params)
-                if res.status_code == 200:
-                    data = res.json()
-                    curr = data.get("current", {})
-                    live_sst = curr.get("sea_surface_temperature")
-                    live_vel = curr.get("ocean_current_velocity")
-                    live_dir = curr.get("ocean_current_direction")
-                    live_time = curr.get("time")
+        if time.time() >= self._cooldown_until:
+            try:
+                with httpx.Client(timeout=httpx.Timeout(2.5, connect=1.5, read=2.0)) as client:
+                    res = client.get(self.marine_api_url, params=params)
+                    if res.status_code == 200:
+                        data = res.json()
+                        curr = data.get("current", {})
+                        live_sst = curr.get("sea_surface_temperature")
+                        live_vel = curr.get("ocean_current_velocity")
+                        live_dir = curr.get("ocean_current_direction")
+                        live_time = curr.get("time")
 
-                    if live_sst is not None:
-                        sst = round(float(live_sst), 2)
-                        is_live = True
-                    if live_vel is not None:
-                        current_vel_kmh = round(float(live_vel), 2)
-                    if live_dir is not None:
-                        current_dir = round(float(live_dir), 1)
-                    if live_time:
-                        obs_time = live_time
-        except Exception as e:
-            logger.warning(f"Live ocean SST request failed ({e}). Using calibrated regional fallback.")
+                        if live_sst is not None:
+                            sst = round(float(live_sst), 2)
+                            is_live = True
+                        if live_vel is not None:
+                            current_vel_kmh = round(float(live_vel), 2)
+                        if live_dir is not None:
+                            current_dir = round(float(live_dir), 1)
+                        if live_time:
+                            obs_time = live_time
+                        self._cooldown_until = 0.0
+            except Exception as e:
+                self._cooldown_until = time.time() + 30.0
+                logger.warning(f"Live ocean SST request failed or timed out ({e}). Utilizing calibrated regional fallback.")
 
         if not is_live:
             # Regional physical oceanographic calibration fallback

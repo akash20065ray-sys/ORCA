@@ -849,14 +849,20 @@ body.is-resizing-row * {
 }
 
 .chat-assistant-card {
-  background-color: var(--bg-card-subtle);
-  border: 1px solid var(--border-light);
+  background-color: #ffffff;
+  border: 1.5px solid #cbd5e1;
   border-radius: 12px;
   padding: 12px;
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  color: #000000 !important;
+}
+
+.chat-assistant-card,
+.chat-assistant-card * {
+  color: #000000 !important;
 }
 
 .assistant-status-lead {
@@ -2112,27 +2118,33 @@ body.theme-dark .advisory-desc {
 }
 
 .chat-bubble.orca {
-  background: var(--bg-card-subtle);
-  border: 1px solid var(--border-light);
+  background: #ffffff;
+  border: 1px solid var(--border-medium);
   border-radius: 12px;
   padding: 12px 14px;
   max-width: 80%;
   font-size: 0.85rem;
   line-height: 1.4;
+  color: #000000 !important;
+}
+
+.chat-bubble.orca,
+.chat-bubble.orca * {
+  color: #000000 !important;
 }
 
 .chat-input-area {
   padding: 10px 14px;
   border-top: 1px solid var(--border-light);
-  background-color: var(--bg-card);
+  background-color: #ffffff;
 }
 
 .search-input-box {
   display: flex;
   align-items: center;
   gap: 6px;
-  background-color: var(--bg-input);
-  border: 1px solid var(--border-medium);
+  background-color: #ffffff;
+  border: 1.5px solid #64748b;
   border-radius: 8px;
   padding: 4px 6px;
 }
@@ -2140,10 +2152,11 @@ body.theme-dark .advisory-desc {
 .search-input-box input {
   flex: 1;
   border: none;
-  background: transparent;
+  background: #ffffff;
   padding: 6px 8px;
-  font-size: 0.85rem;
-  color: var(--text-main);
+  font-size: 0.88rem;
+  color: #000000 !important;
+  font-weight: 600;
   outline: none;
   font-family: inherit;
 }
@@ -3391,17 +3404,8 @@ body.theme-dark .advisory-desc {
 
 /* Clean Empty Chat Placeholder */
 .chat-thread-container:empty::before {
-  content: '🌊 ORCA AI Marine Copilot ready. Ask navigation questions, weather, or fishing zones.';
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: #64748b;
-  font-size: 0.82rem;
-  text-align: center;
-  padding: 32px 20px;
-  font-style: italic;
-  letter-spacing: 0.02em;
+  content: none !important;
+  display: none !important;
 }
 
 /* 3. Real-Time Bottom Cursor Ocean Telemetry HUD */

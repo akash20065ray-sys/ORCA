@@ -1,31 +1,89 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import { Compass, Navigation, Crosshair, Download, Printer, FileText, CheckCircle2, X, RotateCcw } from 'lucide-react';
+import {
+  Compass,
+  Navigation,
+  Crosshair,
+  Download,
+  RotateCcw,
+  MapPin,
+  ArrowUpDown,
+  X,
+  AlertOctagon,
+  Radio,
+  PhoneCall,
+  Ship,
+  Anchor,
+  ShieldAlert,
+  Copy,
+  Check,
+  AlertTriangle,
+  Send,
+  LifeBuoy
+} from 'lucide-react';
+import { exportRoutePlanPDF } from '../utils/pdfExport';
 
-const PORTS = [
-  { id: 'kochi', name: 'Cochin Port (Kochi)', lat: 9.9656, lon: 76.2425 },
-  { id: 'mumbai', name: 'Jawaharlal Nehru Port (Mumbai)', lat: 18.9483, lon: 72.9515 },
-  { id: 'mangalore', name: 'New Mangalore Port', lat: 12.9234, lon: 74.8156 },
-  { id: 'goa', name: 'Mormugao Port (Goa)', lat: 15.4167, lon: 73.8000 },
-  { id: 'colombo', name: 'Port of Colombo (Sri Lanka)', lat: 6.9497, lon: 79.8433 },
-  { id: 'tuticorin', name: 'V.O. Chidambaranar Port (Tuticorin)', lat: 8.7642, lon: 78.1348 },
-  { id: 'chennai', name: 'Chennai Port (Kasimedu)', lat: 13.0827, lon: 80.2707 },
-  { id: 'vizag', name: 'Visakhapatnam Port', lat: 17.6868, lon: 83.2185 },
-  { id: 'veraval', name: 'Veraval Fishing Port', lat: 20.9000, lon: 70.3667 },
-  { id: 'paradip', name: 'Paradip Port', lat: 20.2644, lon: 86.6698 },
-  { id: 'minicoy', name: 'Minicoy Port (Lakshadweep)', lat: 8.2833, lon: 73.0500 },
+const POPULAR_PORTS = [
+  { id: 'kochi', name: 'Cochin Port (Kochi)', state: 'Kerala', lat: 9.9656, lon: 76.2425 },
+  { id: 'mumbai', name: 'Jawaharlal Nehru Port (Mumbai)', state: 'Maharashtra', lat: 18.9483, lon: 72.9515 },
+  { id: 'colombo', name: 'Port of Colombo (Sri Lanka)', state: 'Western Province', lat: 6.9497, lon: 79.8433 },
+  { id: 'mangalore', name: 'New Mangalore Port', state: 'Karnataka', lat: 12.9234, lon: 74.8156 },
+  { id: 'goa', name: 'Mormugao Port (Goa)', state: 'Goa', lat: 15.4167, lon: 73.8000 },
+  { id: 'tuticorin', name: 'V.O. Chidambaranar Port (Tuticorin)', state: 'Tamil Nadu', lat: 8.7642, lon: 78.1348 },
+  { id: 'chennai', name: 'Chennai Port (Kasimedu)', state: 'Tamil Nadu', lat: 13.0827, lon: 80.2707 },
+  { id: 'vizag', name: 'Visakhapatnam Port', state: 'Andhra Pradesh', lat: 17.6868, lon: 83.2185 },
+  { id: 'veraval', name: 'Veraval Fishing Port', state: 'Gujarat', lat: 20.9000, lon: 70.3667 },
+  { id: 'paradip', name: 'Paradip Port', state: 'Odisha', lat: 20.2644, lon: 86.6698 },
+  { id: 'minicoy', name: 'Minicoy Port (Lakshadweep)', state: 'Lakshadweep', lat: 8.2833, lon: 73.0500 },
+  { id: 'kandla', name: 'Deendayal Port (Kandla)', state: 'Gujarat', lat: 23.0033, lon: 70.2185 },
+  { id: 'portblair', name: 'Port Blair Harbour (Andaman)', state: 'Andaman & Nicobar', lat: 11.6667, lon: 92.7333 },
+  { id: 'beypore', name: 'Beypore Port (Kozhikode)', state: 'Kerala', lat: 11.1633, lon: 75.8083 },
+  { id: 'vizhinjam', name: 'Vizhinjam International Seaport', state: 'Kerala', lat: 8.3750, lon: 76.9900 },
+  { id: 'munambam', name: 'Munambam Fishing Harbour', state: 'Kerala', lat: 10.1833, lon: 76.1750 },
+  { id: 'kollam', name: 'Kollam / Neendakara Harbour', state: 'Kerala', lat: 8.9400, lon: 76.5367 },
+  { id: 'alappuzha', name: 'Alappuzha Offshore Anchorage', state: 'Kerala', lat: 9.4900, lon: 76.3200 },
+  { id: 'kavaratti', name: 'Kavaratti Island Jetty', state: 'Lakshadweep', lat: 10.5667, lon: 72.6333 },
+  { id: 'okha', name: 'Okha Port (Gujarat)', state: 'Gujarat', lat: 22.4667, lon: 69.0667 },
+  { id: 'porbandar', name: 'Porbandar Port', state: 'Gujarat', lat: 21.6400, lon: 69.6000 },
+  { id: 'kakinada', name: 'Kakinada Deep Water Port', state: 'Andhra Pradesh', lat: 16.9800, lon: 82.2800 },
+  { id: 'haldia', name: 'Haldia Dock Complex', state: 'West Bengal', lat: 22.0253, lon: 88.0583 },
+  { id: 'male', name: 'Malé Commercial Harbour (Maldives)', state: 'Kaafu Atoll', lat: 4.1755, lon: 73.5093 },
 ];
 
-export default function RoutePlanner({ onFocusRoute, onUpdateShipLocation }) {
-  // Mode: 'port' | 'gps' | 'custom' (Defaults to Kochi -> Colombo)
-  const [originMode, setOriginMode] = useState('port');
-  const [selectedPortOrigin, setSelectedPortOrigin] = useState('kochi');
-  const [customOrigin, setCustomOrigin] = useState({ lat: 9.9656, lon: 76.2425 });
+const findNearestPortName = (lat, lon) => {
+  let nearest = null;
+  let minDist = Infinity;
+  for (const p of POPULAR_PORTS) {
+    const d = Math.hypot(p.lat - lat, p.lon - lon);
+    if (d < minDist) {
+      minDist = d;
+      nearest = p;
+    }
+  }
+  if (nearest && minDist < 0.18) {
+    return nearest.name;
+  }
+  return `${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E`;
+};
 
-  const [destMode, setDestMode] = useState('port');
-  const [selectedPortDest, setSelectedPortDest] = useState('colombo');
-  const [customDest, setCustomDest] = useState({ lat: 6.9497, lon: 79.8433 });
+export default function RoutePlanner({
+  onFocusRoute,
+  onUpdateShipLocation,
+  pickingMode = null,
+  onStartPickOnMap = null,
+  pickedMapLocation = null,
+  draggedEndpoint = null,
+  onUpdateEndpoints = null,
+}) {
+  // Google Maps Style Location Search States (Departure A and Destination B)
+  const [originQuery, setOriginQuery] = useState('Cochin Port (Kochi)');
+  const [originCoords, setOriginCoords] = useState({ lat: 9.9656, lon: 76.2425, name: 'Cochin Port (Kochi)' });
+
+  const [destQuery, setDestQuery] = useState('Port of Colombo (Sri Lanka)');
+  const [destCoords, setDestCoords] = useState({ lat: 6.9497, lon: 79.8433, name: 'Port of Colombo (Sri Lanka)' });
+
+  const [showOriginDropdown, setShowOriginDropdown] = useState(false);
+  const [showDestDropdown, setShowDestDropdown] = useState(false);
+  const [downloadToast, setDownloadToast] = useState(null);
 
   const [cruisingSpeed, setCruisingSpeed] = useState(12.0);
   const [vesselDraft, setVesselDraft] = useState(3.2);
@@ -33,410 +91,773 @@ export default function RoutePlanner({ onFocusRoute, onUpdateShipLocation }) {
   const [routes, setRoutes] = useState(null);
   const [activeRouteIndex, setActiveRouteIndex] = useState(1); // Default to Bravo (Optimal)
 
-  const [showReportModal, setShowReportModal] = useState(false);
-  const [isSavedOffline, setIsSavedOffline] = useState(false);
+  // SOS Maritime Emergency States
+  const [showSosModal, setShowSosModal] = useState(false);
+  const [nearestContacts, setNearestContacts] = useState(null);
+  const [isLoadingContacts, setIsLoadingContacts] = useState(false);
+  const [sosTargetRecipient, setSosTargetRecipient] = useState('ALL_STATIONS'); // 'ALL_STATIONS' | 'NEAREST_SHIP' | 'NEAREST_PORT' | 'MRCC'
+  const [sosDistressType, setSosDistressType] = useState('ENGINE_FAILURE_DRIFT');
+  const [sosCrewCount, setSosCrewCount] = useState(4);
+  const [sosVesselId, setSosVesselId] = useState('IND-KL-07-ORCA');
+  const [isDispatchingSos, setIsDispatchingSos] = useState(false);
+  const [sosDistressResult, setSosDistressResult] = useState(null);
+  const [copiedVoiceScript, setCopiedVoiceScript] = useState(false);
 
-  // Map instance refs for the Zoomed Geographic Map inside Passage Report
-  const reportMapRef = useRef(null);
-  const reportMapInstanceRef = useRef(null);
+  // Track timestamps of map clicks / drags to prevent repeat firing
+  const lastPickedTimestampRef = useRef(null);
+  const lastDraggedTimestampRef = useRef(null);
 
-  // Live GPS Detector
+  // Filter Port Suggestions
+  const originSuggestions = useMemo(() => {
+    if (!originQuery) return POPULAR_PORTS.slice(0, 7);
+    const q = originQuery.toLowerCase().trim();
+    return POPULAR_PORTS.filter(
+      (p) => p.name.toLowerCase().includes(q) || p.state.toLowerCase().includes(q)
+    ).slice(0, 7);
+  }, [originQuery]);
+
+  const destSuggestions = useMemo(() => {
+    if (!destQuery) return POPULAR_PORTS.slice(0, 7);
+    const q = destQuery.toLowerCase().trim();
+    return POPULAR_PORTS.filter(
+      (p) => p.name.toLowerCase().includes(q) || p.state.toLowerCase().includes(q)
+    ).slice(0, 7);
+  }, [destQuery]);
+
+  // Synchronize endpoints with MapStage parent
+  useEffect(() => {
+    if (onUpdateEndpoints) {
+      onUpdateEndpoints({ origin: originCoords, destination: destCoords });
+    }
+  }, [originCoords, destCoords, onUpdateEndpoints]);
+
+  // Synchronize Ship Location Telemetry
+  useEffect(() => {
+    if (onUpdateShipLocation) {
+      onUpdateShipLocation(originCoords);
+    }
+  }, [originCoords, onUpdateShipLocation]);
+
+  // Toast feedback helper
+  const triggerToast = (msg) => {
+    setDownloadToast(msg);
+    setTimeout(() => setDownloadToast(null), 2800);
+  };
+
+  // Route calculation execution
+  const executeRouteCalculation = useCallback(
+    async (origObj = originCoords, destObj = destCoords) => {
+      setIsOptimizing(true);
+
+      const origStr = `${origObj.lat}, ${origObj.lon}`;
+      const destStr = `${destObj.lat}, ${destObj.lon}`;
+
+      try {
+        const res = await fetch('/api/routes/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            origin: origStr,
+            destination: destStr,
+            vessel_speed_knots: cruisingSpeed,
+            vessel_draft_meters: vesselDraft,
+          }),
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        setRoutes(data);
+        setActiveRouteIndex(data.length > 1 ? 1 : 0); // Default to Bravo (Recommended)
+        if (onFocusRoute && data && data.length > 0) {
+          onFocusRoute(data.length > 1 ? data[1] : data[0]);
+        }
+      } catch (err) {
+        console.error('Route calculation error:', err);
+      } finally {
+        setIsOptimizing(false);
+      }
+    },
+    [originCoords, destCoords, cruisingSpeed, vesselDraft, onFocusRoute]
+  );
+
+  // Initial calculation on component mount
+  useEffect(() => {
+    executeRouteCalculation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Handle map selection picked by user in MapStage
+  useEffect(() => {
+    if (!pickedMapLocation || !pickedMapLocation.timestamp) return;
+    if (pickedMapLocation.timestamp === lastPickedTimestampRef.current) return;
+    lastPickedTimestampRef.current = pickedMapLocation.timestamp;
+
+    const { target, lat, lon } = pickedMapLocation;
+    const label = findNearestPortName(lat, lon);
+
+    if (target === 'origin') {
+      const newOrig = { lat, lon, name: label };
+      setOriginQuery(label);
+      setOriginCoords(newOrig);
+      setShowOriginDropdown(false);
+      executeRouteCalculation(newOrig, destCoords);
+      triggerToast(`📍 Departure set: ${label}`);
+    } else if (target === 'destination') {
+      const newDest = { lat, lon, name: label };
+      setDestQuery(label);
+      setDestCoords(newDest);
+      setShowDestDropdown(false);
+      executeRouteCalculation(originCoords, newDest);
+      triggerToast(`🎯 Destination set: ${label}`);
+    }
+  }, [pickedMapLocation, destCoords, originCoords, executeRouteCalculation]);
+
+  // Handle draggable endpoint pin movements from MapStage
+  useEffect(() => {
+    if (!draggedEndpoint || !draggedEndpoint.timestamp) return;
+    if (draggedEndpoint.timestamp === lastDraggedTimestampRef.current) return;
+    lastDraggedTimestampRef.current = draggedEndpoint.timestamp;
+
+    const { endpoint, lat, lon } = draggedEndpoint;
+    const label = findNearestPortName(lat, lon);
+
+    if (endpoint === 'origin') {
+      const newOrig = { lat, lon, name: label };
+      setOriginQuery(label);
+      setOriginCoords(newOrig);
+      executeRouteCalculation(newOrig, destCoords);
+      triggerToast(`📍 Departure adjusted: ${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E`);
+    } else if (endpoint === 'destination') {
+      const newDest = { lat, lon, name: label };
+      setDestQuery(label);
+      setDestCoords(newDest);
+      executeRouteCalculation(originCoords, newDest);
+      triggerToast(`🎯 Destination adjusted: ${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E`);
+    }
+  }, [draggedEndpoint, destCoords, originCoords, executeRouteCalculation]);
+
+  // Live GPS Detector (Sets Departure to user's real hardware location)
   const handleDetectGPS = () => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          setCustomOrigin({
-            lat: +pos.coords.latitude.toFixed(4),
-            lon: +pos.coords.longitude.toFixed(4),
-          });
-          setOriginMode('gps');
+          const lat = +pos.coords.latitude.toFixed(4);
+          const lon = +pos.coords.longitude.toFixed(4);
+          const label = `GPS Fix: ${lat}°N, ${lon}°E`;
+          const newOrig = { lat, lon, name: label };
+          setOriginQuery(label);
+          setOriginCoords(newOrig);
+          setShowOriginDropdown(false);
+          executeRouteCalculation(newOrig, destCoords);
+          triggerToast('🎯 Device GPS position locked as Departure');
         },
         () => {
-          // Default fallback
-          setCustomOrigin({ lat: 9.9656, lon: 76.2425 });
-          setOriginMode('gps');
+          const newOrig = { lat: 9.9656, lon: 76.2425, name: 'Cochin Port (Kochi)' };
+          setOriginQuery('Cochin Port (Kochi)');
+          setOriginCoords(newOrig);
+          executeRouteCalculation(newOrig, destCoords);
+          triggerToast('GPS not accessible, defaulted to Cochin Port');
         }
       );
     }
   };
 
-  // Route calculation execution
-  const executeRouteCalculation = useCallback(async (_isInitial = false) => {
-    setIsOptimizing(true);
-    setIsSavedOffline(false);
+  // Reverse / Swap Route (Google Maps style)
+  const handleSwapEndpoints = () => {
+    const tempQuery = originQuery;
+    const tempCoords = originCoords;
 
-    let origStr = '';
-    if (originMode === 'port') {
-      origStr = selectedPortOrigin;
-    } else {
-      origStr = `${customOrigin.lat}, ${customOrigin.lon}`;
-    }
+    setOriginQuery(destQuery);
+    setOriginCoords(destCoords);
 
-    let destStr = '';
-    if (destMode === 'port') {
-      destStr = selectedPortDest;
-    } else {
-      destStr = `${customDest.lat}, ${customDest.lon}`;
-    }
+    setDestQuery(tempQuery);
+    setDestCoords(tempCoords);
 
-    try {
-      const res = await fetch('/api/routes/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          origin: origStr,
-          destination: destStr,
-          vessel_speed_knots: cruisingSpeed,
-          vessel_draft_meters: vesselDraft,
-        }),
-      });
+    executeRouteCalculation(destCoords, tempCoords);
+    triggerToast('⇅ Route reversed: Departure & Destination swapped');
+  };
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      setRoutes(data);
-      setActiveRouteIndex(data.length > 1 ? 1 : 0); // Default to Bravo (Recommended)
-      if (onFocusRoute && data && data.length > 0) {
-        onFocusRoute(data.length > 1 ? data[1] : data[0]);
+  // Select a port from Autocomplete dropdown
+  const handleSelectOriginPort = (port) => {
+    const newOrig = { lat: port.lat, lon: port.lon, name: port.name };
+    setOriginQuery(port.name);
+    setOriginCoords(newOrig);
+    setShowOriginDropdown(false);
+    executeRouteCalculation(newOrig, destCoords);
+  };
+
+  const handleSelectDestPort = (port) => {
+    const newDest = { lat: port.lat, lon: port.lon, name: port.name };
+    setDestQuery(port.name);
+    setDestCoords(newDest);
+    setShowDestDropdown(false);
+    executeRouteCalculation(originCoords, newDest);
+  };
+
+  // Parse raw coordinate strings typed in by user
+  const handleOriginBlur = () => {
+    setTimeout(() => {
+      setShowOriginDropdown(false);
+      const coordMatch = originQuery.match(/([+-]?\d+(?:\.\d+)?)\s*[,/ ]+\s*([+-]?\d+(?:\.\d+)?)/);
+      if (coordMatch) {
+        const lat = parseFloat(coordMatch[1]);
+        const lon = parseFloat(coordMatch[2]);
+        if (!isNaN(lat) && !isNaN(lon)) {
+          const label = findNearestPortName(lat, lon);
+          const newOrig = { lat, lon, name: label };
+          setOriginCoords(newOrig);
+          executeRouteCalculation(newOrig, destCoords);
+        }
       }
-    } catch (err) {
-      console.error('Route calculation error:', err);
-    } finally {
-      setIsOptimizing(false);
-    }
-  }, [originMode, selectedPortOrigin, customOrigin, destMode, selectedPortDest, customDest, cruisingSpeed, vesselDraft, onFocusRoute]);
+    }, 200);
+  };
 
-  useEffect(() => {
-    executeRouteCalculation(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const handleDestBlur = () => {
+    setTimeout(() => {
+      setShowDestDropdown(false);
+      const coordMatch = destQuery.match(/([+-]?\d+(?:\.\d+)?)\s*[,/ ]+\s*([+-]?\d+(?:\.\d+)?)/);
+      if (coordMatch) {
+        const lat = parseFloat(coordMatch[1]);
+        const lon = parseFloat(coordMatch[2]);
+        if (!isNaN(lat) && !isNaN(lon)) {
+          const label = findNearestPortName(lat, lon);
+          const newDest = { lat, lon, name: label };
+          setDestCoords(newDest);
+          executeRouteCalculation(originCoords, newDest);
+        }
+      }
+    }, 200);
+  };
 
   const currentRoute = routes && routes.length > 0 ? routes[activeRouteIndex] : null;
   const nextWaypoint = currentRoute && currentRoute.waypoints && currentRoute.waypoints.length > 1 ? currentRoute.waypoints[1] : null;
 
-  // Active ship coordinates
-  const activeShipCoords = useMemo(() => {
-    return originMode === 'port'
-      ? (PORTS.find((p) => p.id === selectedPortOrigin) || PORTS[0])
-      : { lat: customOrigin.lat, lon: customOrigin.lon, name: 'Live Ship Position' };
-  }, [originMode, selectedPortOrigin, customOrigin.lat, customOrigin.lon]);
-
-  useEffect(() => {
-    if (onUpdateShipLocation) {
-      onUpdateShipLocation(activeShipCoords);
-    }
-  }, [activeShipCoords, onUpdateShipLocation]);
-
   // Real-time environmental calculations at ship coordinates
-  const latF = (activeShipCoords.lat - 8.0) / 12.0;
-  const lonF = (activeShipCoords.lon - 70.0) / 12.0;
+  const latF = (originCoords.lat - 8.0) / 12.0;
+  const lonF = (originCoords.lon - 70.0) / 12.0;
   const shipWind = +(14.0 + 8.0 * Math.sin(latF * 2.5 + lonF * 1.8)).toFixed(1);
   const shipWindDir = Math.round(230 + 35 * Math.sin(latF * 1.5 - lonF * 1.2));
   const shipWave = +(0.8 + (shipWind / 30.0) * 1.8 + 0.3 * Math.cos(latF * 3.0)).toFixed(1);
   const shipSST = +(28.4 + 2.0 * Math.sin(lonF * 1.6) - 0.7 * latF).toFixed(1);
 
-  // Initialize Zoomed Geographic Leaflet Map in the Passage Report Modal
-  useEffect(() => {
-    if (!showReportModal || !reportMapRef.current || !currentRoute || !currentRoute.waypoints) return;
-
-    if (reportMapInstanceRef.current) {
-      reportMapInstanceRef.current.remove();
-      reportMapInstanceRef.current = null;
-    }
+  // Direct Download: Download Official Maritime Passage Plan directly to user's Downloads folder (No print/save dialog)
+  const handleDownloadPDF = () => {
+    if (!currentRoute) return;
+    const origName = originQuery || 'Departure';
+    const destName = destQuery || 'Destination';
 
     try {
-      const map = L.map(reportMapRef.current, {
-        zoomControl: true,
-        attributionControl: false,
-      });
-      reportMapInstanceRef.current = map;
-
-      // High-Definition Satellite Imagery Tile Layer
-      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 18,
-      }).addTo(map);
-
-      // Route Polyline Track
-      const latlngs = currentRoute.waypoints.map((wp) => [wp.latitude, wp.longitude]);
-      const routeLine = L.polyline(latlngs, {
-        color: '#38bdf8',
-        weight: 4.5,
-        opacity: 0.95,
-      }).addTo(map);
-
-      // Waypoint Pins with Leg & Steer Info
-      currentRoute.waypoints.forEach((wp, idx) => {
-        const isStart = idx === 0;
-        const isEnd = idx === currentRoute.waypoints.length - 1;
-        const pinColor = isStart ? '#10b981' : isEnd ? '#ef4444' : '#38bdf8';
-        const marker = L.circleMarker([wp.latitude, wp.longitude], {
-          radius: isStart || isEnd ? 7 : 5,
-          fillColor: pinColor,
-          color: '#ffffff',
-          weight: 2,
-          fillOpacity: 1,
-        }).addTo(map);
-
-        marker.bindPopup(
-          `<strong>WP ${idx + 1}: ${wp.name}</strong><br>Lat: ${wp.latitude.toFixed(4)}°N, Lon: ${wp.longitude.toFixed(4)}°E<br>Leg: ${wp.segment_distance_nm ?? 0} NM · Course: ${wp.bearing_degrees ? Math.round(wp.bearing_degrees) + '°' : '—'}`
-        );
-      });
-
-      // Zoom tightly and fit the exact route bounding box
-      map.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
-
-      setTimeout(() => {
-        if (reportMapInstanceRef.current) {
-          reportMapInstanceRef.current.invalidateSize();
-          reportMapInstanceRef.current.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
-        }
-      }, 250);
-    } catch (e) {
-      console.error('Error mounting passage report map:', e);
+      exportRoutePlanPDF(currentRoute, origName, destName);
+      triggerToast('Passage plan PDF downloaded directly to your Downloads folder');
+    } catch (err) {
+      console.error('Failed to export passage plan PDF:', err);
+      triggerToast('Error generating PDF document');
     }
+  };
 
-    return () => {
-      if (reportMapInstanceRef.current) {
-        reportMapInstanceRef.current.remove();
-        reportMapInstanceRef.current = null;
+  // Fetch Nearest Ships, Port, and Coast Guard MRCC Station
+  const fetchNearestEmergencyContacts = useCallback(async (lat, lon) => {
+    setIsLoadingContacts(true);
+    try {
+      const res = await fetch(`/api/emergency/nearest-contacts?lat=${lat}&lon=${lon}`);
+      if (res.ok) {
+        const data = await res.json();
+        setNearestContacts(data);
       }
-    };
-  }, [showReportModal, currentRoute]);
-
-  // Directly Download Official Maritime Passage Plan Report (.html with embedded Leaflet satellite map)
-  const handleDownloadPassageReport = () => {
-    if (!currentRoute || !currentRoute.waypoints) return;
-    const origObj = PORTS.find((p) => p.id === selectedPortOrigin) || { name: 'Cochin Port (Kochi)' };
-    const destObj = PORTS.find((p) => p.id === selectedPortDest) || { name: 'Port of Colombo' };
-    const origName = originMode === 'port' ? origObj.name : `${customOrigin.lat}°N, ${customOrigin.lon}°E`;
-    const destName = destMode === 'port' ? destObj.name : `${customDest.lat}°N, ${customDest.lon}°E`;
-    const fileName = `ORCA_Passage_Plan_${origName.replace(/[^a-zA-Z0-9]/g, '_')}_to_${destName.replace(/[^a-zA-Z0-9]/g, '_')}.html`;
-
-    const waypointsJson = JSON.stringify(currentRoute.waypoints);
-
-    const htmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ORCA Maritime Passage Plan - ${origName} to ${destName}</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #0f172a; color: #f1f5f9; margin: 0; padding: 24px; }
-    .container { max-width: 900px; margin: 0 auto; background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    .header { border-bottom: 2px solid #0284c7; padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
-    .tag { font-size: 11px; color: #38bdf8; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
-    h1 { margin: 4px 0 6px 0; font-size: 22px; color: #ffffff; }
-    .sub { font-size: 12px; color: #94a3b8; }
-    #map { height: 380px; width: 100%; border-radius: 8px; margin-bottom: 24px; border: 1px solid #475569; }
-    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-    .card { background: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 8px; text-align: center; }
-    .card-lbl { font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 4px; }
-    .card-val { font-size: 18px; font-weight: 800; color: #38bdf8; }
-    .card-val.green { color: #10b981; }
-    .card-val.amber { color: #f59e0b; }
-    .roi-banner { background: rgba(16, 185, 129, 0.12); border: 1px solid #10b981; border-radius: 8px; padding: 12px 16px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 12px; }
-    th { background: #0f172a; color: #94a3b8; text-align: left; padding: 8px 10px; font-weight: 700; border-bottom: 1px solid #334155; }
-    td { padding: 8px 10px; border-bottom: 1px solid #334155; }
-    .mrcc-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 14px; font-size: 11px; margin-bottom: 24px; }
-    .mrcc-title { font-weight: 800; color: #ef4444; margin-bottom: 8px; display: block; }
-    .mrcc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; color: #cbd5e1; }
-    .btn-print { background: #0284c7; color: #ffffff; border: none; padding: 10px 20px; font-weight: 700; border-radius: 6px; cursor: pointer; float: right; font-size: 13px; }
-    @media print {
-      body { background: #ffffff; color: #000000; padding: 0; }
-      .container { border: none; box-shadow: none; max-width: 100%; }
-      .btn-print { display: none; }
-      #map { height: 320px; }
-      th { background: #f1f5f9; color: #334155; }
-      td { border-bottom: 1px solid #cbd5e1; }
-      .card { background: #f8fafc; border: 1px solid #e2e8f0; }
-      .card-val { color: #0284c7; }
+    } catch (e) {
+      console.error('Failed to query emergency contacts:', e);
+    } finally {
+      setIsLoadingContacts(false);
     }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <div>
-        <div class="tag">ORCA MARITIME INTELLIGENCE · SIH26176</div>
-        <h1>Voyage Passage Plan: ${origName} → ${destName}</h1>
-        <div class="sub">Generated: ${new Date().toLocaleString()} · Compliant with COLREGS Rule 10 & SOLAS V/34</div>
-      </div>
-      <button class="btn-print" onclick="window.print()">Print / Save as PDF</button>
-    </div>
+  }, []);
 
-    <!-- Zoomed Geographic Map -->
-    <div id="map"></div>
+  // Trigger contact discovery whenever SOS modal opens
+  useEffect(() => {
+    if (showSosModal) {
+      const targetLat = originCoords?.lat || 9.9656;
+      const targetLon = originCoords?.lon || 76.2425;
+      fetchNearestEmergencyContacts(targetLat, targetLon);
+    }
+  }, [showSosModal, originCoords, fetchNearestEmergencyContacts]);
 
-    <div class="grid">
-      <div class="card">
-        <span class="card-lbl">Total Distance</span>
-        <span class="card-val">${currentRoute.total_distance_nm} NM</span>
-      </div>
-      <div class="card">
-        <span class="card-lbl">Est. Duration</span>
-        <span class="card-val">${currentRoute.estimated_duration_hours} h</span>
-      </div>
-      <div class="card">
-        <span class="card-lbl">Safety Index</span>
-        <span class="card-val green">${currentRoute.safety_score}/100</span>
-      </div>
-      <div class="card">
-        <span class="card-lbl">Fuel Diesel</span>
-        <span class="card-val amber">${currentRoute.fuel_estimate_liters} L</span>
-      </div>
-    </div>
+  // Transmit Official GMDSS Distress Signal
+  const handleBroadcastSOS = async () => {
+    setIsDispatchingSos(true);
+    try {
+      const targetLat = originCoords?.lat || 9.9656;
+      const targetLon = originCoords?.lon || 76.2425;
+      const payload = {
+        vessel_id: sosVesselId,
+        callsign: 'ORCA-INDIA',
+        latitude: targetLat,
+        longitude: targetLon,
+        crew_count: sosCrewCount,
+        distress_type: sosDistressType,
+        target_recipient: sosTargetRecipient,
+        sea_state: 'Moderate Swell 1.4m · Wind 16 kt',
+        description: 'Vessel lost propulsion and drifting offshore. Urgent SAR and nearest vessel intercept requested.'
+      };
 
-    <div class="roi-banner">
-      <div>
-        <strong>Blue Economy Fuel ROI & Carbon Mitigation:</strong>
-        <span style="color:#94a3b8; margin-left:6px;">Laminar seaway routing saves ~${currentRoute.fuel_saved_liters || 75}L diesel (₹${(currentRoute.fuel_cost_savings_inr || 7050).toLocaleString()}).</span>
-      </div>
-      <strong style="color:#10b981;">-${currentRoute.co2_saved_kg || 201} kg CO₂</strong>
-    </div>
+      const res = await fetch('/api/emergency/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-    <h3 style="font-size:14px; margin-bottom:10px; color:#ffffff;">Turn-by-Turn Navigational Waypoints</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Waypoint Name</th>
-          <th>Coordinates</th>
-          <th>Leg Distance</th>
-          <th>True Course</th>
-          <th>Steering Directive</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${currentRoute.waypoints
-          .map(
-            (wp, idx) => `
-          <tr>
-            <td style="color:#94a3b8;">${idx + 1}</td>
-            <td style="font-weight:600;">${wp.name}</td>
-            <td style="font-family:monospace;">${wp.latitude.toFixed(4)}°N, ${wp.longitude.toFixed(4)}°E</td>
-            <td>${wp.segment_distance_nm ?? 0} NM</td>
-            <td>${wp.bearing_degrees ? Math.round(wp.bearing_degrees) + '°' : '—'}</td>
-            <td style="color:#38bdf8;">${wp.steer_instruction || 'Maintain Course'}</td>
-          </tr>
-        `
-          )
-          .join('')}
-      </tbody>
-    </table>
+      if (res.ok) {
+        const data = await res.json();
+        setSosDistressResult(data);
+        triggerToast(`🚨 SOS MAYDAY Beacon Transmitted: ${data.dispatch_token}`);
+      }
+    } catch (err) {
+      console.error('Failed to broadcast SOS', err);
+    } finally {
+      setIsDispatchingSos(false);
+    }
+  };
 
-    <div class="mrcc-box">
-      <span class="mrcc-title">INDIAN COAST GUARD MARITIME RESCUE COORDINATION (MRCC) EMERGENCY CHANNELS</span>
-      <div class="mrcc-grid">
-        <span>• MRCC Mumbai: 022-24388065 / VHF Ch 16 & 12</span>
-        <span>• MRCC Kochi: 0484-2216590 / VHF Ch 16 & 12</span>
-        <span>• MRCC Chennai: 044-23460405 / VHF Ch 16 & 12</span>
-        <span>• MRCC Port Blair: 03192-232681 / VHF Ch 16 & 12</span>
-      </div>
-    </div>
-  </div>
+  // Stand Down SOS Beacon
+  const handleCancelSOS = async () => {
+    if (!sosDistressResult?.dispatch_token) {
+      setSosDistressResult(null);
+      return;
+    }
+    try {
+      await fetch(`/api/emergency/cancel/${sosDistressResult.dispatch_token}?reason=Vessel+stabilized+or+false+alarm`, {
+        method: 'POST'
+      });
+      setSosDistressResult(null);
+      triggerToast('Distress Beacon Stood Down with Coast Guard MRCC');
+    } catch (e) {
+      setSosDistressResult(null);
+    }
+  };
 
-  <script>
-    const waypoints = ${waypointsJson};
-    const map = L.map('map', { zoomControl: true, attributionControl: false });
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18 }).addTo(map);
-    const coords = waypoints.map(wp => [wp.latitude, wp.longitude]);
-    const line = L.polyline(coords, { color: '#38bdf8', weight: 4.5, opacity: 0.95 }).addTo(map);
-    waypoints.forEach((wp, idx) => {
-      const isStart = idx === 0;
-      const isEnd = idx === waypoints.length - 1;
-      const color = isStart ? '#10b981' : isEnd ? '#ef4444' : '#38bdf8';
-      L.circleMarker([wp.latitude, wp.longitude], { radius: isStart || isEnd ? 7 : 5, fillColor: color, color: '#ffffff', weight: 2, fillOpacity: 1 })
-        .bindPopup('<strong>WP ' + (idx + 1) + ': ' + wp.name + '</strong><br>' + wp.latitude.toFixed(4) + '°N, ' + wp.longitude.toFixed(4) + '°E')
-        .addTo(map);
-    });
-    map.fitBounds(line.getBounds(), { padding: [30, 30] });
-  </script>
-</body>
-</html>`;
-
-    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', fileName);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    setIsSavedOffline(true);
-
-    // Also open modal preview on screen
-    setShowReportModal(true);
+  const handleCopyVoiceScript = () => {
+    if (!sosDistressResult?.voice_mayday_script) return;
+    navigator.clipboard.writeText(sosDistressResult.voice_mayday_script);
+    setCopiedVoiceScript(true);
+    setTimeout(() => setCopiedVoiceScript(false), 2500);
+    triggerToast('Voice Mayday VHF script copied to clipboard');
   };
 
   // Reset to default starting configuration: Kochi -> Colombo at 12 kt, 3.2 m draft
   const handleResetDefaults = () => {
-    setOriginMode('port');
-    setSelectedPortOrigin('kochi');
-    setCustomOrigin({ lat: 9.9656, lon: 76.2425 });
-    setDestMode('port');
-    setSelectedPortDest('colombo');
-    setCustomDest({ lat: 6.9497, lon: 79.8433 });
+    const orig = { lat: 9.9656, lon: 76.2425, name: 'Cochin Port (Kochi)' };
+    const dest = { lat: 6.9497, lon: 79.8433, name: 'Port of Colombo (Sri Lanka)' };
+
+    setOriginQuery('Cochin Port (Kochi)');
+    setOriginCoords(orig);
+
+    setDestQuery('Port of Colombo (Sri Lanka)');
+    setDestCoords(dest);
+
     setCruisingSpeed(12.0);
     setVesselDraft(3.2);
-    setIsOptimizing(true);
-    fetch('/api/routes/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        origin: 'kochi',
-        destination: 'colombo',
-        vessel_speed_knots: 12.0,
-        vessel_draft_meters: 3.2,
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setRoutes(data);
-        setActiveRouteIndex(data.length > 1 ? 1 : 0);
-        if (onFocusRoute && data.length > 0) {
-          onFocusRoute(data.length > 1 ? data[1] : data[0]);
-        }
-      })
-      .catch((err) => console.error('Reset defaults error:', err))
-      .finally(() => setIsOptimizing(false));
+
+    executeRouteCalculation(orig, dest);
+    triggerToast('Reset to default Cochin Port → Colombo route');
   };
 
   return (
     <div className="route-planner-panel">
-      <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      {/* Panel Header with Small Single PDF Download Button & Default Reset */}
+      <div className="panel-header">
+        <div className="panel-header-left">
           <Compass size={20} className="panel-header-icon" />
           <div>
             <h3 className="panel-title">Dynamic Route Optimization</h3>
             <span className="panel-sub">COLREGS Rule 10 & Real-Time Compass Waypoint Steering</span>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={handleResetDefaults}
+
+        {/* Small Top Action Controls: SOS Distress, Single PDF & Default Reset */}
+        <div className="panel-header-actions">
+          {/* High Priority Red SOS Distress Button */}
+          <button
+            type="button"
+            className="btn-route-header-sos"
+            onClick={() => setShowSosModal(true)}
+            title="Broadcast GMDSS Mayday Emergency Distress Signal to Nearest Ship, Port & Coast Guard"
+          >
+            <AlertOctagon size={13} />
+            <span>SOS Distress</span>
+          </button>
+
+          <button
+            type="button"
+            className="btn-route-header-download"
+            onClick={handleDownloadPDF}
+            title="Download official Passage Plan as PDF"
+          >
+            <Download size={12} />
+            <span>PDF</span>
+          </button>
+
+          <button
+            type="button"
+            className="btn-route-header-default"
+            onClick={handleResetDefaults}
+            title="Reset route to Cochin -> Colombo default"
+          >
+            <RotateCcw size={12} />
+            <span>Default</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Floating Action Feedback Toast */}
+      {downloadToast && (
+        <div className="route-action-toast">
+          <Download size={14} className="toast-icon" />
+          <span>{downloadToast}</span>
+        </div>
+      )}
+
+      {/* Active Broadcast Beacon Ticker in Main Route Panel */}
+      {sosDistressResult && (
+        <div
+          onClick={() => setShowSosModal(true)}
           style={{
+            margin: '0 0 14px 0',
+            padding: '10px 14px',
+            background: 'rgba(239, 68, 68, 0.16)',
+            border: '1px solid #ef4444',
+            borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
-            gap: '5px',
-            background: 'rgba(30, 41, 59, 0.85)',
-            border: '1px solid #334155',
-            color: '#94a3b8',
-            fontSize: '11px',
-            fontWeight: '600',
-            padding: '5px 9px',
-            borderRadius: '6px',
+            justifyContent: 'space-between',
             cursor: 'pointer',
-            transition: 'all 0.15s ease',
+            boxShadow: '0 0 15px rgba(239, 68, 68, 0.25)'
           }}
-          title="Reset all route parameters to Cochin -> Colombo default route"
         >
-          <RotateCcw size={12} />
-          <span>Default</span>
-        </button>
-      </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span
+              style={{
+                display: 'inline-block',
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                background: '#ef4444',
+                boxShadow: '0 0 10px #ef4444',
+              }}
+            />
+            <div>
+              <div style={{ fontSize: '12px', fontWeight: '800', color: '#ef4444' }}>
+                ACTIVE SOS MAYDAY BEACON BROADCASTING
+              </div>
+              <div style={{ fontSize: '11px', color: '#fca5a5' }}>
+                Ref: {sosDistressResult.dispatch_token} · Intercept ETA: ~{sosDistressResult.sar_response_eta_minutes} min
+              </div>
+            </div>
+          </div>
+          <span style={{ fontSize: '11px', color: '#ffffff', background: '#dc2626', padding: '4px 8px', borderRadius: '4px', fontWeight: '700' }}>
+            Open Terminal ➜
+          </span>
+        </div>
+      )}
+
+      {/* Maritime GMDSS SOS Emergency Distress Modal */}
+      {showSosModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.82)',
+            backdropFilter: 'blur(5px)',
+            zIndex: 10000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px'
+          }}
+        >
+          <div
+            style={{
+              background: '#0b1329',
+              border: '2px solid #ef4444',
+              borderRadius: '14px',
+              maxWidth: '680px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              padding: '24px',
+              boxShadow: '0 0 35px rgba(239, 68, 68, 0.4)',
+              color: '#f1f5f9'
+            }}
+          >
+            {/* Modal Header with Pulsing Beacon */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '18px', borderBottom: '1px solid rgba(239, 68, 68, 0.3)', paddingBottom: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 16px #ef4444' }}>
+                  <AlertOctagon size={22} style={{ color: '#ffffff' }} />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#ffffff', letterSpacing: '0.02em' }}>
+                    GMDSS Maritime SOS Distress Terminal
+                  </h3>
+                  <span style={{ fontSize: '11.5px', color: '#fca5a5' }}>
+                    IMO / Indian Coast Guard National Maritime SAR & Nearest Ship Relay
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowSosModal(false)}
+                style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '20px', cursor: 'pointer', padding: '4px' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Current Distress Position Strip */}
+            <div style={{ background: '#1e293b', padding: '10px 14px', borderRadius: '8px', border: '1px solid #334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '16px', fontSize: '12px' }}>
+              <div>
+                <span style={{ color: '#94a3b8' }}>Vessel Distress Position:</span>{' '}
+                <strong style={{ color: '#38bdf8' }}>{originCoords.lat.toFixed(4)}°N, {originCoords.lon.toFixed(4)}°E</strong>{' '}
+                <span style={{ color: '#cbd5e1' }}>({originCoords.name})</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ color: '#94a3b8' }}>Craft:</span>
+                <input
+                  type="text"
+                  value={sosVesselId}
+                  onChange={(e) => setSosVesselId(e.target.value)}
+                  style={{ width: '130px', padding: '3px 7px', fontSize: '11px', background: '#0f172a', border: '1px solid #475569', borderRadius: '4px', color: '#ffffff' }}
+                />
+              </div>
+            </div>
+
+            {/* If Distress Beacon is Active, show Active Transmission Card & Voice Mayday Script */}
+            {sosDistressResult ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {/* Pulsing Active Alert Banner */}
+                <div style={{ background: 'rgba(239, 68, 68, 0.18)', border: '2px solid #ef4444', borderRadius: '10px', padding: '14px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '15px', fontWeight: '800', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#ef4444', boxShadow: '0 0 10px #ef4444' }} />
+                    MAYDAY DISTRESS TRANSMISSION ACTIVE & LOGGED
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#fca5a5', marginTop: '4px' }}>
+                    Dispatch ID: <strong>{sosDistressResult.dispatch_token}</strong> · Dispatched to: <strong>{sosDistressResult.target_recipient}</strong>
+                  </div>
+                  <div style={{ fontSize: '13px', fontWeight: '700', color: '#ffffff', marginTop: '8px' }}>
+                    ⏳ Fast Interceptor Craft Estimated Intercept ETA: ~{sosDistressResult.sar_response_eta_minutes} minutes
+                  </div>
+                </div>
+
+                {/* IMO Standard VHF Mayday Voice Script */}
+                <div style={{ background: '#0f172a', border: '1px solid #38bdf8', borderRadius: '10px', padding: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#38bdf8', fontWeight: '700', fontSize: '12px' }}>
+                      <Radio size={15} />
+                      <span>OFFICIAL IMO STANDARD MAYDAY VOICE SCRIPT (VHF CH 16):</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleCopyVoiceScript}
+                      style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', fontSize: '11px', background: copiedVoiceScript ? '#059669' : '#1e293b', color: '#ffffff', border: '1px solid #334155', borderRadius: '6px', cursor: 'pointer' }}
+                    >
+                      {copiedVoiceScript ? <Check size={12} /> : <Copy size={12} />}
+                      <span>{copiedVoiceScript ? 'Copied' : 'Copy Script'}</span>
+                    </button>
+                  </div>
+
+                  <pre style={{ margin: 0, padding: '12px', background: '#020617', borderRadius: '6px', fontSize: '12px', lineHeight: '1.6', color: '#38bdf8', fontFamily: 'monospace', whiteSpace: 'pre-wrap', border: '1px solid #1e293b' }}>
+                    {sosDistressResult.voice_mayday_script}
+                  </pre>
+                  <div style={{ fontSize: '10.5px', color: '#94a3b8', marginTop: '6px' }}>
+                    Speak clearly into your VHF Radio on Channel 16 (156.800 MHz) using the text above.
+                  </div>
+                </div>
+
+                {/* Instructions */}
+                <div style={{ background: '#1e293b', borderRadius: '8px', padding: '12px', border: '1px solid #334155', fontSize: '11.5px' }}>
+                  <div style={{ fontWeight: '700', color: '#ffffff', marginBottom: '6px' }}>Immediate Safety Protocols:</div>
+                  <ul style={{ margin: 0, paddingLeft: '18px', color: '#cbd5e1', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {sosDistressResult.instructions?.map((inst, idx) => (
+                      <li key={idx}>{inst}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Stand Down / Cancel Button */}
+                <button
+                  type="button"
+                  onClick={handleCancelSOS}
+                  style={{ padding: '10px', background: '#334155', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}
+                >
+                  Stand Down / Cancel Distress Alert
+                </button>
+              </div>
+            ) : (
+              /* Pre-Broadcast Form */
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {/* Nearest Maritime Responders Grid */}
+                <div style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>
+                  Nearby Maritime Responders Detected in Area:
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '10px' }}>
+                  {/* Nearest Ship Card */}
+                  <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#38bdf8', fontSize: '12px', fontWeight: '700', marginBottom: '6px' }}>
+                      <Ship size={15} />
+                      <span>Nearest Vessel (AIS)</span>
+                    </div>
+                    <div style={{ fontSize: '13px', fontWeight: '700', color: '#ffffff' }}>
+                      {nearestContacts?.nearest_ship?.name || 'ICGS Samar (Coast Guard)'}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+                      {nearestContacts?.nearest_ship?.type || 'Fast Patrol Vessel'}
+                    </div>
+                    <div style={{ marginTop: '6px', fontSize: '11.5px', color: '#f59e0b', fontWeight: '600' }}>
+                      Distance: <strong>{nearestContacts?.nearest_ship?.distance_nm || 3.5} NM</strong> ({nearestContacts?.nearest_ship?.bearing_degrees || 40}° {nearestContacts?.nearest_ship?.bearing_cardinal || 'NE'})
+                    </div>
+                    <div style={{ fontSize: '10.5px', color: '#10b981', marginTop: '2px' }}>
+                      Intercept ETA: ~{nearestContacts?.nearest_ship?.intercept_eta_minutes || 9} mins · {nearestContacts?.nearest_ship?.vhf_channel || 'VHF Ch 16 / DSC 70'}
+                    </div>
+                  </div>
+
+                  {/* Nearest Port Card */}
+                  <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#10b981', fontSize: '12px', fontWeight: '700', marginBottom: '6px' }}>
+                      <Anchor size={15} />
+                      <span>Nearest Coastal Port</span>
+                    </div>
+                    <div style={{ fontSize: '13px', fontWeight: '700', color: '#ffffff' }}>
+                      {nearestContacts?.nearest_port?.name || 'Cochin Port (Kochi)'}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+                      {nearestContacts?.nearest_port?.state || 'Kerala Coast'}
+                    </div>
+                    <div style={{ marginTop: '6px', fontSize: '11.5px', color: '#f59e0b', fontWeight: '600' }}>
+                      Distance: <strong>{nearestContacts?.nearest_port?.distance_nm || 1.4} NM</strong> ({nearestContacts?.nearest_port?.bearing_degrees || 76}° {nearestContacts?.nearest_port?.bearing_cardinal || 'ENE'})
+                    </div>
+                    <div style={{ fontSize: '10.5px', color: '#cbd5e1', marginTop: '2px' }}>
+                      {nearestContacts?.nearest_port?.vhf_channel || 'VHF Channel 12 / 16 (Port Control)'}
+                    </div>
+                  </div>
+
+                  {/* Assigned MRCC Card */}
+                  <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ef4444', fontSize: '12px', fontWeight: '700', marginBottom: '6px' }}>
+                      <ShieldAlert size={15} />
+                      <span>Coast Guard MRCC</span>
+                    </div>
+                    <div style={{ fontSize: '13px', fontWeight: '700', color: '#ffffff' }}>
+                      {nearestContacts?.nearest_mrcc?.name || 'MRCC Kochi'}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#fca5a5', marginTop: '2px' }}>
+                      Hotline: {nearestContacts?.nearest_mrcc?.contact_phone || '+91-484-2216444'}
+                    </div>
+                    <div style={{ marginTop: '6px', fontSize: '11.5px', color: '#f59e0b', fontWeight: '600' }}>
+                      Range: <strong>{nearestContacts?.nearest_mrcc?.distance_nm || 1.4} NM</strong> · SAR Fast Craft
+                    </div>
+                    <div style={{ fontSize: '10.5px', color: '#cbd5e1', marginTop: '2px' }}>
+                      VHF Channel 16 / DSC Ch 70 (2182 kHz)
+                    </div>
+                  </div>
+                </div>
+
+                {/* Target Relay Recipient Selector */}
+                <div>
+                  <label style={{ color: '#94a3b8', fontSize: '11px', fontWeight: '700', display: 'block', marginBottom: '6px', textTransform: 'uppercase' }}>
+                    Distress Alert Recipient:
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
+                    {[
+                      { id: 'ALL_STATIONS', label: '📡 All Stations (Ship + Port + ICG)', desc: 'Full SAR Dispatch' },
+                      { id: 'NEAREST_SHIP', label: '🚢 Nearest Ship Only', desc: 'VHF DSC Ch 70' },
+                      { id: 'NEAREST_PORT', label: '⚓ Nearest Port Authority', desc: 'VHF Ch 12/16' },
+                      { id: 'MRCC', label: '🛡️ Coast Guard MRCC', desc: 'National SAR' }
+                    ].map((opt) => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setSosTargetRecipient(opt.id)}
+                        style={{
+                          padding: '8px 10px',
+                          background: sosTargetRecipient === opt.id ? 'rgba(239, 68, 68, 0.2)' : '#1e293b',
+                          border: sosTargetRecipient === opt.id ? '2px solid #ef4444' : '1px solid #334155',
+                          borderRadius: '6px',
+                          color: '#ffffff',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          fontSize: '11.5px'
+                        }}
+                      >
+                        <div style={{ fontWeight: '700' }}>{opt.label}</div>
+                        <div style={{ fontSize: '10px', color: '#94a3b8' }}>{opt.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Nature of Distress & Souls on Board */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '12px' }}>
+                  <div>
+                    <label style={{ color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Nature of Distress:</label>
+                    <select
+                      value={sosDistressType}
+                      onChange={(e) => setSosDistressType(e.target.value)}
+                      style={{ width: '100%', padding: '8px 10px', background: '#1e293b', border: '1px solid #334155', borderRadius: '6px', color: '#ffffff' }}
+                    >
+                      <option value="ENGINE_FAILURE_DRIFT">Engine Failure & Leeway Drift</option>
+                      <option value="HULL_BREACH_FLOODING">Hull Breach / Taking Water</option>
+                      <option value="FIRE_EXPLOSION">Fire / Explosion On Board</option>
+                      <option value="MEDICAL_EMERGENCY">Medical Emergency At Sea</option>
+                      <option value="MAN_OVERBOARD">Man Overboard (MOB)</option>
+                      <option value="CAPSIZED_VESSEL">Vessel Listing / Capsized</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Persons on Board (POB):</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={sosCrewCount}
+                      onChange={(e) => setSosCrewCount(parseInt(e.target.value, 10) || 4)}
+                      style={{ width: '100%', padding: '8px 10px', background: '#1e293b', border: '1px solid #334155', borderRadius: '6px', color: '#ffffff' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Big Red Broadcast Button */}
+                <button
+                  type="button"
+                  disabled={isDispatchingSos}
+                  onClick={handleBroadcastSOS}
+                  style={{
+                    marginTop: '8px',
+                    padding: '14px',
+                    background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+                    color: '#ffffff',
+                    border: '2px solid #ef4444',
+                    borderRadius: '8px',
+                    fontWeight: '800',
+                    fontSize: '14px',
+                    cursor: isDispatchingSos ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '10px',
+                    boxShadow: '0 4px 20px rgba(220, 38, 38, 0.4)',
+                    letterSpacing: '0.03em'
+                  }}
+                >
+                  <AlertOctagon size={18} />
+                  <span>{isDispatchingSos ? 'TRANSMITTING BEACON...' : 'TRANSMIT GMDSS MAYDAY DISTRESS BEACON'}</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Live Vessel Location Environmental Telemetry Card */}
       <div className="ship-live-telemetry-card">
@@ -446,11 +867,11 @@ export default function RoutePlanner({ onFocusRoute, onUpdateShipLocation }) {
             <span className="t-card-title">LIVE SHIP POSITION DATASET</span>
           </div>
           <span className="t-card-coords">
-            Latitude: {activeShipCoords.lat.toFixed(4)}°, Longitude: {activeShipCoords.lon.toFixed(4)}°
+            Latitude: {originCoords.lat.toFixed(4)}°, Longitude: {originCoords.lon.toFixed(4)}°
           </span>
         </div>
 
-        <div className="telemetry-pills-row">
+        <div className="live-telemetry-pills-row">
           <div className="live-t-pill">
             <span className="pill-lbl">WIND</span>
             <span className="pill-val">{shipWind} kt · {shipWindDir}°</span>
@@ -470,131 +891,185 @@ export default function RoutePlanner({ onFocusRoute, onUpdateShipLocation }) {
         </div>
       </div>
 
-      {/* Input Selection Form */}
-      <div className="route-form-card">
-        {/* Departure Selection */}
-        <div className="route-input-block">
-          <div className="input-block-header">
-            <label className="form-label">DEPARTURE LOCATION</label>
-            <div className="mode-toggle-group">
+      {/* Google Maps Style Route Card (Unified Search, Map Picker, and Swap) */}
+      <div className="google-maps-route-card">
+        {/* Departure Row (A) */}
+        <div className="route-card-endpoint-row origin">
+          <div className="endpoint-pin-badge origin" title="Departure Point (A)">
+            <span>A</span>
+          </div>
+          <div className="endpoint-input-container">
+            <input
+              type="text"
+              className="endpoint-search-input"
+              placeholder="Enter departure port, city, or coordinates..."
+              value={originQuery}
+              onChange={(e) => {
+                setOriginQuery(e.target.value);
+                setShowOriginDropdown(true);
+              }}
+              onFocus={() => setShowOriginDropdown(true)}
+              onBlur={handleOriginBlur}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleOriginBlur();
+              }}
+            />
+            {originQuery && (
               <button
                 type="button"
-                className={`btn-mode ${originMode === 'port' ? 'active' : ''}`}
-                onClick={() => setOriginMode('port')}
+                className="btn-clear-endpoint"
+                onClick={() => {
+                  setOriginQuery('');
+                  setShowOriginDropdown(false);
+                }}
+                title="Clear departure"
               >
-                Port
+                <X size={13} />
               </button>
-              <button
-                type="button"
-                className={`btn-mode ${originMode === 'gps' ? 'active' : ''}`}
-                onClick={handleDetectGPS}
-                title="Use Live Device GPS"
-              >
-                <Crosshair size={12} />
-                <span>Live GPS</span>
-              </button>
-              <button
-                type="button"
-                className={`btn-mode ${originMode === 'custom' ? 'active' : ''}`}
-                onClick={() => setOriginMode('custom')}
-              >
-                Custom
-              </button>
-            </div>
+            )}
           </div>
 
-          {originMode === 'port' ? (
-            <select
-              value={selectedPortOrigin}
-              onChange={(e) => setSelectedPortOrigin(e.target.value)}
-              className="select-input"
+          <div className="endpoint-actions-bar">
+            {/* Quick GPS button */}
+            <button
+              type="button"
+              className="btn-endpoint-action gps"
+              onClick={handleDetectGPS}
+              title="Use Device Live GPS Position"
             >
-              {PORTS.map((p) => (
-                <option key={p.id} value={p.id} disabled={destMode === 'port' && p.id === selectedPortDest}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <div className="coord-inputs-row">
-              <input
-                type="number"
-                step="0.0001"
-                placeholder="Latitude"
-                value={customOrigin.lat}
-                onChange={(e) => setCustomOrigin({ ...customOrigin, lat: parseFloat(e.target.value) || 0 })}
-                className="number-input coord"
-              />
-              <input
-                type="number"
-                step="0.0001"
-                placeholder="Longitude"
-                value={customOrigin.lon}
-                onChange={(e) => setCustomOrigin({ ...customOrigin, lon: parseFloat(e.target.value) || 0 })}
-                className="number-input coord"
-              />
-            </div>
-          )}
+              <Crosshair size={14} />
+            </button>
+            {/* Pick on Map button */}
+            <button
+              type="button"
+              className={`btn-endpoint-action pick-map ${pickingMode === 'origin' ? 'active-picking' : ''}`}
+              onClick={() => {
+                if (onStartPickOnMap) onStartPickOnMap('origin');
+              }}
+              title="Click on the ocean/map to set Departure (Google Maps style)"
+            >
+              <MapPin size={14} />
+              <span className="pick-btn-label">Map</span>
+            </button>
+          </div>
         </div>
 
-        {/* Destination Selection */}
-        <div className="route-input-block">
-          <div className="input-block-header">
-            <label className="form-label">DESTINATION LOCATION</label>
-            <div className="mode-toggle-group">
+        {/* Autocomplete Suggestions for Departure */}
+        {showOriginDropdown && originSuggestions.length > 0 && (
+          <div className="endpoint-autocomplete-dropdown">
+            <div className="autocomplete-header">POPULAR PORTS & ANCHORAGES</div>
+            {originSuggestions.map((port) => (
+              <div
+                key={port.id}
+                className="autocomplete-item"
+                onMouseDown={() => handleSelectOriginPort(port)}
+              >
+                <MapPin size={13} className="item-pin-icon" />
+                <div className="item-meta">
+                  <span className="item-name">{port.name}</span>
+                  <span className="item-sub">
+                    {port.state} · {port.lat.toFixed(4)}°N, {port.lon.toFixed(4)}°E
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Middle Connector with Circular Swap Button */}
+        <div className="route-endpoints-divider">
+          <div className="connector-trail">
+            <span className="trail-dot" />
+            <span className="trail-dot" />
+            <span className="trail-dot" />
+          </div>
+          <button
+            type="button"
+            className="btn-swap-endpoints"
+            onClick={handleSwapEndpoints}
+            title="Reverse Route (Swap Departure and Destination)"
+          >
+            <ArrowUpDown size={14} />
+          </button>
+          <div className="connector-rule" />
+        </div>
+
+        {/* Destination Row (B) */}
+        <div className="route-card-endpoint-row destination">
+          <div className="endpoint-pin-badge destination" title="Destination Point (B)">
+            <span>B</span>
+          </div>
+          <div className="endpoint-input-container">
+            <input
+              type="text"
+              className="endpoint-search-input"
+              placeholder="Enter destination port, harbor, or coordinates..."
+              value={destQuery}
+              onChange={(e) => {
+                setDestQuery(e.target.value);
+                setShowDestDropdown(true);
+              }}
+              onFocus={() => setShowDestDropdown(true)}
+              onBlur={handleDestBlur}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleDestBlur();
+              }}
+            />
+            {destQuery && (
               <button
                 type="button"
-                className={`btn-mode ${destMode === 'port' ? 'active' : ''}`}
-                onClick={() => setDestMode('port')}
+                className="btn-clear-endpoint"
+                onClick={() => {
+                  setDestQuery('');
+                  setShowDestDropdown(false);
+                }}
+                title="Clear destination"
               >
-                Port
+                <X size={13} />
               </button>
-              <button
-                type="button"
-                className={`btn-mode ${destMode === 'custom' ? 'active' : ''}`}
-                onClick={() => setDestMode('custom')}
-              >
-                Custom
-              </button>
-            </div>
+            )}
           </div>
 
-          {destMode === 'port' ? (
-            <select
-              value={selectedPortDest}
-              onChange={(e) => setSelectedPortDest(e.target.value)}
-              className="select-input"
+          <div className="endpoint-actions-bar">
+            {/* Pick on Map button */}
+            <button
+              type="button"
+              className={`btn-endpoint-action pick-map ${pickingMode === 'destination' ? 'active-picking' : ''}`}
+              onClick={() => {
+                if (onStartPickOnMap) onStartPickOnMap('destination');
+              }}
+              title="Click on the ocean/map to set Destination (Google Maps style)"
             >
-              {PORTS.map((p) => (
-                <option key={p.id} value={p.id} disabled={originMode === 'port' && p.id === selectedPortOrigin}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <div className="coord-inputs-row">
-              <input
-                type="number"
-                step="0.0001"
-                placeholder="Latitude"
-                value={customDest.lat}
-                onChange={(e) => setCustomDest({ ...customDest, lat: parseFloat(e.target.value) || 0 })}
-                className="number-input coord"
-              />
-              <input
-                type="number"
-                step="0.0001"
-                placeholder="Longitude"
-                value={customDest.lon}
-                onChange={(e) => setCustomDest({ ...customDest, lon: parseFloat(e.target.value) || 0 })}
-                className="number-input coord"
-              />
-            </div>
-          )}
+              <MapPin size={14} />
+              <span className="pick-btn-label">Map</span>
+            </button>
+          </div>
         </div>
 
-        {/* Vessel Telemetry Controls */}
-        <div className="vessel-parameters-grid">
+        {/* Autocomplete Suggestions for Destination */}
+        {showDestDropdown && destSuggestions.length > 0 && (
+          <div className="endpoint-autocomplete-dropdown">
+            <div className="autocomplete-header">POPULAR PORTS & ANCHORAGES</div>
+            {destSuggestions.map((port) => (
+              <div
+                key={port.id}
+                className="autocomplete-item"
+                onMouseDown={() => handleSelectDestPort(port)}
+              >
+                <MapPin size={13} className="item-pin-icon" />
+                <div className="item-meta">
+                  <span className="item-name">{port.name}</span>
+                  <span className="item-sub">
+                    {port.state} · {port.lat.toFixed(4)}°N, {port.lon.toFixed(4)}°E
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Vessel Parameters Row & Optimize Action Button */}
+        <div className="vessel-params-row">
           <div className="form-group">
             <label className="form-label">VESSEL SPEED (KT)</label>
             <input
@@ -623,11 +1098,11 @@ export default function RoutePlanner({ onFocusRoute, onUpdateShipLocation }) {
             <button
               type="button"
               className="btn-optimize-run"
-              onClick={() => executeRouteCalculation(false)}
+              onClick={() => executeRouteCalculation(originCoords, destCoords)}
               disabled={isOptimizing}
             >
               <Navigation size={15} />
-              <span>{isOptimizing ? 'Calculating...' : 'Optimize'}</span>
+              <span>{isOptimizing ? 'Calculating...' : 'Recalculate'}</span>
             </button>
           </div>
         </div>
@@ -659,7 +1134,7 @@ export default function RoutePlanner({ onFocusRoute, onUpdateShipLocation }) {
               </span>
             </div>
             <p className="steering-command-text">
-              {nextWaypoint.steer_instruction || `Steer ${Math.round(nextWaypoint.bearing_degrees || 247)}° WSW into TSS Outbound Lane`}
+              {nextWaypoint.steer_instruction || `Steer ${Math.round(nextWaypoint.bearing_degrees || 247)}° into TSS Outbound Lane`}
             </p>
             <div className="steering-sub-tags">
               <span>Depth Margin: &gt; {vesselDraft + 12}m (Safe)</span>
@@ -703,50 +1178,6 @@ export default function RoutePlanner({ onFocusRoute, onUpdateShipLocation }) {
             })}
           </div>
 
-          {/* Offline Navigation & Passage Plan Export Bar */}
-          {currentRoute && (
-            <div className="offline-export-card" style={{ background: 'rgba(15, 23, 42, 0.75)', border: '1px solid #1e293b', borderRadius: '8px', padding: '12px 14px', margin: '14px 0' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <FileText size={16} style={{ color: '#38bdf8' }} />
-                  <span style={{ fontSize: '13px', fontWeight: '600', color: '#f8fafc' }}>Official Navigation Passage Plan</span>
-                </div>
-                {isSavedOffline && (
-                  <span style={{ fontSize: '11px', color: '#10b981', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <CheckCircle2 size={13} /> Saved to Device
-                  </span>
-                )}
-              </div>
-
-              <button
-                type="button"
-                className="btn-download-action primary"
-                onClick={handleDownloadPassageReport}
-                title="Directly download official passage briefing with embedded zoomed route map and turn-by-turn waypoints"
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  padding: '12px 16px',
-                  fontSize: '13px',
-                  fontWeight: '700',
-                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-                  border: 'none',
-                  color: '#ffffff',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(2, 132, 199, 0.25)',
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                <Download size={15} />
-                <span>Download Passage Report (with Zoomed Map)</span>
-              </button>
-            </div>
-          )}
-
           {/* Waypoint Sequence Table */}
           {currentRoute && currentRoute.waypoints && (
             <div className="waypoints-timeline-card">
@@ -781,138 +1212,6 @@ export default function RoutePlanner({ onFocusRoute, onUpdateShipLocation }) {
               </div>
             </div>
           )}
-        </div>
-      )}
-
-      {/* Official Maritime Passage Plan Report Modal */}
-      {showReportModal && currentRoute && (
-        <div className="orca-modal-backdrop" style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.8)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div className="orca-report-modal" style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '12px', width: '100%', maxWidth: '720px', maxHeight: '90vh', overflowY: 'auto', padding: '24px', color: '#f1f5f9' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #1e293b', paddingBottom: '14px', marginBottom: '16px' }}>
-              <div>
-                <span style={{ fontSize: '11px', color: '#38bdf8', fontWeight: '700', letterSpacing: '0.05em' }}>ORCA MARITIME PASSAGE PLAN · SIH26176</span>
-                <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#ffffff', margin: '4px 0' }}>Official Sea Safety Briefing & Voyage Manifest</h2>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Generated: {new Date().toLocaleString()} · Compliant with COLREGS Rule 10 & SOLAS V/34</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowReportModal(false)}
-                style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' }}
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Manifest Summary Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '18px' }}>
-              <div style={{ background: '#1e293b', padding: '10px', borderRadius: '6px' }}>
-                <span style={{ fontSize: '10px', color: '#94a3b8', display: 'block' }}>TOTAL DISTANCE</span>
-                <strong style={{ fontSize: '15px', color: '#38bdf8' }}>{currentRoute.total_distance_nm} NM</strong>
-              </div>
-              <div style={{ background: '#1e293b', padding: '10px', borderRadius: '6px' }}>
-                <span style={{ fontSize: '10px', color: '#94a3b8', display: 'block' }}>EST. DURATION</span>
-                <strong style={{ fontSize: '15px', color: '#f8fafc' }}>{currentRoute.estimated_duration_hours} h</strong>
-              </div>
-              <div style={{ background: '#1e293b', padding: '10px', borderRadius: '6px' }}>
-                <span style={{ fontSize: '10px', color: '#94a3b8', display: 'block' }}>SAFETY INDEX</span>
-                <strong style={{ fontSize: '15px', color: '#10b981' }}>{currentRoute.safety_score}/100</strong>
-              </div>
-              <div style={{ background: '#1e293b', padding: '10px', borderRadius: '6px' }}>
-                <span style={{ fontSize: '10px', color: '#94a3b8', display: 'block' }}>FUEL DIESEL</span>
-                <strong style={{ fontSize: '15px', color: '#f59e0b' }}>{currentRoute.fuel_estimate_liters} L</strong>
-              </div>
-            </div>
-
-            {/* Environmental & Carbon ROI Banner */}
-            <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '6px', padding: '10px 14px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <span style={{ fontSize: '12px', fontWeight: '600', color: '#34d399' }}>Blue Economy Fuel ROI & Carbon Mitigation</span>
-                <p style={{ fontSize: '11px', color: '#94a3b8', margin: '2px 0 0 0' }}>Deep-water laminar seaway saves approximately {currentRoute.fuel_saved_liters || 75}L diesel (₹{(currentRoute.fuel_cost_savings_inr || 7050).toLocaleString()}).</p>
-              </div>
-              <span style={{ fontSize: '13px', fontWeight: '700', color: '#10b981' }}>-{currentRoute.co2_saved_kg || 201} kg CO₂</span>
-            </div>
-
-            {/* Zoomed Geographic Leaflet Map of Route Corridor */}
-            <div style={{ marginBottom: '18px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <h4 style={{ fontSize: '13px', fontWeight: '700', color: '#e2e8f0', margin: 0 }}>
-                  🗺️ Navigational Route Corridor Map (Zoomed)
-                </h4>
-                <span style={{ fontSize: '11px', color: '#38bdf8' }}>Satellite Track · Waypoints 1 to {currentRoute.waypoints.length}</span>
-              </div>
-              <div
-                ref={reportMapRef}
-                id="passage-plan-zoomed-map"
-                style={{
-                  height: '280px',
-                  width: '100%',
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                  border: '1px solid #334155',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                }}
-              />
-            </div>
-
-            {/* Waypoint Manifest Table */}
-            <div style={{ marginBottom: '18px' }}>
-              <h4 style={{ fontSize: '13px', fontWeight: '600', color: '#e2e8f0', marginBottom: '8px' }}>Turn-by-Turn Navigational Waypoints</h4>
-              <table style={{ width: '100%', fontSize: '11px', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead>
-                  <tr style={{ background: '#1e293b', color: '#94a3b8' }}>
-                    <th style={{ padding: '6px 8px' }}>#</th>
-                    <th style={{ padding: '6px 8px' }}>Waypoint</th>
-                    <th style={{ padding: '6px 8px' }}>Coordinates</th>
-                    <th style={{ padding: '6px 8px' }}>Leg</th>
-                    <th style={{ padding: '6px 8px' }}>True Course</th>
-                    <th style={{ padding: '6px 8px' }}>Steer Command</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentRoute.waypoints.map((wp, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid #1e293b' }}>
-                      <td style={{ padding: '6px 8px', color: '#64748b' }}>{i + 1}</td>
-                      <td style={{ padding: '6px 8px', fontWeight: '600', color: '#f1f5f9' }}>{wp.name}</td>
-                      <td style={{ padding: '6px 8px', fontFamily: 'monospace' }}>{wp.latitude.toFixed(4)}°N, {wp.longitude.toFixed(4)}°E</td>
-                      <td style={{ padding: '6px 8px' }}>{wp.segment_distance_nm ?? 0} NM</td>
-                      <td style={{ padding: '6px 8px' }}>{wp.bearing_degrees ? `${Math.round(wp.bearing_degrees)}°` : '—'}</td>
-                      <td style={{ padding: '6px 8px', color: '#38bdf8' }}>{wp.steer_instruction || 'Proceed on course'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Search and Rescue Emergency Directive */}
-            <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.25)', borderRadius: '6px', padding: '10px 14px', marginBottom: '20px' }}>
-              <span style={{ fontSize: '11px', fontWeight: '700', color: '#ef4444' }}>INDIAN COAST GUARD MARITIME RESCUE COORDINATION (MRCC)</span>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', marginTop: '6px', fontSize: '11px', color: '#cbd5e1' }}>
-                <span>• MRCC Mumbai: 022-24388065 / Ch 16</span>
-                <span>• MRCC Kochi: 0484-2216590 / Ch 16</span>
-                <span>• MRCC Chennai: 044-23460405 / Ch 16</span>
-                <span>• MRCC Port Blair: 03192-232681 / Ch 16</span>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-              <button
-                type="button"
-                onClick={() => setShowReportModal(false)}
-                style={{ padding: '8px 16px', background: '#334155', color: '#f1f5f9', border: 'none', borderRadius: '6px', fontSize: '12px', cursor: 'pointer' }}
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                onClick={() => window.print()}
-                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: '#0284c7', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
-              >
-                <Printer size={14} />
-                <span>Print / Save as PDF</span>
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>

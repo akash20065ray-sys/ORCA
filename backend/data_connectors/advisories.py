@@ -64,6 +64,7 @@ class MarineAdvisoriesConnector(BaseDataConnector):
         self.marine_api_url = "https://marine-api.open-meteo.com/v1/marine"
         self.weather_api_url = "https://api.open-meteo.com/v1/forecast"
         self._last_refresh = None
+        self._cooldown_until = 0.0
 
     def _fetch_region_conditions(self, lat: float, lon: float) -> Dict[str, Any]:
         """
@@ -81,8 +82,12 @@ class MarineAdvisoriesConnector(BaseDataConnector):
             "is_live": False
         }
 
+        import time
+        if time.time() < self._cooldown_until:
+            return result
+
         try:
-            with httpx.Client(timeout=1.5) as client:
+            with httpx.Client(timeout=httpx.Timeout(0.35, connect=0.2, read=0.2)) as client:
                 # Marine data
                 m_params = {
                     "latitude": lat, "longitude": lon,
@@ -123,7 +128,8 @@ class MarineAdvisoriesConnector(BaseDataConnector):
                     result["is_live"] = True
 
         except Exception as e:
-            logger.warning(f"Live advisory conditions fetch failed for ({lat},{lon}): {e}")
+            self._cooldown_until = time.time() + 300.0
+            logger.warning(f"Live advisory conditions fetch failed or timed out for ({lat},{lon}): {e}")
 
         return result
 
@@ -277,7 +283,7 @@ class MarineAdvisoriesConnector(BaseDataConnector):
         if cached:
             return cached
 
-        # Fetch real-time conditions for all monitored regions concurrently
+        # Fetch real-time conditions for relevant monitored regions concurrently
         all_advisories: List[HazardAdvisory] = []
         from concurrent.futures import ThreadPoolExecutor
 
@@ -285,8 +291,16 @@ class MarineAdvisoriesConnector(BaseDataConnector):
             conditions = self._fetch_region_conditions(region["lat"], region["lon"])
             return self._generate_advisories_from_conditions(region, conditions)
 
-        with ThreadPoolExecutor(max_workers=len(ADVISORY_REGIONS)) as executor:
-            results = executor.map(fetch_region_bulletins, ADVISORY_REGIONS)
+        # Focus network calls on proximal regions if coordinates provided
+        target_regions = ADVISORY_REGIONS
+        if location_lat is not None and location_lon is not None:
+            target_regions = sorted(
+                ADVISORY_REGIONS,
+                key=lambda r: (r["lat"] - location_lat)**2 + (r["lon"] - location_lon)**2
+            )[:2]
+
+        with ThreadPoolExecutor(max_workers=len(target_regions)) as executor:
+            results = executor.map(fetch_region_bulletins, target_regions)
             for r_advs in results:
                 all_advisories.extend(r_advs)
 

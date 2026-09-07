@@ -78,6 +78,46 @@ class PFZAdvisory(BaseModel):
     confidence_score: float # 0.0 - 1.0
     validity_hours: int = 24
     species_association: List[str] = Field(default_factory=list)
+    # Hybrid Fields for Local Fishermen & Operational Safety
+    target_species: Optional[List[str]] = None
+    landing_center: Optional[str] = None
+    craft_suitability: Optional[str] = None
+    steer_instruction: Optional[str] = None
+    safety_status: Optional[str] = "SAFE" # "SAFE", "CAUTION", "HAZARDOUS"
+    safety_reason: Optional[str] = None
+    wave_height_m: Optional[float] = None
+    wind_speed_kts: Optional[float] = None
+    fuel_estimate_liters: Optional[float] = None
+    fuel_cost_inr: Optional[float] = None
+    projected_catch_value_inr: Optional[float] = None
+    net_profit_roi_inr: Optional[float] = None
+    regional_species: Optional[str] = None
+    origin_lat: Optional[float] = None
+    origin_lon: Optional[float] = None
+    # Real-Time Telemetry & Transparent Calculation Metadata
+    retrieved_at: Optional[str] = None
+    is_live_telemetry: Optional[bool] = True
+    data_source: Optional[str] = None
+    ocean_current_speed_kts: Optional[float] = None
+    ocean_current_dir_deg: Optional[float] = None
+    swell_wave_m: Optional[float] = None
+    wave_period_s: Optional[float] = None
+    sea_pressure_hpa: Optional[float] = None
+    weather_condition: Optional[str] = None
+    calculation_factors: Optional[Dict[str, Any]] = None
+    bearing_degrees: Optional[float] = None
+
+    @model_validator(mode="after")
+    def populate_target_species(self) -> "PFZAdvisory":
+        if self.target_species is None or len(self.target_species) == 0:
+            self.target_species = self.species_association
+        elif self.species_association is None or len(self.species_association) == 0:
+            self.species_association = self.target_species
+        if self.bearing_degrees is None and self.bearing_deg is not None:
+            self.bearing_degrees = self.bearing_deg
+        elif self.bearing_deg is None and self.bearing_degrees is not None:
+            self.bearing_deg = self.bearing_degrees
+        return self
 
 class RouteWaypoint(BaseModel):
     index: int
@@ -182,4 +222,7 @@ class OrchestrationResult(BaseModel):
     active_hazards: Optional[List[HazardAdvisory]] = None
     nearby_zones: Optional[List[MarineZone]] = None
     evidence_citations: List[SourceCitation] = Field(default_factory=list)
+    detected_language: Optional[str] = "en"
+    attachment_metadata: Optional[Dict[str, Any]] = None
     processing_time_ms: float
+
