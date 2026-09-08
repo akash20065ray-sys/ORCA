@@ -10534,8 +10534,20 @@ export function walkAndTranslateDOM(rootNode, targetLang) {
         if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'PRE' || tag === 'CODE') {
           return NodeFilter.FILTER_REJECT;
         }
-        // Exclude left navigation rail, language pickers and brand title so React maintains 100% clean control
-        if (parent.closest('.left-nav-rail') || parent.closest('.header-lang-picker') || parent.closest('.brand-title') || parent.id === 'orca-header-lang-select' || parent.id === 'globalAppLanguageSelect') {
+        // Exclude left navigation rail, language pickers, brand title, and chatbot messages/inputs so React & LLM maintain 100% clean control without language mixing
+        if (
+          parent.closest('.left-nav-rail') ||
+          parent.closest('.header-lang-picker') ||
+          parent.closest('.brand-title') ||
+          parent.closest('.message-bubble') ||
+          parent.closest('.bubble-content') ||
+          parent.closest('.chat-textarea') ||
+          parent.closest('.chat-input-wrapper') ||
+          parent.closest('.voice-visualizer-bar') ||
+          parent.closest('.chat-messages-container') ||
+          parent.id === 'orca-header-lang-select' ||
+          parent.id === 'globalAppLanguageSelect'
+        ) {
           return NodeFilter.FILTER_REJECT;
         }
         return NodeFilter.FILTER_ACCEPT;
@@ -10579,7 +10591,18 @@ export function walkAndTranslateDOM(rootNode, targetLang) {
   // 2. Attributes Walker (placeholders, titles, aria-labels)
   const elementsWithAttrs = rootNode.querySelectorAll ? rootNode.querySelectorAll('[placeholder], [title], [aria-label]') : [];
   elementsWithAttrs.forEach((el) => {
-    if (el.closest('.left-nav-rail') || el.closest('.header-lang-picker') || el.closest('.brand-title') || el.id === 'orca-header-lang-select' || el.id === 'globalAppLanguageSelect') return;
+    if (
+      el.closest('.left-nav-rail') ||
+      el.closest('.header-lang-picker') ||
+      el.closest('.brand-title') ||
+      el.closest('.message-bubble') ||
+      el.closest('.bubble-content') ||
+      el.closest('.chat-textarea') ||
+      el.closest('.chat-input-wrapper') ||
+      el.closest('.voice-visualizer-bar') ||
+      el.id === 'orca-header-lang-select' ||
+      el.id === 'globalAppLanguageSelect'
+    ) return;
 
     ['placeholder', 'title', 'aria-label'].forEach((attr) => {
       const origKey = '__orca_orig_' + attr;

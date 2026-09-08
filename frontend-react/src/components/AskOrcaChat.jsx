@@ -217,31 +217,15 @@ export default function AskOrcaChat({
     return currentSession ? currentSession.messages : [];
   }, [currentSession]);
 
-  // Initialize Speech Recognition (Omni-lingual transcription)
+  // Initialize Speech Recognition
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recog = new SpeechRecognition();
-      recog.continuous = false;
-      recog.interimResults = true;
-      recog.lang = 'en-IN'; // Indian multilingual speech recognition profile
-
-      recog.onresult = (event) => {
-        let transcript = '';
-        for (let i = 0; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
-        }
-        setInputQuery(transcript);
-      };
-
-      recog.onerror = () => setIsListening(false);
-      recog.onend = () => {
-        setIsListening(false);
-        // Strictly DO NOT auto-submit: user clicks the submit arrow button
-      };
-
-      recognitionRef.current = recog;
-    }
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (_) {}
+      }
+    };
   }, []);
 
   const scrollToBottom = () => {
@@ -252,21 +236,37 @@ export default function AskOrcaChat({
     scrollToBottom();
   }, [messages, isLoading]);
 
-  // Voice Input Toggle
+  // Voice Input Toggle (Strict Regional Language-Locked Dictation)
   const toggleListening = () => {
-    if (!recognitionRef.current) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
       const sampleQueries = (selectedLang && REGIONAL_SUGGESTIONS[selectedLang]) || REGIONAL_SUGGESTIONS.en;
       setInputQuery(sampleQueries[0]);
       return;
     }
 
     if (isListening) {
-      recognitionRef.current.stop();
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (_) {}
+      }
       setIsListening(false);
     } else {
       try {
+        // Cancel active speech synthesis so audio playback does not interfere with mic
+        if (window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+        }
+        if (speechKeepaliveRef.current) {
+          clearInterval(speechKeepaliveRef.current);
+          speechKeepaliveRef.current = null;
+        }
+        setSpeakingMsgId(null);
+
         const langMap = {
-          auto: 'hi-IN',
+          auto: 'en-IN',
+          en: 'en-IN',
           mr: 'mr-IN',
           hi: 'hi-IN',
           ta: 'ta-IN',
@@ -276,7 +276,7 @@ export default function AskOrcaChat({
           gu: 'gu-IN',
           kn: 'kn-IN',
           or: 'or-IN',
-          kok: 'kok-IN',
+          kok: 'mr-IN',
           pa: 'pa-IN',
           as: 'as-IN',
           ur: 'ur-IN',
@@ -284,13 +284,42 @@ export default function AskOrcaChat({
           si: 'si-LK',
           ar: 'ar-SA',
           fr: 'fr-FR',
-          pt: 'pt-PT',
-          en: 'en-IN'
+          pt: 'pt-PT'
         };
-        recognitionRef.current.lang = langMap[selectedLang] || 'en-IN';
-        recognitionRef.current.start();
+
+        const targetSpeechLang = langMap[selectedLang] || 'en-IN';
+        const recog = new SpeechRecognition();
+        recog.continuous = false;
+        recog.interimResults = true;
+        recog.lang = targetSpeechLang;
+
+        recog.onstart = () => setIsListening(true);
+        recog.onaudiostart = () => setIsListening(true);
+        recog.onsoundstart = () => setIsListening(true);
+        recog.onspeechstart = () => setIsListening(true);
+
+        recog.onresult = (event) => {
+          let transcript = '';
+          for (let i = 0; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+          }
+          setInputQuery(transcript);
+        };
+
+        recog.onerror = (e) => {
+          console.warn('SpeechRecognition error:', e);
+          setIsListening(false);
+        };
+
+        recog.onend = () => {
+          setIsListening(false);
+        };
+
+        recognitionRef.current = recog;
+        recog.start();
         setIsListening(true);
-      } catch {
+      } catch (err) {
+        console.warn('Unable to start speech recognition:', err);
         setIsListening(false);
       }
     }
@@ -343,7 +372,7 @@ export default function AskOrcaChat({
   };
 
   // Detect script from text to ensure authentic native pronunciation
-  const detectScriptLang = (str) => {
+  const detectScriptLang = (str, preferredLang = null) => {
     if (!str) return null;
     if (/[\u0B80-\u0BFF]/.test(str)) return 'ta'; // Tamil
     if (/[\u0D00-\u0D7F]/.test(str)) return 'ml'; // Malayalam
@@ -354,7 +383,12 @@ export default function AskOrcaChat({
     if (/[\u0B00-\u0B7F]/.test(str)) return 'or'; // Odia
     if (/[\u0A00-\u0A7F]/.test(str)) return 'pa'; // Punjabi
     if (/[\u0600-\u06FF]/.test(str)) return 'ur'; // Urdu
-    if (/[\u0900-\u097F]/.test(str)) return 'hi'; // Hindi / Marathi
+    if (/[\u0900-\u097F]/.test(str)) {
+      if (preferredLang === 'mr' || preferredLang === 'kok' || /आहे|नाही|करा|दाखवा|लाटा|मासे|सागरी|क्षेत्र|हवामान|असेल|होते/.test(str)) {
+        return 'mr'; // Marathi
+      }
+      return 'hi'; // Hindi
+    }
     return null;
   };
 
@@ -381,9 +415,14 @@ export default function AskOrcaChat({
     utterance.rate = 1.0;
     utterance.pitch = 0.95;
 
-    // Detect script from text or resolve from message / selected language
-    const scriptCode = detectScriptLang(clean);
-    const resolvedLang = scriptCode || ((msgLang && msgLang !== 'auto') ? msgLang : (selectedLang !== 'auto' ? selectedLang : 'en'));
+    // Prioritize explicit message language > user's selected language > detected script fallback
+    let resolvedLang = (msgLang && msgLang !== 'auto') 
+      ? msgLang 
+      : (selectedLang && selectedLang !== 'auto' ? selectedLang : null);
+
+    if (!resolvedLang) {
+      resolvedLang = detectScriptLang(clean, selectedLang) || 'en';
+    }
 
     const SPEECH_LANG_MAP = {
       en: 'en-IN',
@@ -396,7 +435,7 @@ export default function AskOrcaChat({
       mr: 'mr-IN',
       kn: 'kn-IN',
       or: 'or-IN',
-      kok: 'kok-IN',
+      kok: 'mr-IN',
       pa: 'pa-IN',
       as: 'as-IN',
       ur: 'ur-IN',
@@ -413,6 +452,7 @@ export default function AskOrcaChat({
     const voices = window.speechSynthesis.getVoices();
     if (voices && voices.length > 0) {
       const matched = voices.find((v) => v.lang === bcpTag) ||
+                      voices.find((v) => v.lang.replace('_', '-').toLowerCase() === bcpTag.toLowerCase()) ||
                       voices.find((v) => v.lang.toLowerCase().startsWith(resolvedLang.toLowerCase())) ||
                       (resolvedLang === 'en' ? voices.find((v) => v.lang.includes('en-IN') || v.lang.startsWith('en')) : null);
       if (matched) {
@@ -1058,7 +1098,7 @@ export default function AskOrcaChat({
               }}
               title={isAutoSpeechEnabled ? 'Voice Auto-Speech is ON (Click to mute)' : 'Voice Auto-Speech is OFF (Click to turn ON)'}
             >
-              {isAutoSpeechEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
+              {isAutoSpeechEnabled ? <Volume2 size={13} className="voice-speaking-pulse" /> : <VolumeX size={13} />}
               <span>{isAutoSpeechEnabled ? 'Voice ON' : 'Voice OFF'}</span>
             </button>
 
@@ -1658,6 +1698,57 @@ export default function AskOrcaChat({
             </div>
           )}
 
+          {/* Active Listening Voice Visualizer Ribbon */}
+          {isListening && (
+            <div
+              className="voice-visualizer-bar"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '6px 14px',
+                marginBottom: '8px',
+                background: 'linear-gradient(90deg, rgba(239, 68, 68, 0.12), rgba(249, 115, 22, 0.12))',
+                border: '1.5px solid rgba(239, 68, 68, 0.4)',
+                borderRadius: '8px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="soundwave-anim">
+                  <span className="bar" style={{ background: '#ef4444' }} />
+                  <span className="bar" style={{ background: '#f97316' }} />
+                  <span className="bar" style={{ background: '#ef4444' }} />
+                  <span className="bar" style={{ background: '#f97316' }} />
+                  <span className="bar" style={{ background: '#ef4444' }} />
+                </div>
+                <span className="listening-label" style={{ color: '#b91c1c', fontWeight: 700, fontSize: '0.84rem' }}>
+                  🎙️ {t('chatListening', 'Listening... speak clearly now')} ({VERNACULAR_LANGUAGES.find((l) => l.code === selectedLang)?.native || selectedLang.toUpperCase()})
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={toggleListening}
+                style={{
+                  background: '#ef4444',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '3px 10px',
+                  fontSize: '0.74rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+                title="Stop listening"
+              >
+                <span>Stop</span>
+                <X size={12} />
+              </button>
+            </div>
+          )}
+
           <div className="chat-input-wrapper">
             {/* Hidden Native File Input */}
             <input
@@ -1683,7 +1774,7 @@ export default function AskOrcaChat({
               type="button"
               className={`btn-voice-input ${isListening ? 'listening' : ''}`}
               onClick={toggleListening}
-              title={isListening ? 'Listening... click mic again to pause/stop' : 'Voice Input (Speak in any language: Marathi, Hindi, English...)'}
+              title={isListening ? 'Listening active... click mic again to pause/stop' : 'Voice Input (Click to speak in your language)'}
             >
               <Mic size={18} className={isListening ? 'mic-listening-pulse' : ''} />
             </button>
@@ -1692,7 +1783,11 @@ export default function AskOrcaChat({
               className={`chat-textarea ${isListening ? 'recording-active' : ''}`}
               placeholder={
                 isListening
-                  ? t('chatListening', '🎙️ Listening... speak now in any language...')
+                  ? (selectedLang === 'mr'
+                      ? '🎙️ ऐकत आहे... मराठीत बोला... (थांबवण्यासाठी पुन्हा माईक दाबा)'
+                      : selectedLang === 'hi'
+                      ? '🎙️ सुन रहा हूँ... हिन्दी में बोलें... (रोकने के लिए माइक दबाएँ)'
+                      : '🎙️ Listening... speak clearly now... (click mic or stop when done)')
                   : t('chatPlaceholder', 'Ask any ocean, marine, weather or project question in any language...')
               }
               value={inputQuery}

@@ -1373,23 +1373,50 @@ body {
 }
 
 .btn-voice-input.listening {
-  color: #dc2626;
-  background: #fee2e2;
+  color: #dc2626 !important;
+  background: #fee2e2 !important;
+  border-radius: 8px;
+  animation: micRingPulse 1.2s infinite ease-in-out;
+}
+
+@keyframes micRingPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.25);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(220, 38, 38, 0.45);
+    transform: scale(1.06);
+  }
 }
 
 .mic-listening-pulse {
-  color: #dc2626;
+  color: #dc2626 !important;
   animation: micPulseGlow 1.2s infinite ease-in-out;
 }
 
 @keyframes micPulseGlow {
   0%, 100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 2px rgba(220, 38, 38, 0.4));
+    filter: drop-shadow(0 0 2px rgba(220, 38, 38, 0.5));
   }
   50% {
-    transform: scale(1.18);
-    filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.8));
+    transform: scale(1.25);
+    filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.9));
+  }
+}
+
+.voice-speaking-pulse {
+  color: #059669;
+  animation: voiceSpeakerPulse 1.2s infinite ease-in-out;
+}
+
+@keyframes voiceSpeakerPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
   }
 }
 

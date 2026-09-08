@@ -668,7 +668,7 @@ class LanguageService:
             return False
         
         target = self.normalize_language_code(target_language)
-        if target == "en":
+        if target in ("en", "english"):
             return True
         if target == "hinglish":
             return True
@@ -678,8 +678,28 @@ class LanguageService:
             return True
 
         start, end = info["unicode_range"]
-        has_target_script = any(start <= ord(c) <= end for c in response_text)
-        return has_target_script
+        script_chars = sum(1 for c in response_text if start <= ord(c) <= end)
+        total_letters = sum(1 for c in response_text if c.isalpha())
+        
+        if total_letters == 0:
+            return True
+            
+        # Target script must account for at least 20% of alphabetic characters
+        script_ratio = script_chars / total_letters
+        if script_ratio < 0.20:
+            return False
+
+        # Disambiguate Devanagari languages: Marathi vs Hindi
+        if target == "mr":
+            lower = response_text.lower()
+            hindi_markers = ["है", "हैं", "नहीं", "दिखाइए", "कीजिए", "सकते", "होगा", "होगी", "चेतावनी"]
+            marathi_markers = ["आहे", "नाही", "करा", "दाखवा", "होते", "आहेत", "लाटा", "मासे", "सागरी", "क्षेत्र", "हवामान", "असेल", "सूचना"]
+            h_hits = sum(1 for m in hindi_markers if m in lower)
+            m_hits = sum(1 for m in marathi_markers if m in lower)
+            if h_hits >= 2 and m_hits == 0:
+                return False
+
+        return True
 
     def score_candidate_transcript(
         self,
