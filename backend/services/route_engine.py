@@ -181,8 +181,21 @@ class MarineRouteEngine:
 
         pts: List[Tuple[str, float, float]] = [("Departure Point", orig_lat, orig_lon)]
 
+        direct_dist_km = haversine_distance_km(orig_lat, orig_lon, dest_lat, dest_lon)
+
+        # CASE 0: Direct Short Coastal Passage (< 45 km / ~24 NM)
+        if direct_dist_km <= 45.0:
+            mid_lat = (orig_lat + dest_lat) / 2.0
+            mid_lon = (orig_lon + dest_lon) / 2.0
+            if is_bravo_deep_water:
+                if mid_lon < 77.5:
+                    mid_lon -= 0.05
+                else:
+                    mid_lon += 0.05
+            pts.append(("Harbor Approach Fairway", round(mid_lat, 4), round(mid_lon, 4)))
+
         # CASE 1: West Coast <-> Sri Lanka (Colombo)
-        if (is_orig_west and is_orig_colombo) or (is_dest_west and is_dest_colombo):
+        elif (is_orig_west and is_orig_colombo) or (is_dest_west and is_dest_colombo):
             is_southbound = orig_lat > dest_lat
             # Gather intermediate West Coast fairways
             west_pts = []
