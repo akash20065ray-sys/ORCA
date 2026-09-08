@@ -84,6 +84,10 @@ export default function MapStage({
       if (routePickMode) {
         container.style.cursor = 'crosshair';
         container.classList.add('map-picking-active');
+        setActiveWindyMode(null);
+        if (windyEngineRef.current) {
+          windyEngineRef.current.setMode(null);
+        }
       } else {
         container.style.cursor = '';
         container.classList.remove('map-picking-active');
@@ -91,9 +95,14 @@ export default function MapStage({
     }
   }, [routePickMode]);
 
-  // Smooth fit route bounding box when focusedRoute changes
+  // Smooth fit route bounding box when focusedRoute changes & clear windy animation
   useEffect(() => {
     if (!focusedRoute || !focusedRoute.waypoints || focusedRoute.waypoints.length === 0 || !mapInstanceRef.current) return;
+    // Shut off Windy particle animation loop when viewing/focusing a route
+    setActiveWindyMode(null);
+    if (windyEngineRef.current) {
+      windyEngineRef.current.setMode(null);
+    }
     try {
       const container = mapInstanceRef.current.getContainer();
       if (!container || !container.clientWidth || !container.clientHeight) return;
@@ -387,7 +396,11 @@ export default function MapStage({
   // Real-time synchronization from Chatbot: External Windy Mode
   useEffect(() => {
     if (externalWindyMode !== undefined && !isStaticMap) {
-      setActiveWindyMode(externalWindyMode);
+      const targetMode = (!externalWindyMode || externalWindyMode === 'none' || externalWindyMode === 'off') ? null : externalWindyMode;
+      setActiveWindyMode(targetMode);
+      if (windyEngineRef.current) {
+        windyEngineRef.current.setMode(targetMode);
+      }
     }
   }, [externalWindyMode, isStaticMap]);
 

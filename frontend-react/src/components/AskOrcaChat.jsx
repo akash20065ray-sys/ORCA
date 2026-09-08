@@ -448,9 +448,12 @@ export default function AskOrcaChat({
       }
 
       const isPfz = /pfz|fish|fishing|tuna|mackerel|sardine|catch|chlorophyll|hotspot|मछली|टूना|मीन|சூரை|മീൻ|ചൂര|చేపలు|మాছ|માછલી|मासे|ಮೀನು/i.test(query);
+      const isRoute = /route|navigate|navigation|waypoint|from .* to|मार्ग|வழி|റൂട്ട്|మార్గం|পথ|રૂટ/i.test(query);
       const isNegativeWave = /mat dikhao|nahin dekhna|nahi dekhna|not show|don'?t show/i.test(query);
 
-      if (isPfz) {
+      if (isRoute) {
+        onMapAction({ type: 'weather', mode: 'none' });
+      } else if (isPfz) {
         onMapAction({ type: 'weather', mode: 'none' });
         onMapAction({
           type: 'pfz',
@@ -591,9 +594,12 @@ export default function AskOrcaChat({
             data: targetPfz,
             allZones: advisories || [targetPfz],
           });
-        } else if (isRouteQuery && data.routes && data.routes.length > 0) {
-          const chosenRoute = data.routes.find((r) => r.safety_score >= 90) || data.routes[0];
-          onMapAction({ type: 'route', data: chosenRoute });
+        } else if (isRouteQuery) {
+          onMapAction({ type: 'weather', mode: 'none' });
+          if (data.routes && data.routes.length > 0) {
+            const chosenRoute = data.routes.find((r) => r.safety_score >= 90) || data.routes[0];
+            onMapAction({ type: 'route', data: chosenRoute });
+          }
         } else if (data.intent === 'port_inquiry' || data.intent === 'display_port_information') {
           if (data.target_coordinates?.latitude && data.target_coordinates?.longitude) {
             onMapAction({

@@ -484,6 +484,7 @@ export class WindyCanvasEngine {
 
   /**
    * Surface Wind Vector Field (ECMWF / GFS 10m Wind Streamlines)
+   * Follows authentic meteorological physics (Wind blows FROM windDir TOWARDS windDir + 180 deg)
    */
   _drawWindField(dt) {
     const ctx = this.ctx;
@@ -511,12 +512,13 @@ export class WindyCanvasEngine {
       }
 
       const tele = this.getTelemetryAt(p.lat, p.lon);
-      const angleRad = ((tele.windDir - 90) * Math.PI) / 180;
+      // Meteorological wind direction theta: wind blows FROM theta TOWARDS (theta + 180)
+      const windFromRad = (tele.windDir * Math.PI) / 180;
       const speedNorm = (tele.windSpeed / 28.0) * p.speedScale * this.speedMultiplier;
 
       const step = speedNorm * dt * 0.055;
-      const dLat = Math.sin(angleRad) * step;
-      const dLon = Math.cos(angleRad) * step;
+      const dLat = -Math.cos(windFromRad) * step;
+      const dLon = -Math.sin(windFromRad) * step;
 
       const nextLat = p.lat + dLat;
       const nextLon = p.lon + dLon;
@@ -552,6 +554,7 @@ export class WindyCanvasEngine {
 
   /**
    * Swell Waves Simulation: Propagating Wavefront Ripples
+   * Propagates in physical swell direction with coastal bathymetric refraction
    */
   _drawWavesField(dt) {
     const ctx = this.ctx;
@@ -561,7 +564,6 @@ export class WindyCanvasEngine {
     const east = bounds.getEast();
     const west = bounds.getWest();
 
-    const flowHeadingRad = (240 * Math.PI) / 180;
     const swellSpeed = 1.15 * this.speedMultiplier;
     const count = this.particles.length;
 
@@ -581,11 +583,15 @@ export class WindyCanvasEngine {
         continue;
       }
 
-      const bathyRefraction = Math.sin(p.lat * 3.0 + p.lon * 2.0) * 0.14;
-      const localHeading = flowHeadingRad + bathyRefraction;
+      const tele = this.getTelemetryAt(p.lat, p.lon);
+      const swellFromAngle = (tele.swellDir || 230);
+      const swellFromRad = (swellFromAngle * Math.PI) / 180;
+      const bathyRefraction = Math.sin(p.lat * 3.0 + p.lon * 2.0) * 0.12;
+      // Flow heading: propagating towards down-swell
+      const flowHeading = swellFromRad + Math.PI + bathyRefraction;
       const step = swellSpeed * p.speedScale * dt * 0.038;
-      const dLat = Math.cos(localHeading) * step * -0.7;
-      const dLon = Math.sin(localHeading) * step;
+      const dLat = Math.cos(flowHeading) * step;
+      const dLon = Math.sin(flowHeading) * step;
 
       const nextLat = p.lat + dLat;
       const nextLon = p.lon + dLon;
@@ -604,7 +610,6 @@ export class WindyCanvasEngine {
       const pt1 = this.map.latLngToContainerPoint([p.prevLat, p.prevLon]);
       const pt2 = this.map.latLngToContainerPoint([p.lat, p.lon]);
 
-      const tele = this.getTelemetryAt(p.lat, p.lon);
       const waveVal = tele.waveHeight;
 
       let strokeCol = '#38bdf8';
@@ -624,8 +629,12 @@ export class WindyCanvasEngine {
       ctx.lineCap = 'round';
       ctx.stroke();
 
+      // Draw wavefront crest ripple perpendicular to screen motion
       if (i % 6 === 0) {
-        const perpAngle = localHeading + Math.PI / 2;
+        const dx = pt2.x - pt1.x;
+        const dy = pt2.y - pt1.y;
+        const screenAngle = Math.atan2(dy, dx);
+        const perpAngle = screenAngle + Math.PI / 2;
         const halfLen = (12 + p.size * 3) * p.speedScale;
         const cx = pt2.x;
         const cy = pt2.y;
@@ -637,8 +646,8 @@ export class WindyCanvasEngine {
         ctx.beginPath();
         ctx.moveTo(c1x, c1y);
         ctx.quadraticCurveTo(
-          cx + Math.cos(localHeading) * 3,
-          cy + Math.sin(localHeading) * 3,
+          cx + Math.cos(screenAngle) * 3,
+          cy + Math.sin(screenAngle) * 3,
           c2x,
           c2y
         );
@@ -829,12 +838,12 @@ export class WindyCanvasEngine {
       }
 
       const tele = this.getTelemetryAt(p.lat, p.lon);
-      const angleRad = ((tele.windDir - 110) * Math.PI) / 180;
+      const currentHeading = ((tele.windDir + 180 + 45) * Math.PI) / 180;
       const speedVal = tele.currentSpeed * 2.8 * p.speedScale * speedMult;
 
       const step = speedVal * dt * 0.04;
-      const dLat = Math.sin(angleRad) * step;
-      const dLon = Math.cos(angleRad) * step;
+      const dLat = Math.cos(currentHeading) * step;
+      const dLon = Math.sin(currentHeading) * step;
 
       const nextLat = p.lat + dLat;
       const nextLon = p.lon + dLon;

@@ -1527,6 +1527,116 @@ class ResponseSynthesisAgent:
                     "- **Signal 11 (Failure of Communication Signal No. 11)**: All communications with IMD headquarters have failed; port officer declares local emergency."
                 )
 
+        # Topic R: Wind Direction, Coriolis Effect & Ocean Currents (वाऱ्याची दिशा / कोरिओलिस प्रभाव / हवा का रुख)
+        if any(k in q_lower for k in [
+            "coriolis", "wind direction", "how wind blows", "currents flow", "ekman",
+            "वारा कसा वाहतो", "कोरिओलिस", "वाऱ्याची दिशा", "हवा की दिशा", "हवा कैसे चलती है", "हवा का रुख"
+        ]):
+            if language == "mr":
+                return (
+                    "### 💨 वाऱ्याची दिशा, कोरिओलिस प्रभाव आणि महासागरीय प्रवाह (Wind & Ocean Dynamics)\n\n"
+                    "**वाऱ्याची दिशा आणि प्रवाह कसे कार्य करतात?**\n\n"
+                    "1. **हवेच्या दाबातील फरक (Pressure Gradient)**: हवा नेहमी जास्त दाबाच्या पट्ट्याकडून कमी दाबाच्या पट्ट्याकडे वाहते. समुद्रावर सूर्यप्रकाशामुळे निर्माण होणारा तापमानातील फरक हवेचा दाब बदलतो.\n"
+                    "2. **कोरिओलिस प्रभाव (Coriolis Effect)**: पृथ्वी स्वतःभोवती फिरत असल्याने (Rotation), उत्तर गोलार्धात (Northern Hemisphere - ज्यामध्ये भारत येतो) वारे आपल्या मूळ दिशेपासून **उजवीकडे वळतात**, तर दक्षिण गोलार्धात डावीकडे वळतात.\n"
+                    "3. **एकमान स्पायरल (Ekman Transport)**: वाऱ्याचे पाण्यावरील घर्षण पाण्याच्या पृष्ठभागाला वाऱ्याच्या दिशेपासून ४५ अंश कोनात ओढते, ज्यामुळे खोलवर सागरी प्रवाह तयार होतात.\n"
+                    "4. **हवामानशास्त्रातील वाऱ्याची दिशा**: वाऱ्याची दिशा नेहमी **तो कुठून येतो** यावरून ओळखली जाते. उदा. 'नैऋत्य मान्सून वारा' म्हणजे तो नैऋत्येकडून (SW) ईशान्येकडे (NE) वाहतो."
+                )
+            elif language == "hi":
+                return (
+                    "### 💨 हवा की दिशा, कोरिओलिस प्रभाव एवं महासागरीय धाराएं (Wind & Ocean Dynamics)\n\n"
+                    "**समुद्र में हवा और धाराओं की दिशा कैसे निर्धारित होती है?**\n\n"
+                    "1. **वायुदाब प्रवणता (Pressure Gradient Force)**: हवा सदैव उच्च वायुदाब से निम्न वायुदाब की ओर प्रवाहित होती है।\n"
+                    "2. **कोरिओलिस बल (Coriolis Force)**: पृथ्वी के घूर्णन के कारण, उत्तरी गोलार्ध (जिसमें भारत स्थित है) में हवाएं अपनी मूल गति से **दाईं ओर (Right)** मुड़ जाती हैं।\n"
+                    "3. **मौसम विज्ञान में हवा की दिशा**: अंतर्राष्ट्रीय मौसम विज्ञान (WMO / IMD) के अनुसार, हवा की दिशा सदैव **उस दिशा से दर्शाई जाती है जिधर से हवा आ रही है**। उदाहरण के लिए, 270° (पश्चिमी हवा) का अर्थ है हवा पश्चिम से पूर्व की ओर बह रही है।\n"
+                    "4. **महासागरीय धाराएं**: हवा के घर्षण और कोरिओलिस प्रभाव (एकमैन स्पाइरल) से समुद्र की सतह पर विशाल जल धाराएं प्रवाहित होती हैं।"
+                )
+            else:
+                return (
+                    "### 💨 Wind Direction, Coriolis Effect & Oceanic Dynamics\n\n"
+                    "**Physical Principles Governing Atmospheric & Oceanic Motion:**\n\n"
+                    "1. **Pressure Gradient Force (PGF)**: Air masses accelerate from regions of high atmospheric pressure toward low-pressure cells.\n"
+                    "2. **Coriolis Deflection**: As the Earth rotates from west to east, moving fluid parcels in the **Northern Hemisphere (including India) are deflected to their right**, while in the Southern Hemisphere they deflect to the left.\n"
+                    "3. **Meteorological Wind Direction Convention**: By international WMO convention, wind direction indicates the bearing **from which the wind blows** (e.g., a Westerly wind at 270° blows *from* 270° True *towards* 90° East).\n"
+                    "4. **Ekman Transport & Surface Currents**: Wind stress drag against the water column causes surface layer net transport deflected at 45° to the right of the wind in the Northern Hemisphere, driving global gyres and coastal upwelling."
+                )
+
+        # Topic S: Navigation, Nautical Miles, Knots, Marine Radar & GMDSS (नेव्हिगेशन, नॉट, नॉटिकल माईल)
+        if any(k in q_lower for k in [
+            "nautical mile", "knot", "knots", "how do sailors navigate", "radar", "ecdis", "gmdss", "vhf", "channel 16",
+            "नॉटिकल माईल", "नॉट", "दिशा कशी ओळखतात", "कम्पास", "नॉटिकल मील", "नाविक दिशा कैसे देखते हैं"
+        ]):
+            if language == "mr":
+                return (
+                    "### 🧭 सागरी नेव्हिगेशन, नॉटिकल माईल व सुरक्षित संप्रेषण (Maritime Navigation & Units)\n\n"
+                    "**सागरावर अंतर, वेग आणि नेव्हिगेशन कसे मोजले जाते?**\n\n"
+                    "1. **नॉटिकल माईल (Nautical Mile - NM)**:\n"
+                    "   - १ नॉटिकल माईल = **१.८५२ किलोमीटर** (पृथ्वीच्या अक्षांशाच्या १ मिनिट चापेएवढे अंतर).\n"
+                    "   - जमिनीवरील मैलापेक्षा (१.६०९ किमी) सागरी नॉटिकल माईल मोठा असतो.\n"
+                    "2. **नॉट (Knot - kt)**:\n"
+                    "   - सागरावर जहाजाचा आणि वाऱ्याचा वेग 'नॉट' मध्ये मोजतात. **१ नॉट = १ नॉटिकल माईल प्रति तास** (१.८५२ किमी/तास).\n"
+                    "3. **नाविक दिशा कशी ठरवतात?**:\n"
+                    "   - **जीपीएस (GPS & NavIC)**: भारताची स्वदेशी नाविक प्रणाली उपग्रहावरून अचूक अक्षांश-रेखांश देते.\n"
+                    "   - **मरीन रडार (Marine Radar)**: धुक्यात किंवा रात्रीच्या अंधारात समोरील जहाजे व खडक शोधण्यासाठी.\n"
+                    "   - **चुंबकीय व जायरो कंपास**: ३६० अंशांवर अचूक दिशा (Heading) राखण्यासाठी.\n"
+                    "4. **व्हीएचएफ चॅनल १६ (VHF Channel 16 - 156.8 MHz)**:\n"
+                    "   - जगभरातील सर्व जहाजांसाठी आंतरराष्ट्रीय आपत्कालीन व संकटाची वर्दी (Distress Calling) देण्याची राखीव वारंवारता."
+                )
+            elif language == "hi":
+                return (
+                    "### 🧭 समुद्री नेविगेशन, नॉटिकल मील एवं सुरक्षित संचार (Maritime Navigation & Units)\n\n"
+                    "**समुद्र में दूरी, गति और दिशा का निर्धारण कैसे किया जाता है?**\n\n"
+                    "1. **नॉटिकल मील (Nautical Mile - NM)**: 1 नॉटिकल मील = **1.852 किलोमीटर**। यह पृथ्वी के 1 मिनट अक्षांश चाप की सटीक लंबाई है।\n"
+                    "2. **नॉट (Knot - kt)**: समुद्री गति की अंतर्राष्ट्रीय इकाई। **1 नॉट = 1 नॉटिकल मील प्रति घंटा** (1.852 किमी/घंटा)।\n"
+                    "3. **नेविगेशन उपकरण**: आधुनिक नौकाएं GPS, NavIC, मरीन राडार (Doppler Radar), और जायरो कंपास का उपयोग करती हैं।\n"
+                    "4. **VHF चैनल 16 (156.8 MHz)**: वैश्विक समुद्री आपातकालीन व संकट (Mayday / Pan-Pan) संदेशों के लिए आरक्षित अंतर्राष्ट्रीय चैनल।"
+                )
+            else:
+                return (
+                    "### 🧭 Maritime Navigation, Nautical Distance Units & GMDSS Protocols\n\n"
+                    "**Core Navigational Standards in Seamanship:**\n\n"
+                    "1. **Nautical Mile (NM)**: Geodetically defined as exactly **1,852 meters (1.1508 statute miles)**, corresponding to one minute of latitude on the Earth's geoid.\n"
+                    "2. **Knot (kt)**: Standard velocity unit representing **one nautical mile per hour** (0.5144 m/s or 1.852 km/h).\n"
+                    "3. **Electronic Navigational Bridge Tools**:\n"
+                    "   - **GNSS / NavIC**: Satellite positioning providing sub-meter latitude, longitude, and Course Over Ground (COG).\n"
+                    "   - **Marine Radar (S-Band / X-Band)**: Pulse radar detecting vessels, navigational buoys, and shorelines in zero-visibility fog.\n"
+                    "   - **ECDIS (Electronic Chart Display)**: Vector ENC charts complying with IMO carriage requirements.\n"
+                    "4. **GMDSS Distress Channel 16 (156.8 MHz)**: Dedicated international calling and distress VHF frequency monitored 24/7 by maritime authorities and all seagoing vessels."
+                )
+
+        # Topic T: COLREGS (International Regulations for Preventing Collisions at Sea)
+        if any(k in q_lower for k in ["colregs", "rule 10", "rule 14", "rule 15", "collision", "steering rule", "सागरी नियम", "जहाजांचे नियम", "समुद्री नियम"]):
+            if language == "mr":
+                return (
+                    "### 🚢 आंतरराष्ट्रीय सागरी टक्कर प्रतिबंधक नियम (IMO COLREGS 1972)\n\n"
+                    "आंतरराष्ट्रीय सागरी संघटना (IMO) द्वारे समुद्रातील जहाजांची टक्कर टाळण्यासाठी **COLREGS नियम** लागू केले आहेत:\n\n"
+                    "1. **नियम १४ - समोरासमोर परिस्थिती (Head-on Situation)**:\n"
+                    "   - जेव्हा दोन पॉवर-चालित जहाजे थेट समोरासमोर येत असतात, तेव्हा **दोन्ही जहाजांनी उजवीकडे (Starboard side)** वळावे जेणेकरून डाव्या बाजूने (Port-to-Port) सुरक्षित मार्ग निघेल.\n"
+                    "2. **नियम १५ - ओलांडण्याची परिस्थिती (Crossing Situation)**:\n"
+                    "   - ज्या जहाजाच्या उजव्या बाजूला (Starboard) दुसरे जहाज दिसेल, त्या जहाजाने मार्ग मोकळा करून बाजूला व्हावे (Give-way vessel).\n"
+                    "3. **नियम १३ - पुढे जाण्याची परिस्थिती (Overtaking)**:\n"
+                    "   - मागून पुढे जाणाऱ्या जहाजाने पुढील जहाजाच्या पूर्णपणे लांब व सुरक्षित अंतरावरून पुढे निघून जावे.\n"
+                    "4. **नियम १० - वाहतूक पृथक्करण योजना (TSS)**:\n"
+                    "   - मुंबई किंवा कोची बंदराच्या प्रवेशद्वारावरील नियुक्त सागरी लेनमधूनच जहाजांनी योग्य दिशेने चालावे."
+                )
+            elif language == "hi":
+                return (
+                    "### 🚢 अंतर्राष्ट्रीय समुद्री टकराव रोकथाम नियम (IMO COLREGS 1972)\n\n"
+                    "खुले समुद्र में जलपोतों की टक्कर रोकने के लिए IMO के प्रमुख नियम:\n\n"
+                    "1. **नियम 14 (Head-on Situation)**: जब दो नौकाएं आमने-सामने आ रही हों, तो **दोनों को अपनी दाईं ओर (Starboard)** मुड़ना होगा।\n"
+                    "2. **नियम 15 (Crossing Situation)**: जिस जहाज के दाईं ओर दूसरा जहाज आ रहा हो, उसे रास्ता छोड़ना होगा (Give-way)।\n"
+                    "3. **नियम 13 (Overtaking)**: पीछे से आगे निकलने वाले जहाज की जिम्मेदारी है कि वह आगे वाले जहाज से सुरक्षित दूरी बनाकर आगे निकले।\n"
+                    "4. **नियम 10 (Traffic Separation Schemes - TSS)**: प्रमुख बंदरगाह मार्गों में लेन का कड़ाई से पालन करना अनिवार्य है।"
+                )
+            else:
+                return (
+                    "### 🚢 International Regulations for Preventing Collisions at Sea (IMO COLREGS 1972)\n\n"
+                    "**Governing Steering & Sailing Rules for All Mariners:**\n\n"
+                    "1. **Rule 14 (Head-on Situation)**: When two power-driven vessels are meeting on reciprocal courses, **each shall alter her course to starboard** so that each shall pass on the port side of the other.\n"
+                    "2. **Rule 15 (Crossing Situation)**: When two power-driven vessels are crossing, the vessel which has the other on her **own starboard side shall keep out of the way** and avoid crossing ahead of the other vessel.\n"
+                    "3. **Rule 13 (Overtaking)**: Any vessel overtaking another shall keep completely out of the way of the vessel being overtaken until safely past and clear.\n"
+                    "4. **Rule 10 (Traffic Separation Schemes - TSS)**: Vessels using TSS lanes must proceed in the general direction of traffic flow for that lane and join or leave at the termination of the lane."
+                )
+
         # 2. Dynamic LLM Generation for all other specific ocean questions
         if llm_client.is_available():
             sys_prompt = (
@@ -1580,50 +1690,118 @@ class ResponseSynthesisAgent:
             )
 
     # =========================================================================
-    # OUT-OF-DOMAIN RESPONSE BUILDER (ZERO REFUSALS - INSTANT ENGINE)
+    # OUT-OF-DOMAIN RESPONSE BUILDER (UNIVERSAL DIRECT ANSWERING - ZERO REFUSALS)
     # =========================================================================
     def _build_out_of_domain_response(self, query: str, language: str = "en", language_name: str = "English") -> str:
+        # 1. Primary: If cloud AI provider is available, formulate a brilliant, comprehensive, direct answer
+        if llm_client.is_available():
+            sys_prompt = (
+                "You are ORCA (Ocean Resource Conservation and Awareness), India's premier AI copilot and universal intelligent assistant.\n"
+                "The user is asking a question. As an elite, highly professional AI copilot, answer their question thoroughly, accurately, courteously, and intelligently in depth.\n"
+                f"Target Language: {language_name} ({language}).\n"
+                "MANDATORY LANGUAGE RULE:\n"
+                "Write your entire response exclusively in the native script of the Target Language (Devanagari for Marathi/Hindi, Tamil for Tamil, etc.). "
+                "Do not use transliterated Latin characters. Maintain an authoritative, helpful, executive tone."
+            )
+            res = llm_client.generate_text(sys_prompt, query, target_language_name=language_name)
+            if res and len(res) > 30:
+                return res.strip()
+
+        # 2. Local Grounded Intelligence Engine (zero refusals)
+        q_low = query.lower()
+
+        # Domain A: Cricket / Sports
+        if any(w in q_low for w in ["cricket", "ipl", "dhoni", "kohli", "rohit", "sachin", "football", "world cup", "match", "खेळ", "क्रिकेट", "सामना"]):
+            if language == "mr":
+                return (
+                    "### 🏏 क्रीडा विश्लेषण व माहिती (Sports & Cricket Intelligence)\n\n"
+                    f"तुमच्या **'{query}'** या प्रश्नाचे सविस्तर उत्तर:\n\n"
+                    "क्रिकेट हा भारतातील सर्वात लोकप्रिय खेळ असून भारतीय क्रिकेट नियामक मंडळ (BCCI) आणि राष्ट्रीय संघाने जागतिक स्तरावर अनेक ऐतिहासिक विजय मिळवले आहेत. "
+                    "भारताने १९८३, २००७ (T20), २०११ (ODI), आणि २०२४ (T20) चे विश्वचषक जिंकले आहेत. तसेच इंडियन प्रीमियर लीग (IPL) ही जगातील अग्रगण्य टी-२० क्रिकेट लीग आहे.\n\n"
+                    "🌊 **सागरी किनारपट्टीशी संबंध**:\n"
+                    "मुंबईचे वानखेडे स्टेडियम (अरबी समुद्र किनारा) आणि चेन्नईचे एम.ए. चिदंबरम चेपॉक स्टेडियम (बंगालचा उपसागर किनारा) येथे समुद्रावरून येणाऱ्या ओलसर सागरी वाऱ्यांमुळे (Sea Breeze) "
+                    "क्रिकेट चेंडू हवेत अधिक स्विंग (Swing) होतो, ज्यामुळे वेगवान गोलंदाजांना समुद्राच्या वाऱ्याचा थेट फायदा होतो!\n\n"
+                    "*तुम्हाला इतर कोणत्याही खेळाबद्दल किंवा खेळाडूबद्दल जाणून घ्यायचे आहे का?*"
+                )
+            elif language == "hi":
+                return (
+                    "### 🏏 खेल एवं क्रिकेट विश्लेषण (Sports & Cricket Intelligence)\n\n"
+                    f"आपके प्रश्न **'{query}'** का उत्तर:\n\n"
+                    "क्रिकेट भारत का सबसे लोकप्रिय खेल है। भारतीय क्रिकेट टीम ने 1983, 2007 (T20), 2011 (ODI), और 2024 (T20) में विश्व कप जीतकर विश्व स्तर पर परचम लहराया है। "
+                    "महेंद्र सिंह धोनी, विराट कोहली, रोहित शर्मा और सचिन तेंदुलकर जैसे दिग्गजों ने खेल को नई ऊंचाइयां दी हैं। साथ ही IPL दुनिया की सबसे बड़ी क्रिकेट लीग है।\n\n"
+                    "🌊 **तटीय मौसम एवं क्रिकेट का संबंध**:\n"
+                    "मुंबई के वानखेड़े स्टेडियम (अरब सागर) और चेन्नई के चेपॉक स्टेडियम (बंगाल की खाड़ी) में समुद्र से आने वाली नम समुद्री हवाओं (Sea Breeze) के कारण "
+                    "गेंद हवा में अधिक स्विंग (Late Swing) होती है, जो समुद्री मौसम और वायुगतिकी का सुंदर उदाहरण है!\n\n"
+                    "*क्या आप किसी अन्य खेल, खिलाड़ी या नियम के बारे में जानना चाहते हैं?*"
+                )
+            else:
+                return (
+                    "### 🏏 Sports & Cricket Intelligence\n\n"
+                    f"Regarding your inquiry on **'{query}'**:\n\n"
+                    "Cricket is India's preeminent national sport governed by the BCCI. The Indian national team has achieved legendary global triumphs, including the 1983 and 2011 ICC ODI World Cups, and the 2007 and 2024 ICC T20 World Cups under iconic captains like Kapil Dev, MS Dhoni, and Rohit Sharma. The Indian Premier League (IPL) stands as the world's most competitive and watched T20 league.\n\n"
+                    "🌊 **Maritime & Aerodynamic Connection**:\n"
+                    "Coastal stadiums like Wankhede Stadium in Mumbai (Arabian Sea shoreline) and MA Chidambaram Stadium in Chennai (Bay of Bengal coast) experience prominent sea breeze circulations during evening sessions. The moisture-laden marine airflow creates atmospheric density gradients that significantly increase conventional and reverse swing for pace bowlers!\n\n"
+                    "*Would you like more details on cricket records, tactical seam bowling, or other sports?*"
+                )
+
+        # Domain B: Food / Culinary / Recipes
+        if any(w in q_low for w in ["recipe", "cook", "bake", "cake", "biryani", "food", "मसाले", "जेवण", "रेसिपी", "खाना", "पकवान"]):
+            if language == "mr":
+                return (
+                    "### 🍲 पाककला व खाद्य संस्कृती (Culinary Intelligence)\n\n"
+                    f"तुमच्या **'{query}'** या प्रश्नाचे उत्तर:\n\n"
+                    "भारतीय खाद्यसंस्कृती ही तिच्या समृद्ध मसाल्यांसाठी आणि वैविध्यपूर्ण स्वादांसाठी जगप्रसिद्ध आहे. बिर्याणी, सुगंधी पुलाव, आणि तटीय मसालेदार व्यंजने ही भारतीय खाद्यसंस्कृतीची शान आहेत.\n\n"
+                    "🌊 **भारताची सागरी किनारपट्टी खाद्यसंस्कृती**:\n"
+                    "- **कोकणी व मालवणी खाद्यसंस्कृती**: सुरमई फ्राय, पापलेट सार, तिरफळ आणि नारळाच्या दुधात बनवलेली सोलकढी.\n"
+                    "- **केरळ मलबार फिश करी**: कुडंपुली (मलबार चिंच) आणि खोबरेल तेलात बनवलेली झणझणीत करी.\n"
+                    "- **बंगाली माछेर झोल**: मोहरीच्या तेलात आणि पाचफोरन मसाल्यात बनवलेला हिल्सा (इलिश) मासा.\n\n"
+                    "*तुम्हाला विशिष्ट खाद्यपदार्थ किंवा पारंपारिक पाककृतीबद्दल अधिक माहिती हवी आहे का?*"
+                )
+            elif language == "hi":
+                return (
+                    "### 🍲 पाककला एवं व्यंजन गाइड (Culinary Intelligence)\n\n"
+                    f"आपके प्रश्न **'{query}'** का उत्तर:\n\n"
+                    "भारतीय पाककला अपने समृद्ध मसालों, बासमती चावल, दम पुलाव और स्वादिष्ट व्यंजनों के लिए विश्व विख्यात है।\n\n"
+                    "🌊 **तटीय समुद्री व्यंजन एवं परंपरा**:\n"
+                    "- **दम बिरयानी**: बासमती चावल, केसर और मसालों के साथ धीमी आंच (दम) पर पकाई जाती है।\n"
+                    "- **कोंकणी व मालाबार सीफूड**: ताजे नारियल, करी पत्ता, कोकम और मसालों से तैयार मछली और झींगा करी।\n"
+                    "- **बंगाली माछेर झोल**: सरसों के तेल और पंचफोरन मसालों में तैयार पारंपरिक व्यंजन।\n\n"
+                    "*क्या आप किसी विशेष व्यंजन या रेसिपी के बारे में जानना चाहते हैं?*"
+                )
+            else:
+                return (
+                    "### 🍲 Culinary Arts & Food Science\n\n"
+                    f"Regarding your query on **'{query}'**:\n\n"
+                    "Culinary science involves precise thermodynamic heat transfer, aromatic spice layering, and moisture retention. Dishes like Dum Biryani celebrate centuries of culinary heritage, combining long-grain aged basmati rice, saffron infusions, and slow-cooking under sealed steam (*dum*).\n\n"
+                    "🌊 **Coastal Marine Gastronomy**:\n"
+                    "India's coastal communities have mastered seafood culinary heritage: Malabar Fish Curry with coconut milk and *kudampuli*, Konkani grilled Kingfish with kokum marinades, and Bengal's mustard-infused Ilish delicacies—all rich in Omega-3 fatty acids and iodine.\n\n"
+                    "*Would you like a step-by-step preparation method or nutritional breakdown?*"
+                )
+
+        # Domain C: General Knowledge & Universal Queries
         if language == "mr":
             return (
-                f"### 🛡️ Guardrail Advisory & Marine Ecosystem Reasoning (माहिती व स्पष्टीकरण)\n\n"
-                f"तुमच्या **'{query}'** या प्रश्नाचे उत्तर:\n\n"
-                "हा विषय थेट सागरी क्षेत्राशी संबंधित नसला तरी, ओर्का (ORCA) सहाय्यक म्हणून मी तुम्हाला सर्वसमावेशक मदत करण्यास तत्पर आहे. "
-                "नैसर्गिक विज्ञानाप्रमाणेच मानवी संस्कृती, तंत्रज्ञान आणि खेळ यांचे महासागराशी आणि किनारपट्टीच्या जीवनाशी घनिष्ठ नाते आहे.\n\n"
-                "---\n\n"
-                "🌊 **ओर्का (ORCA) सह तुम्ही सागरी प्रश्नही विचारू शकता:**\n"
-                "- समुद्रातील लाटांची उंची आणि वाऱ्याचा वेग\n"
-                "- ट्यूना व सुरमई माशांची संभाव्य मासेमारी क्षेत्रे (PFZ)\n"
-                "- चक्रीवादळ, वीज आणि बंदर धोक्याचे संकेत १ ते ११\n"
-                "- प्रोजेक्ट ओर्काची ८ सहयोगी स्वायत्त एजंट्स प्रणाली\n\n"
-                "*तुम्हाला कोणत्या सागरी किंवा तांत्रिक विषयाबद्दल जाणून घ्यायला आवडेल?*"
+                f"### 💡 ओर्का माहिती व सामान्य ज्ञान विश्लेषण (ORCA Knowledge Hub)\n\n"
+                f"तुमचा प्रश्न: **'{query}'**\n\n"
+                "ओर्का (ORCA) केवळ सागरी बुद्धिमत्तेपुरते मर्यादित नसून विज्ञान, तंत्रज्ञान, भूगोल आणि सामान्य ज्ञानाच्या सर्व प्रश्नांची अचूक उत्तरे देण्यास सक्षम आहे.\n\n"
+                "हा विषय निसर्ग, विज्ञान आणि मानवी प्रगतीशी थेट जोडलेला आहे. तुम्ही विचारलेल्या विषयाबद्दल सखोल विश्लेषण किंवा सागरी विज्ञानाशी त्याचा समन्वय जाणून घ्यायचा असल्यास मला नक्की सांगा!\n\n"
+                "*कृपया तुमचा पुढील प्रश्न विचारा — मी सर्व प्रकारच्या प्रश्नांची उत्तरे देण्यास तयार आहे!*"
             )
         elif language == "hi":
             return (
-                f"### 🛡️ Guardrail Advisory & Marine Ecosystem Reasoning (जानकारी एवं स्पष्टीकरण)\n\n"
-                f"आपके प्रश्न **'{query}'** के संबंध में:\n\n"
-                "यद्यपि यह विषय प्रत्यक्ष रूप से हमारे समुद्री डोमेन से बाहर है, फिर भी ओर्का (ORCA) आपकी सहायता के लिए सदैव तत्पर है। "
-                "प्राकृतिक विज्ञान की तरह ही संस्कृति और तकनीक का महासागरों से गहरा संबंध है।\n\n"
-                "---\n\n"
-                "🌊 **ओर्का (ORCA) पर आप ये महत्वपूर्ण प्रश्न पूछ सकते हैं:**\n"
-                "- भारतीय बंदरगाहों पर लहरों की ऊंचाई एवं मौसम का हाल\n"
-                "- ISRO उपग्रह द्वारा संभावित मत्स्य क्षेत्र (PFZ) निर्देशांक\n"
-                "- IMD चक्रवात, दामिनी लाइटनिंग एवं पोर्ट सिग्नल 1 से 11\n"
-                "- 8 सहयोगी एजेंट्स आधारित सुरक्षित नेविगेशन मार्ग।"
+                f"### 💡 ओर्का ज्ञानकोश एवं सामान्य अध्ययन (ORCA Knowledge Hub)\n\n"
+                f"आपका प्रश्न: **'{query}'**\n\n"
+                "ओर्का (ORCA) न केवल समुद्री बुद्धिमत्ता बल्कि विज्ञान, प्रौद्योगिकी, भूगोल और सामान्य ज्ञान के सभी प्रश्नों का सटीक और व्यावसायिक उत्तर देने में सक्षम है।\n\n"
+                "यह विषय प्रकृति, विज्ञान और मानव प्रगति से जुड़ा हुआ है। आप किसी भी विषय के बारे में विस्तार से पूछ सकते हैं!\n\n"
+                "*कृपया अपना अगला प्रश्न पूछें — मैं हर प्रकार के प्रश्न का उत्तर देने के लिए तत्पर हूँ!*"
             )
         else:
             return (
-                f"### 🛡️ Guardrail Advisory & Marine Ecosystem Reasoning\n\n"
+                f"### 💡 ORCA Universal Knowledge & Professional Advisory\n\n"
                 f"Regarding your query **'{query}'**:\n\n"
-                "While this topic extends beyond our primary maritime operations, ORCA is pleased to provide helpful guidance. "
-                "Terrestrial sciences and human endeavors naturally interface with coastal logistics and our vast marine ecosystems.\n\n"
-                "---\n\n"
-                "🌊 **Maritime Inquiries You Can Explore with ORCA:**\n"
-                "- Real-time wave heights, wind vectors, and barometric trends across Indian ports\n"
-                "- Potential Fishing Zone (PFZ) coordinates from ISRO Oceansat-3 satellite telemetry\n"
-                "- Official IMD Port Warning Signals 1–11 and real-time Damini lightning radar alerts\n"
-                "- Safe navigable route planning avoiding international maritime boundaries (IMBL)\n"
-                "- Complete architectural breakdown of our 8 collaborative specialized agents.\n\n"
-                "*What maritime or oceanographic question can I assist you with next?*"
+                "ORCA provides comprehensive intelligence across multidisciplinary sciences, geography, technology, and global systems alongside our state-of-the-art maritime decision platform.\n\n"
+                "Whether exploring advanced physics, world geography, nautical history, or general knowledge, ORCA delivers verified, structured, and insightful answers.\n\n"
+                "*Feel free to ask follow-up questions on any topic—I am equipped to provide clear, thorough, and professional answers.*"
             )
 
     # (Obsolete generic port list removed in favor of zero-latency _build_port_inquiry_response)
@@ -2256,6 +2434,26 @@ class ResponseSynthesisAgent:
         tide: Optional[Dict[str, Any]],
         language: str = "en"
     ) -> str:
+        # Intercept knowledge-seeking or interrogative questions so they are answered intelligently
+        q_clean = (query or "").strip().lower()
+        is_interrogative = (
+            "?" in query or
+            any(q_clean.startswith(w) for w in [
+                "what", "why", "how", "who", "when", "where", "which", "explain", "tell me", "can you", "define",
+                "काय", "का", "कसे", "कधी", "कुठे", "कोण", "सांगा", "माहिती", "स्पष्ट",
+                "क्या", "क्यों", "कैसे", "कब", "कहाँ", "कहा", "कौन", "बताओ", "जानकारी", "स्पष्ट"
+            ]) or
+            any(w in q_clean for w in [
+                "coriolis", "nautical mile", "knot", "radar", "vhf", "colregs", "float", "buoyancy",
+                "cricket", "ipl", "recipe", "cook", "food", "who is", "what is", "how do", "why do", "difference between"
+            ])
+        )
+        if is_interrogative:
+            mk_resp = self._build_marine_knowledge_response(query, language)
+            if mk_resp:
+                return mk_resp
+            return self._build_out_of_domain_response(query, language)
+
         loc = plan.get("target_location", "Coast")
         risk_level = risk.get("overall_risk", "MODERATE")
         score = risk.get("risk_score", 45)

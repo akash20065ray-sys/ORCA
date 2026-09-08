@@ -90,6 +90,7 @@ export default function App() {
 
   const handleStartRoutePick = (target) => {
     setRoutePickMode(target);
+    setExternalWindyMode(null);
     if (isMobile) {
       setMobileRouteView('map');
     }
@@ -207,6 +208,7 @@ export default function App() {
         ...data,
         allZones: allZones || data.allZones || null,
       });
+      setExternalWindyMode(null);
       setExternalVectorLayers((prev) => ({ ...(prev || {}), pfz: true }));
       const lat = data.latitude ?? data.lat;
       const lon = data.longitude ?? data.lon;
@@ -215,6 +217,7 @@ export default function App() {
       }
     } else if (type === 'route' && data) {
       setFocusedRoute(data);
+      setExternalWindyMode(null);
       setExternalVectorLayers((prev) => ({ ...(prev || {}), routes: true }));
       if (data.waypoints && data.waypoints.length > 0) {
         const mid = data.waypoints[Math.floor(data.waypoints.length / 2)];
@@ -225,7 +228,11 @@ export default function App() {
         }
       }
     } else if (type === 'weather') {
-      setExternalWindyMode(mode || 'wind');
+      if (!mode || mode === 'none' || mode === 'off') {
+        setExternalWindyMode(null);
+      } else {
+        setExternalWindyMode(mode);
+      }
     } else if (type === 'flyto' && data) {
       setMapTargetLocation({ ...data, ts: Date.now() });
     } else if (type === 'toggle_layers') {
@@ -387,10 +394,10 @@ export default function App() {
               type="button"
               className={`rail-item ${activeTab === 'home' ? 'active' : ''}`}
               onClick={() => handleSelectTab('home')}
-              title={t('navHome', 'Home')}
+              title={t('navHome', 'Command Center')}
             >
               <Map size={20} />
-              <span className="rail-label">{t('navHome', 'Home')}</span>
+              <span className="rail-label">{t('navHome', 'Command Center')}</span>
             </button>
 
             <button
@@ -407,40 +414,40 @@ export default function App() {
               type="button"
               className={`rail-item ${activeTab === 'routes' ? 'active' : ''}`}
               onClick={() => handleSelectTab('routes')}
-              title={t('navRoutes', 'Routes')}
+              title={t('navRoutes', 'Safe Routes')}
             >
               <Compass size={20} />
-              <span className="rail-label">{t('navRoutes', 'Routes')}</span>
+              <span className="rail-label">{t('navRoutes', 'Safe Routes')}</span>
             </button>
 
             <button
               type="button"
               className={`rail-item ${activeTab === 'pfz' ? 'active' : ''}`}
               onClick={() => handleSelectTab('pfz')}
-              title={t('navPFZ', 'PFZ')}
+              title={t('navPFZ', 'PFZ Hotspots')}
             >
               <Fish size={20} />
-              <span className="rail-label">{t('navPFZ', 'PFZ')}</span>
+              <span className="rail-label">{t('navPFZ', 'PFZ Hotspots')}</span>
             </button>
 
             <button
               type="button"
               className={`rail-item ${activeTab === 'weather' ? 'active' : ''}`}
               onClick={() => handleSelectTab('weather')}
-              title={t('navWeather', 'Weather')}
+              title={t('navWeather', 'Ocean Weather')}
             >
               <CloudSun size={20} />
-              <span className="rail-label">{t('navWeather', 'Weather')}</span>
+              <span className="rail-label">{t('navWeather', 'Ocean Weather')}</span>
             </button>
 
             <button
               type="button"
               className={`rail-item ${activeTab === 'safety' ? 'active' : ''}`}
               onClick={() => handleSelectTab('safety')}
-              title={t('navSafety', 'Safety')}
+              title={t('navSafety', 'Safety Alerts')}
             >
               <Shield size={20} />
-              <span className="rail-label">{t('navSafety', 'Safety')}</span>
+              <span className="rail-label">{t('navSafety', 'Safety Alerts')}</span>
             </button>
           </nav>
         )}
@@ -587,6 +594,7 @@ export default function App() {
                   <RoutePlanner
                     onFocusRoute={(r) => {
                       setFocusedRoute(r);
+                      setExternalWindyMode(null);
                     }}
                     onUpdateShipLocation={setShipLocation}
                     pickingMode={routePickMode}

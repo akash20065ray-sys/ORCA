@@ -350,7 +350,7 @@ class LLMClient:
     ) -> Dict[str, Any]:
         """
         Requests structured JSON from cloud AI providers with ultra-fast circuit breakers:
-        Sarvam AI (1s) -> Gemini (2s) -> Groq -> Local Deterministic Engine.
+        Sarvam AI (1s) -> Gemini (2s) -> Groq -> OpenAI -> Claude -> Local Deterministic Engine.
         """
         # 1. Sarvam AI (Fastest verified active Indic model ~1.0s)
         if self.sarvam_key and time.time() >= self._sarvam_cooldown_until:
@@ -385,7 +385,29 @@ class LLMClient:
                 except Exception as e:
                     logger.warning(f"Failed to parse Groq JSON: {e}")
 
-        # 4. High-Reliability Local Deterministic Grounded Parser (0.01ms)
+        # 4. OpenAI (GPT-4o / GPT-4o-mini)
+        if self.openai_key and time.time() >= self._openai_cooldown_until:
+            raw = self._call_openai_compatible("https://api.openai.com/v1/chat/completions", self.openai_key, self.openai_model, user_prompt, system_prompt=system_prompt, as_json=True)
+            if raw:
+                try:
+                    clean_raw = re.sub(r"^```(?:json)?\n?", "", raw.strip())
+                    clean_raw = re.sub(r"\n?```$", "", clean_raw)
+                    return json.loads(clean_raw.strip())
+                except Exception as e:
+                    logger.warning(f"Failed to parse OpenAI JSON: {e}")
+
+        # 5. Claude (Anthropic)
+        if self.claude_client and time.time() >= self._claude_cooldown_until:
+            raw = self._call_claude(user_prompt, system_prompt=system_prompt, as_json=True)
+            if raw:
+                try:
+                    clean_raw = re.sub(r"^```(?:json)?\n?", "", raw.strip())
+                    clean_raw = re.sub(r"\n?```$", "", clean_raw)
+                    return json.loads(clean_raw.strip())
+                except Exception as e:
+                    logger.warning(f"Failed to parse Claude JSON: {e}")
+
+        # 6. High-Reliability Local Deterministic Grounded Parser (0.01ms)
         return self._local_heuristic_json(system_prompt, user_prompt)
 
     def generate_text(
@@ -397,7 +419,7 @@ class LLMClient:
     ) -> str:
         """
         Generates natural language synthesis grounded in structured data and multimodal assets.
-        Prioritizes Sarvam AI (1s response) -> Gemini (2.5s cap) -> Groq.
+        Prioritizes Sarvam AI (1s response) -> Gemini (2.5s cap) -> Groq -> OpenAI -> Claude.
         Enforces native script generation for all Indian regional languages.
         """
         is_indic = target_language_name and target_language_name.lower() not in ("english", "en", "")
@@ -424,6 +446,18 @@ class LLMClient:
         # 3. Try Groq (Llama 3.3)
         if self.groq_key:
             res = self._call_openai_compatible("https://api.groq.com/openai/v1/chat/completions", self.groq_key, self.groq_model, user_prompt, system_prompt=system_prompt, as_json=False)
+            if res and len(res) > 20:
+                return res.strip()
+
+        # 4. Try OpenAI (GPT-4o / GPT-4o-mini)
+        if self.openai_key and time.time() >= self._openai_cooldown_until:
+            res = self._call_openai_compatible("https://api.openai.com/v1/chat/completions", self.openai_key, self.openai_model, user_prompt, system_prompt=system_prompt, as_json=False)
+            if res and len(res) > 20:
+                return res.strip()
+
+        # 5. Try Claude (Anthropic)
+        if self.claude_client and time.time() >= self._claude_cooldown_until:
+            res = self._call_claude(user_prompt, system_prompt=system_prompt, as_json=False)
             if res and len(res) > 20:
                 return res.strip()
 
@@ -573,13 +607,16 @@ class LLMClient:
             "indian ocean dipole", "mariana trench", "ocean depth", "deepest ocean", "how deep",
             "kallakkadal", "kalla kadal", "swell surge", "port signal", "port signals",
             "port warning signal", "port warning signals", "monsoon fishing ban", "fishing ban",
-            "turtle", "olive ridley", "arribada", "ships float", "ship float", "how do ships float",
+            "turtle", "olive ridley", "arribada", "ships float", "ship float", "how do ships float", "why do ships float",
             "buoyancy", "archimedes", "unclos", "maritime law", "lighthouse",
+            "nautical mile", "nautical miles", "knot", "knots", "coriolis", "coriolis effect", "radar", "marine radar",
+            "vhf", "vhf 16", "colregs", "rule 10", "rule 13", "rule 14", "rule 15", "navigation", "seamanship",
             # Native Indic topics
             "समुद्र", "महासागर", "सागर", "लाटा", "भरती", "ओहोटी", "खारा", "खारट", "निळा", "चक्रीवादळ",
             "सुनामी", "प्रवाळ", "मासे", "माशांचे श्वसन", "पीएझेड", "मत्स्य क्षेत्र", "कल्लाक्कदल", "बंदर संकेत", "धोक्याचे संकेत", "बंदर धोक्याचे संकेत",
             "मासेमारी बंदी", "ऑलिव रिडले", "मरियाना", "जहाज", "लहरें", "ज्वार", "भाटा", "नीला", "चक्रवात",
-            "मूंगा", "मछली सांस", "கடல்", "சமுத்திரம்", "அலைகள்", "சுனாமி", "மீன்", "மழைக்கால தடை",
+            "मूंगा", "मछली सांस", "नॉटिकल मील", "नॉटिकल मैल", "नॉट", "कोरिओलिस", "राडार", "रडार", "सागरी नियम", "जहाजांचे नियम", "समुद्री नियम",
+            "கடல்", "சமுத்திரம்", "அலைகள்", "சுனாமி", "மீன்", "மழைக்கால தடை",
             "సముద్రం", "అలలు", "సునామీ", "చేప", "തുറമുഖ", "തിരമാല", "സുനാമി", "മത്സ്യം",
             "সমুদ্র", "ঢেউ", "সুনামি", "মাছ", "દરિયો", "મોજા", "વાવાઝોડું"
         ]
@@ -595,11 +632,14 @@ class LLMClient:
             "how waves form", "how do waves form", "how waves are formed", "what causes waves",
             "how tides work", "how do tides work", "tide formation", "spring tide vs neap tide",
             "how do fish breathe", "how fish breathe", "how do ships float", "why do ships float",
-            "colregs", "rule 10", "traffic separation scheme", "unclos", "territorial waters", "monsoon fishing ban",
+            "colregs", "rule 10", "rule 13", "rule 14", "rule 15", "traffic separation scheme", "unclos", "territorial waters", "monsoon fishing ban",
             "port danger signal", "port signal", "port signals", "port warning signal", "port warning signals",
-            "port signals 1 to 11", "beaufort scale", "douglas sea state", "समुद्र नीला क्यों", "समुद्र खारा क्यों",
+            "port signals 1 to 11", "beaufort scale", "douglas sea state",
+            "nautical mile", "nautical miles", "knot", "knots", "coriolis", "coriolis effect", "radar", "marine radar", "vhf 16",
+            "समुद्र नीला क्यों", "समुद्र खारा क्यों",
             "कल्लाक्कदल", "ऑलिव रिडले", "प्रवाल भित्ति", "बंदरगाह चेतावनी संकेत", "बंदर संकेत", "धोक्याचे संकेत", "बंदर धोक्याचे संकेत",
             "समुद्र म्हणजे काय", "समुद्र क्या है", "महासागर म्हणजे काय", "महासागर क्या है",
+            "नॉटिकल मील", "नॉटिकल मैल", "नॉट", "कोरिओलिस", "राडार", "रडार", "जहाज का तरंगते", "जहाज क्यों तैरते हैं",
             "लाटा कशा तयार होतात", "लहरें कैसे बनती हैं", "भरती ओहोटी कशी होते", "ज्वार भाटा कैसे होता है",
             "கடல் என்றால் என்ன", "சமுத்திரம் என்றால் என்ன", "సముద్రం అంటే ఏమిటి", "കടൽ എന്നാൽ എന്താണ്", "সমুদ্র কী", "દરિયો એટલે શું"
         ]
@@ -873,7 +913,10 @@ class LLMClient:
                 "what is ocean", "turtle", "olive ridley", "arribada", "gahirmatha", "whale shark", "dugong", "coral reef",
                 "coral bleaching", "mangrove", "bioluminescence", "colregs", "rule 10", "traffic separation scheme", "unclos",
                 "territorial waters", "monsoon fishing ban", "port danger signal", "port signal", "port signals", "port warning signal", "port warning signals", "port signals 1 to 11", "beaufort scale", "douglas sea state",
-                "समुद्र नीला क्यों", "समुद्र खारा क्यों", "कल्लाक्कदल", "ऑलिव रिडले", "प्रवाल भित्ति", "बंदरगाह चेतावनी संकेत", "बंदर संकेत"
+                "nautical mile", "nautical miles", "knot", "knots", "coriolis", "coriolis effect", "radar", "marine radar", "vhf", "vhf 16",
+                "ships float", "ship float", "how do ships float", "why do ships float", "buoyancy", "archimedes",
+                "समुद्र नीला क्यों", "समुद्र खारा क्यों", "कल्लाक्कदल", "ऑलिव रिडले", "प्रवाल भित्ति", "बंदरगाह चेतावनी संकेत", "बंदर संकेत",
+                "नॉटिकल मील", "नॉटिकल मैल", "नॉट", "कोरिओलिस", "राडार", "रडार", "जहाज का तरंगते", "जहाज क्यों तैरते हैं"
             ]
             if any(p in prompt_lower for p in marine_faq_phrases):
                 loc = resolve_location_name(user_prompt)
@@ -891,6 +934,34 @@ class LLMClient:
                     "requires_pfz": False,
                     "requires_risk_assessment": False,
                     "reasoning_summary": "Marine science / regulatory FAQ query. Routing directly to domain knowledge synthesizer."
+                }
+
+        # Check for general knowledge / out of domain query with no ports or ocean markers
+        if intent == "general_marine_query" and not detected_ports and not has_coords:
+            marine_kw = [
+                "sea", "ocean", "marine", "water", "coast", "coastal", "wave", "wind", "swell", "tide", "fish", "fishing",
+                "tuna", "boat", "vessel", "ship", "port", "harbor", "harbour", "cyclone", "storm", "tsunami", "coral",
+                "sst", "chlorophyll", "pfz", "current", "currents", "sail", "sailing", "anchor", "knot", "nautical", "buoy",
+                "समुद्र", "सागर", "महासागर", "लाटा", "वारा", "मासे", "मासेमारी", "बंदर", "बोट", "जहाज", "चक्रीवादळ", "भरती", "ओहोटी",
+                "लहर", "हवा", "नाव", "मछली", "तूफान", "ज्वार", "भाटा", "चक्रवात", "तट",
+                "கடல்", "அலை", "காற்று", "மீன்", "துறைமுகம்", "படகு", "புயல்",
+                "കടൽ", "തിരമാല", "കാറ്റ്", "മത്സ്യം", "തുറമുഖം", "ബോട്ട്",
+                "సముద్రం", "అలలు", "గాలి", "చేప", "ఓడరేవు", "పడవ",
+                "সমুদ্র", "ঢেউ", "বাতাস", "মাছ", "বন্দর", "নৌকা",
+                "દરિયો", "મોજા", "પવન", "માછલી", "બંદર", "હોડી"
+            ]
+            if not any(k in prompt_lower for k in marine_kw):
+                return {
+                    "intent": "out_of_domain",
+                    "selected_agents": ["planning_agent", "response_synthesis_agent"],
+                    "target_location": "ORCA Universal Knowledge Hub",
+                    "coordinates": {"latitude": settings.DEFAULT_LAT, "longitude": settings.DEFAULT_LON},
+                    "timeframe": "current",
+                    "requires_routing": False,
+                    "route_endpoints": None,
+                    "requires_pfz": False,
+                    "requires_risk_assessment": False,
+                    "reasoning_summary": "General inquiry answered by ORCA universal intelligence."
                 }
 
         # Location extraction
