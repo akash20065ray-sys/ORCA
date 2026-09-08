@@ -59,6 +59,27 @@
 - **Intelligent Offline API Fallbacks:** Structured fallback JSON data for `/api/alerts/active`, `/api/weather/current`, and `/api/routes/ports` ensures critical navigational intelligence (NAVAREA VIII advisory notices, onboard climatology, and standard port coordinates) continues functioning offline.
 - **Simulated Offshore Mode:** Added an offshore toggle in the offline banner, allowing users and evaluators to test offline marine behavior at any time.
 
+---
+
+## 3. Chatbot Voice Input & Language Localization Corrections
+
+### A. Resolved Inverted Mic Animation
+- **Root Cause:** Previously, speech-to-text input was conflated with text-to-speech reading (`window.speechSynthesis.speaking`), causing the mic button to stay quiet during active recording and pulse only when text was read aloud.
+- **Independent State Management:** Decoupled voice recording (`isListening`) from assistant TTS reading (`speakingMsgId`).
+- **Active Listening Animation:**
+  - When mic is **ON** (`isListening === true`): Button gains `.is-listening` class with glowing radar wave animation (`mic-radar-pulse`) and 3 dynamic audio frequency equalizing bars (`listening-audio-bars`). Displays `<MicOff size={16} />` with tooltip `"Listening... Click to stop"`.
+  - When mic is **OFF** (`isListening === false`): All animations immediately cease. Displays `<Mic size={16} />` with tooltip `"Voice input (Click to speak)"`.
+- **Message Read-Aloud Speaker:** TTS speaker playback is confined strictly to the individual message speaker action (`speakingMsgId === m.id`), displaying sound wave indicator bars without affecting the input mic.
+
+### B. Resolved Multilingual Mixing (Marathi & Hindi Devanagari Isolation)
+- **Root Cause:** Marathi and Hindi share the identical Devanagari Unicode code block (`\u0900-\u097F`). The backend script detector was mistaking Marathi queries for Hindi and vice-versa, overriding explicit user language selections.
+- **Frontend Voice Lock:** `recognition.lang` is strictly locked to the target speech dialect (`mr-IN` for Marathi, `hi-IN` for Hindi, `ta-IN` for Tamil, `ml-IN` for Malayalam, etc.) with `continuous = false` and `interimResults = false`.
+- **Backend Language Priority:** In `backend/agents/response_synthesis_agent.py`, the user's explicit language preference takes absolute precedence over script heuristics.
+- **Regional Marine Taxonomy Dictionaries:** Expanded robust dictionary translation layers for fish species (e.g. Yellowfin Tuna -> *पिवळा पंखा असलेला टूना*, Mackerel -> *बांगडा*, Sardines -> *तारली*, Squid -> *मांदेली / स्क्विड*), 16 compass bearings (e.g. SW -> *नैऋत्य (SW)*), and zone classifications in both Marathi and Hindi.
+- **Verification Results:**
+  - Marathi Query: `वर्तमान लाटांची उंची आणि समुद्राची स्थिती सांगा` -> Verified 100% Marathi response (`Detected Language: mr`, Douglas Scale, swell height, sea conditions in pure Marathi).
+  - Hindi Query: `निकटतम संभावित मत्स्य पालन क्षेत्र (PFZ) और टूना हॉटस्पॉट दिखाएं` -> Verified 100% Hindi response (`Detected Language: hi`, ISRO Oceansat-3 hotspot, bearing, target species in pure Hindi).
+
 ### B. Mobile Application Optimization
 - **Resolved Fixed Bottom Nav Collisions:** Elevated the floating copilot trigger (`.mobile-floating-copilot-btn`) and the coordinate HUD (`.map-cursor-hud`) to `bottom: 76px !important`, clearing the 60px bottom navigation bar (`.mobile-bottom-nav`) and Leaflet zoom controls (`margin-bottom: 76px !important`).
 - **Touch Targets & Viewport Safe Areas:** All mobile buttons and tab triggers satisfy $\ge 48\text{px}$ touch targets with `env(safe-area-inset-bottom)` support for iOS notch/home bar margins.

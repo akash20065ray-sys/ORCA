@@ -65,11 +65,10 @@ class ResponseSynthesisAgent:
         elif q_low in ["namaskar"]:
             det_code, det_name = "mr", "Marathi"
 
-        # If caller explicitly specified a non-English language (e.g. language="hi") and query is Latin,
-        # caller's explicit language preference takes precedence over default Latin "en".
-        if req_lang in lang_map and req_lang not in ["auto", "en", "english", "en-in"] and det_code in ["en", "unknown", "und"]:
+        # Caller's explicit language preference (e.g., from dropdown, mic lock, or regional chip) takes absolute precedence:
+        if req_lang in lang_map and req_lang not in ["auto", "en", "english", "en-in"]:
             effective_language, effective_lang_name = lang_map[req_lang]
-        elif det_code and det_code not in ["unknown", "und"]:
+        elif det_code and det_code not in ["unknown", "und", "en"]:
             effective_language = det_code
             effective_lang_name = det_name
         elif req_lang in lang_map:
@@ -2285,26 +2284,133 @@ class ResponseSynthesisAgent:
             }]
 
         p = pfz_list[0]
-        species_str = ", ".join(p.get("species_association", ["Tuna", "Mackerel"]))
+        raw_species = p.get("species_association", ["Yellowfin Tuna", "Indian Mackerel", "Sardine"])
+        species_str = ", ".join(raw_species)
 
         if language == "mr":
+            species_mr_map = {
+                "Yellowfin Tuna": "पिवळा पंखा असलेला टूना (Yellowfin)",
+                "Indian Mackerel": "बांगडा (Mackerel)",
+                "Oil Sardine": "तारली / सार्डिन",
+                "Sardine": "तारली (Sardine)",
+                "Tuna": "टूना (Tuna)",
+                "Mackerel": "बांगडा (Mackerel)",
+                "Skipjack": "टूना (Skipjack)",
+                "Anchovy": "नेथली / मोदक",
+                "Ribbonfish": "वाकटी (Ribbonfish)",
+                "Seerfish": "सुरमई (Kingfish)",
+                "Pomfret": "पापलेट (Pomfret)",
+                "Squid": "मांदेली / स्क्विड (Squid)",
+                "Prawn": "कोळंबी (Prawns)",
+                "Shrimp": "कोळंबी (Shrimp)",
+            }
+            bearing_card = str(p.get("bearing_cardinal", "")).strip().upper()
+            bearing_mr_map = {
+                "WSW": "पश्चिम-नैऋत्य (WSW)",
+                "SW": "नैऋत्य (SW)",
+                "SSW": "दक्षिण-नैऋत्य (SSW)",
+                "W": "पश्चिम (West)",
+                "WNW": "पश्चिम-वायव्य (WNW)",
+                "NW": "वायव्य (NW)",
+                "NNW": "उत्तर-वायव्य (NNW)",
+                "N": "उत्तर (North)",
+                "NNE": "उत्तर-ईशान्य (NNE)",
+                "NE": "ईशान्य (NE)",
+                "ENE": "पूर्व-ईशान्य (ENE)",
+                "E": "पूर्व (East)",
+                "ESE": "पूर्व-आग्नेय (ESE)",
+                "SE": "आग्नेय (SE)",
+                "SSE": "दक्षिण-आग्नेय (SSE)",
+                "S": "दक्षिण (South)",
+            }
+            bearing_mr = bearing_mr_map.get(bearing_card, bearing_card or "नैऋत्य (SW)")
+
+            species_mr_list = []
+            for s in raw_species:
+                s_trans = s
+                for k, v in species_mr_map.items():
+                    if k.lower() in s.lower():
+                        s_trans = v
+                        break
+                species_mr_list.append(s_trans)
+            species_mr_str = ", ".join(species_mr_list)
+
+            zone_name_mr = str(p.get("zone_name", ""))\
+                .replace("Offshore Thermal Front", "सागरी थर्मल फ्रंट (PFZ)")\
+                .replace("Nearshore Productive Shelf", "किनारपट्टी उत्पादक शेल्फ (PFZ)")\
+                .replace("PFZ Region", "मासेमारी क्षेत्र")\
+                .replace("Hotspot", "हॉटस्पॉट")
+
             return (
                 f"**{loc}** जवळील सर्वात अनुकूल **संभाव्य मासेमारी क्षेत्र (PFZ)** किनाऱ्यापासून **{p.get('distance_km')} किमी** "
-                f"({p.get('distance_nm')} समुद्री मैल) अंतरावर, **{p.get('bearing_cardinal')}** ({p.get('bearing_deg')}°) दिशेला स्थित आहे.\n\n"
+                f"({p.get('distance_nm')} समुद्री मैल) अंतरावर, **{bearing_mr}** ({p.get('bearing_deg')}°) दिशेला स्थित आहे.\n\n"
                 f"### 🐟 इस्रो ओशनसॅट-३ उपग्रह मासेमारी हॉटस्पॉट\n"
-                f"- **क्षेत्राचे नाव**: **{p.get('zone_name')}**\n"
-                f"- **मुख्य माशांच्या प्रजाती**: **{species_str}**\n"
+                f"- **क्षेत्राचे नाव**: **{zone_name_mr}**\n"
+                f"- **मुख्य माशांच्या प्रजाती**: **{species_mr_str}**\n"
                 f"- **विश्वासार्हता स्कोअर**: **{int(p.get('confidence_score', 0.85)*100)}%**\n"
                 f"- **उपग्रह मापदंड**: समुद्राचे तापमान **{sst}°C**, क्लोरोफिल **{chl} mg/m³** (थर्मल फ्रंट)\n\n"
                 f"🧭 **नेव्हिगेशन सल्ला**: या क्षेत्रातील लाटा सध्या १.३ मीटर असून मासेमारीसाठी अनुकूल आहेत. आंतरराष्ट्रीय सागरी सीमा (IMBL) टाळून सुरक्षित मार्गाने प्रवास करा."
             )
         elif language == "hi":
+            species_hi_map = {
+                "Yellowfin Tuna": "येलोफिन टूना (Yellowfin)",
+                "Indian Mackerel": "भारतीय बांगड़ा (Mackerel)",
+                "Oil Sardine": "तारली / सार्डिन",
+                "Sardine": "तारली / सार्डिन",
+                "Tuna": "टूना (Tuna)",
+                "Mackerel": "बांगड़ा (Mackerel)",
+                "Skipjack": "टूना (Skipjack)",
+                "Anchovy": "एंकोवी",
+                "Ribbonfish": "रिबनफिश",
+                "Seerfish": "सुरमई",
+                "Pomfret": "पॉम्फ्रेट / हलवा",
+                "Squid": "स्क्विड",
+                "Prawn": "झींगा (Prawns)",
+                "Shrimp": "झींगा (Shrimp)",
+            }
+            bearing_card = str(p.get("bearing_cardinal", "")).strip().upper()
+            bearing_hi_map = {
+                "WSW": "पश्चिम-दक्षिण-पश्चिम (WSW)",
+                "SW": "दक्षिण-पश्चिम (SW)",
+                "SSW": "दक्षिण-दक्षिण-पश्चिम (SSW)",
+                "W": "पश्चिम (West)",
+                "WNW": "पश्चिम-उत्तर-पश्चिम (WNW)",
+                "NW": "उत्तर-पश्चिम (NW)",
+                "NNW": "उत्तर-उत्तर-पश्चिम (NNW)",
+                "N": "उत्तर (North)",
+                "NNE": "उत्तर-उत्तर-पूर्व (NNE)",
+                "NE": "उत्तर-पूर्व (NE)",
+                "ENE": "पूर्व-उत्तर-पूर्व (ENE)",
+                "E": "पूर्व (East)",
+                "ESE": "पूर्व-दक्षिण-पूर्व (ESE)",
+                "SE": "दक्षिण-पूर्व (SE)",
+                "SSE": "दक्षिण-दक्षिण-पूर्व (SSE)",
+                "S": "दक्षिण (South)",
+            }
+            bearing_hi = bearing_hi_map.get(bearing_card, bearing_card or "दक्षिण-पश्चिम (SW)")
+
+            species_hi_list = []
+            for s in raw_species:
+                s_trans = s
+                for k, v in species_hi_map.items():
+                    if k.lower() in s.lower():
+                        s_trans = v
+                        break
+                species_hi_list.append(s_trans)
+            species_hi_str = ", ".join(species_hi_list)
+
+            zone_name_hi = str(p.get("zone_name", ""))\
+                .replace("Offshore Thermal Front", "तटीय थर्मल फ्रंट (PFZ)")\
+                .replace("Nearshore Productive Shelf", "तटीय उत्पादक शेल्फ (PFZ)")\
+                .replace("PFZ Region", "मत्स्य क्षेत्र")\
+                .replace("Hotspot", "हॉटस्पॉट")
+
             return (
                 f"**{loc}** के निकट सबसे अनुकूल **संभावित मत्स्य क्षेत्र (PFZ)** तट से **{p.get('distance_km')} किमी** "
-                f"({p.get('distance_nm')} समुद्री मील), **{p.get('bearing_cardinal')}** ({p.get('bearing_deg')}°) दिशा में स्थित है।\n\n"
+                f"({p.get('distance_nm')} समुद्री मील), **{bearing_hi}** ({p.get('bearing_deg')}°) दिशा में स्थित है।\n\n"
                 f"### 🐟 ISRO Oceansat-3 उपग्रह मत्स्य हॉटस्पॉट\n"
-                f"- **स्थान**: **{p.get('zone_name')}**\n"
-                f"- **प्रमुख लक्षित मछलियां**: **{species_str}**\n"
+                f"- **स्थान**: **{zone_name_hi}**\n"
+                f"- **प्रमुख लक्षित मछलियां**: **{species_hi_str}**\n"
                 f"- **सटीकता स्तर**: **{int(p.get('confidence_score', 0.85)*100)}%**\n"
                 f"- **महासागरीय पैरामीटर्स**: तापमान **{sst}°C**, क्लोरोफिल-ए **{chl} mg/m³**\n\n"
                 f"🧭 **नेविगेशन सलाह**: इस क्षेत्र में वर्तमान समुद्री परिस्थितियां सुरक्षित हैं। नौकाएं निर्धारित कम्पास बेयरिंग का पालन करें।"

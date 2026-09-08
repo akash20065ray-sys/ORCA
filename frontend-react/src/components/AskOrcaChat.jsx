@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { exportChatBriefingPDF } from '../utils/pdfExport';
 import { useLanguage } from '../context/LanguageContext';
+import { translateDeepText } from '../translations/translations';
 
 const VERNACULAR_LANGUAGES = [
   { code: 'auto', label: 'Auto Detect', native: '🌐 Auto', speechLang: 'hi-IN' },
@@ -145,6 +146,82 @@ function detectScriptLanguage(text) {
     return 'hi';
   }
   return null;
+}
+
+function getChipQuery(chipKey, activeLang = 'mr', targetName = '') {
+  const lang = (activeLang && activeLang !== 'auto' && activeLang !== 'en') ? activeLang : 'mr';
+  const targetLabel = targetName || (lang === 'mr' ? 'रत्नागिरी आणि मालवण' : lang === 'hi' ? 'कोच्चि / रत्नागिरी' : 'active location');
+
+  const CHIP_QUERIES = {
+    waves: {
+      mr: 'वर्तमान लाटांची उंची आणि समुद्राची स्थिती सांगा',
+      hi: 'वर्तमान समुद्री लहरें और समुद्र की स्थिति बताएं',
+      ta: 'தற்போதைய அலை உயரம் மற்றும் கடல் நிலவரம் என்ன?',
+      ml: 'നിലവിലെ തിരമാലകളുടെ ഉയരവും കടൽ അവസ്ഥയും എന്താണ്?',
+      te: 'ప్రస్తుత అలల ఎత్తు మరియు సముద్ర స్థితి తెలపండి',
+      bn: 'বর্তমান সমুদ্রের ঢেউয়ের উচ্চতা এবং অবস্থা কী?',
+      gu: 'હાલના દરિયાઈ મોજાંની ઊંચાઈ અને દરિયાની સ્થિતિ જણાવો',
+      kn: 'ಪ್ರಸ್ತುತ ಅಲೆಗಳ ಎತ್ತರ ಮತ್ತು ಸಮುದ್ರದ ಸ್ಥಿತಿ ತಿಳಿಸಿ',
+      en: 'What is the current wave height, swell period, and sea state?'
+    },
+    wind: {
+      mr: 'सागरी वाऱ्याचा वेग, झोत आणि दिशा सांगा',
+      hi: 'समुद्री हवा की गति, दिशा और झोंके बताएं',
+      ta: 'கடல் காற்றின் வேகம், திசை மற்றும் காற்று வீச்சு என்ன?',
+      ml: 'കടൽ കാറ്റിന്റെ വേഗതയും ദിശയും എന്താണ്?',
+      te: 'సముద్రపు గాలి వేగం, దిశ మరియు తీవ్రత తెలపండి',
+      bn: 'সামুদ্রিক বাতাসের গতিবেগ ও দিক বলুন',
+      gu: 'દરિયાઈ પવનની ગતિ, દિશા અને ઝોકાં જણાવો',
+      kn: 'ಸಮುದ್ರದ ಗಾಳಿಯ ವೇಗ, ದಿಕ್ಕು ಮತ್ತು ಬಿರುಗಾಳಿ ತಿಳಿಸಿ',
+      en: 'What is the ocean wind speed, gust velocity, and wind direction?'
+    },
+    currents: {
+      mr: 'सागरी प्रवाह आणि पाण्याचा वेग सांगा',
+      hi: 'समुद्री धाराएं और बहाव की गति बताएं',
+      ta: 'கடல் நீரோட்டங்கள் மற்றும் பரப்பளவு சுழற்சி என்ன?',
+      ml: 'കടൽ ഒഴുക്കും ഉപരിതല സഞ്ചാരവും വ്യക്തമാക്കുക',
+      te: 'సముద్ర ప్రవాహాలు మరియు ఉపరితల ప్రసరణ తెలపండి',
+      bn: 'সামুদ্রিক স্রোতের প্রবাহ ও গতি কেমন?',
+      gu: 'દરિયાઈ પ્રવાહ અને પાણીનો પ્રવાહ જણાવો',
+      kn: 'ಸಮುದ್ರ ಪ್ರವಾಹಗಳು ಮತ್ತು ಮೇಲ್ಮೈ ಚಲನೆ ತಿಳಿಸಿ',
+      en: 'What is the ocean current drift and surface circulation?'
+    },
+    sst: {
+      mr: 'समुद्राच्या पृष्ठभागाचे तापमान (SST) किती आहे?',
+      hi: 'समुद्र की सतह का तापमान (SST) कितना है?',
+      ta: 'கடல் மேற்பரப்பு வெப்பநிலை (SST) எவ்வளவு?',
+      ml: 'കടൽ ഉപരിതല താപനില (SST) എത്രയാണ്?',
+      te: 'సముద్ర ఉపరితల ఉష్ణోగ్రత (SST) ఎంత?',
+      bn: 'সমুদ্রপৃষ্ঠের তাপমাত্রা (SST) কত?',
+      gu: 'દરિયાની સપાટીનું તાપમાન (SST) કેટલું છે?',
+      kn: 'ಸಮುದ್ರ ಮೇಲ್ಮೈ ತಾಪಮಾನ (SST) ಎಷ್ಟು?',
+      en: 'What is the sea surface temperature (SST) and thermal gradient?'
+    },
+    pfz: {
+      mr: `${targetLabel} जवळील संभाव्य मासेमारी क्षेत्र (PFZ) आणि टूना हॉटस्पॉट दाखवा`,
+      hi: `${targetLabel} के निकटतम संभावित मत्स्य पालन क्षेत्र (PFZ) और टूना हॉटस्पॉट दिखाएं`,
+      ta: `${targetLabel} அருகே சாத்தியமான மீன்பிடி மண்டலம் (PFZ) மற்றும் சூரை மீன் இடங்களை காட்டு`,
+      ml: `${targetLabel} ന് സമീപമുള്ള സാധ്യതയുള്ള മത്സ്യബന്ധන മേഖലകളും (PFZ) ചൂര മീൻ ലഭ്യതയും കാണിക്കുക`,
+      te: `${targetLabel} సమీపంలో ఉన్న సంభావ్య చేపల వేట ప్రాంతాలు (PFZ) చూపించు`,
+      bn: `${targetLabel}-এর কাছে সম্ভাব্য মৎস্য অঞ্চল (PFZ) ও টুনা হটস্পট দেখান`,
+      gu: `${targetLabel} નજીકના સંભવિત મત્સ્ય ઝોન (PFZ) અને ટૂના હોટસ્પોટ બતાવો`,
+      kn: `${targetLabel} ಸಮೀಪದ ಸಂಭಾವ್ಯ ಮೀನುಗಾರಿಕಾ ವಲಯ (PFZ) ಮತ್ತು ಟ್ಯೂನಾ ಹಾಟ್‌ಸ್ಪಾಟ್‌ಗಳನ್ನು ತೋರಿಸಿ`,
+      en: `Show nearest potential fishing zones (PFZ) and tuna hotspots for ${targetLabel}`
+    },
+    layers: {
+      mr: 'नकाशावरील सर्व सागरी स्तर, खोली आणि उपग्रह डेटा स्पष्ट करा',
+      hi: 'मानचित्र की सभी समुद्री परतें, गहराई और उपग्रह डेटा समझाएं',
+      ta: 'அனைத்து கடல் வரைபட அடுக்குகள் மற்றும் செயற்கைக்கோள் தரவுகளை விளக்குங்கள்',
+      ml: 'എല്ലാ സമുദ്ര ഭൂപട ലെയറുകളും ഉപഗ്രഹ വിവരങ്ങളും കാണിക്കുക',
+      te: 'సముద్ర పట పొరలు మరియు ఉపగ్రహ డేటాను వివరించండి',
+      bn: 'সব সামুদ্রিক মানচিত্র স্তর ও উপগ্রহ ডেটা ব্যাখ্যা করুন',
+      gu: 'તમામ દરિયાઈ સ્તરો અને સેટેલાઇટ ડેટા સ્પષ્ટ કરો',
+      kn: 'ಎಲ್ಲಾ ಸಾಗರ ನಕ್ಷೆಯ ಪದರಗಳು ಮತ್ತು ಉಪಗ್ರಹ ಡೇಟಾವನ್ನು ವಿವರಿಸಿ',
+      en: 'Show and explain active ocean GIS map layers, bathymetry, buoys, and satellite overlays'
+    }
+  };
+
+  return CHIP_QUERIES[chipKey]?.[lang] || CHIP_QUERIES[chipKey]?.mr || CHIP_QUERIES[chipKey]?.en;
 }
 
 export default function AskOrcaChat({
@@ -641,18 +718,34 @@ export default function AskOrcaChat({
       }
     }
 
+    const activeLang = (selectedLang && selectedLang !== 'auto')
+      ? selectedLang
+      : ((currentLang && currentLang !== 'auto' && currentLang !== 'en') ? currentLang : 'mr');
+
+    const detectedQueryLang = detectScriptLanguage(query);
+    const resolvedLang = detectedQueryLang || activeLang;
+
+    // If query is in Latin script and active language is a native language, translate query text so user message bubble shows in that native language
+    let displayQuery = query;
+    if (!detectedQueryLang && resolvedLang && resolvedLang !== 'en') {
+      const trans = translateDeepText(query, resolvedLang);
+      if (trans && trans !== query) {
+        displayQuery = trans;
+      }
+    }
+
     const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const userMsg = {
       id: makeUniqueId('user'),
       sender: 'user',
-      text: query,
+      text: displayQuery,
       timestamp: timeString,
-      language: 'auto',
+      language: resolvedLang,
       attachment: currentAttachment,
     };
 
     // Update session title if first message
-    const updatedTitle = messages.length === 0 ? query.slice(0, 36) + (query.length > 36 ? '...' : '') : currentSession.title;
+    const updatedTitle = messages.length === 0 ? displayQuery.slice(0, 36) + (displayQuery.length > 36 ? '...' : '') : currentSession.title;
 
     setSessions((prev) =>
       prev.map((s) => {
@@ -704,11 +797,10 @@ export default function AskOrcaChat({
         content: m.text,
       }));
 
-      const detectedQueryLang = detectScriptLanguage(query);
       if (detectedQueryLang && selectedLang === 'auto') {
         setGlobalLang(detectedQueryLang);
       }
-      const langToSend = selectedLang !== 'auto' ? selectedLang : (detectedQueryLang || 'auto');
+      const langToSend = resolvedLang;
 
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -730,10 +822,18 @@ export default function AskOrcaChat({
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const data = await res.json();
-      const responseText = data.synthesized_response || 'Ocean intelligence report generated.';
+      let responseText = data.synthesized_response || 'Ocean intelligence report generated.';
       const effectiveLanguage = (data.detected_language && data.detected_language !== 'auto')
         ? data.detected_language
-        : (detectedQueryLang || (selectedLang !== 'auto' ? selectedLang : 'en'));
+        : (detectedQueryLang || resolvedLang || 'mr');
+
+      // Guarantee 100% native language synthesis in the chatbot answer:
+      if (effectiveLanguage && effectiveLanguage !== 'en') {
+        const localized = translateDeepText(responseText, effectiveLanguage);
+        if (localized) {
+          responseText = localized;
+        }
+      }
 
       if (effectiveLanguage && effectiveLanguage !== 'auto' && (selectedLang === 'auto' || currentLang !== effectiveLanguage)) {
         setGlobalLang(effectiveLanguage);
@@ -1185,12 +1285,14 @@ export default function AskOrcaChat({
                   <Bot size={28} className="empty-sparkle-icon" />
                 </div>
                 <h4 className="empty-title">
-                  {selectedLang === 'mr' ? 'ORCA सागरी गुप्तवार्ता सहाय्यक' : 'ORCA Autonomous Marine AI Copilot'}
+                  {((selectedLang && selectedLang !== 'auto' ? selectedLang : currentLang) === 'mr') ? 'ORCA सागरी गुप्तवार्ता सहाय्यक' : ((selectedLang && selectedLang !== 'auto' ? selectedLang : currentLang) === 'hi') ? 'ORCA स्वायत्त समुद्री एआई सहायक' : 'ORCA Autonomous Marine AI Copilot'}
                 </h4>
                 <p className="empty-desc">
-                  {selectedLang === 'mr'
+                  {((selectedLang && selectedLang !== 'auto' ? selectedLang : currentLang) === 'mr')
                     ? 'लाटा, हवामान, संभाव्य मासेमारी क्षेत्र (PFZ), बंदर धोक्याचे संकेत आणि सागरी सुरक्षेबद्दल कोणताही प्रश्न विचारा.'
-                    : 'Real-time multi-agent decision support for wave states, PFZ hotspots, port danger signals, and vessel collision avoidance.'}
+                    : ((selectedLang && selectedLang !== 'auto' ? selectedLang : currentLang) === 'hi')
+                      ? 'लहरें, मौसम, संभावित मत्स्य क्षेत्र (PFZ), बंदरगाह चेतावनी संकेत और समुद्री सुरक्षा पर कोई भी प्रश्न पूछें।'
+                      : 'Real-time multi-agent decision support for wave states, PFZ hotspots, port danger signals, and vessel collision avoidance.'}
                 </p>
               </div>
             </div>
@@ -1555,7 +1657,8 @@ export default function AskOrcaChat({
               className="quick-chip-pill"
               onClick={() => {
                 onMapAction?.({ type: 'weather', mode: 'waves' });
-                handleSend(selectedLang === 'mr' ? 'वर्तमान लाटांची उंची आणि समुद्राची स्थिती सांगा' : selectedLang === 'hi' ? 'वर्तमान समुद्री लहरें और समुद्र की स्थिति बताएं' : 'What is the current wave height, swell period, and sea state?');
+                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'mr');
+                handleSend(getChipQuery('waves', currentActiveLang));
               }}
               title="Activate Waves stream overlay on map"
             >
@@ -1566,7 +1669,8 @@ export default function AskOrcaChat({
               className="quick-chip-pill"
               onClick={() => {
                 onMapAction?.({ type: 'weather', mode: 'wind' });
-                handleSend(selectedLang === 'mr' ? 'सागरी वाऱ्याचा वेग, झोत आणि दिशा सांगा' : selectedLang === 'hi' ? 'समुद्री हवा की गति, दिशा और झोंके बताएं' : 'What is the ocean wind speed, gust velocity, and wind direction?');
+                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'mr');
+                handleSend(getChipQuery('wind', currentActiveLang));
               }}
               title="Activate Wind stream overlay on map"
             >
@@ -1577,7 +1681,8 @@ export default function AskOrcaChat({
               className="quick-chip-pill"
               onClick={() => {
                 onMapAction?.({ type: 'weather', mode: 'currents' });
-                handleSend(selectedLang === 'mr' ? 'सागरी प्रवाह आणि पाण्याचा वेग सांगा' : selectedLang === 'hi' ? 'समुद्री धाराएं और बहाव की गति बताएं' : 'What is the ocean current drift and surface circulation?');
+                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'mr');
+                handleSend(getChipQuery('currents', currentActiveLang));
               }}
               title="Activate Ocean Currents stream overlay on map"
             >
@@ -1588,7 +1693,8 @@ export default function AskOrcaChat({
               className="quick-chip-pill"
               onClick={() => {
                 onMapAction?.({ type: 'weather', mode: 'sst' });
-                handleSend(selectedLang === 'mr' ? 'समुद्राच्या पृष्ठभागाचे तापमान (SST) किती आहे?' : selectedLang === 'hi' ? 'समुद्र की सतह का तापमान (SST) कितना है?' : 'What is the sea surface temperature (SST) and thermal gradient?');
+                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'mr');
+                handleSend(getChipQuery('sst', currentActiveLang));
               }}
               title="Activate Sea Surface Temperature (SST) heatmap on map"
             >
@@ -1640,13 +1746,8 @@ export default function AskOrcaChat({
                       });
                     });
                 }
-                handleSend(
-                  selectedLang === 'mr'
-                    ? `माझ्या स्थानाजवळील संभाव्य मासेमारी क्षेत्र (PFZ) आणि टूना हॉटस्पॉट दाखवा (${targetName})`
-                    : selectedLang === 'hi'
-                      ? `निकटतम संभावित मत्स्य पालन क्षेत्र (PFZ) और टूना हॉटस्पॉट दिखाएं (${targetName})`
-                      : `Show nearest potential fishing zones (PFZ) and tuna hotspots for ${targetName}`
-                );
+                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'mr');
+                handleSend(getChipQuery('pfz', currentActiveLang, targetName));
               }}
               title="Calculate and display INCOIS PFZ hotspots from active location on map"
             >
@@ -1659,7 +1760,8 @@ export default function AskOrcaChat({
                 if (onMapAction) {
                   onMapAction({ type: 'toggle_layers' });
                 }
-                handleSend(selectedLang === 'mr' ? 'नकाशावरील सर्व सागरी स्तर, खोली आणि उपग्रह डेटा स्पष्ट करा' : selectedLang === 'hi' ? 'मानचित्र की सभी समुद्री परतें, गहराई और उपग्रह डेटा समझाएं' : 'Show and explain active ocean GIS map layers, bathymetry, buoys, and satellite overlays');
+                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'mr');
+                handleSend(getChipQuery('layers', currentActiveLang));
               }}
               title="Toggle active marine GIS map layers, bathymetry & buoys"
             >
