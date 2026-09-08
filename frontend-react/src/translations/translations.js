@@ -10495,6 +10495,25 @@ export function translateDeepText(text, lang = 'en') {
   return result;
 }
 
+// Precomputed reverse lookup map: any translated string -> original English phrase
+export const REVERSE_LOOKUP_MAP = {};
+for (const [origPhrase, transObj] of Object.entries(PHRASE_DICTIONARY)) {
+  for (const [l, transText] of Object.entries(transObj)) {
+    if (l !== 'en' && transText && typeof transText === 'string') {
+      REVERSE_LOOKUP_MAP[transText.trim().toLowerCase()] = origPhrase;
+    }
+  }
+}
+if (TRANSLATIONS.en) {
+  for (const [k, enVal] of Object.entries(TRANSLATIONS.en)) {
+    for (const [l, transDict] of Object.entries(TRANSLATIONS)) {
+      if (l !== 'en' && transDict && transDict[k]) {
+        REVERSE_LOOKUP_MAP[String(transDict[k]).trim().toLowerCase()] = enVal;
+      }
+    }
+  }
+}
+
 /**
  * Universal Recursive DOM Text Walker with Loss-less Original English Memory
  */
@@ -10515,8 +10534,8 @@ export function walkAndTranslateDOM(rootNode, targetLang) {
         if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'PRE' || tag === 'CODE') {
           return NodeFilter.FILTER_REJECT;
         }
-        // Skip language picker itself and brand title to prevent double-wrapping
-        if (parent.closest('.header-lang-picker') || parent.closest('.brand-title') || parent.id === 'orca-header-lang-select' || parent.id === 'globalAppLanguageSelect') {
+        // Exclude left navigation rail, language pickers and brand title so React maintains 100% clean control
+        if (parent.closest('.left-nav-rail') || parent.closest('.header-lang-picker') || parent.closest('.brand-title') || parent.id === 'orca-header-lang-select' || parent.id === 'globalAppLanguageSelect') {
           return NodeFilter.FILTER_REJECT;
         }
         return NodeFilter.FILTER_ACCEPT;
@@ -10533,13 +10552,22 @@ export function walkAndTranslateDOM(rootNode, targetLang) {
 
   for (const node of textNodes) {
     if (node.__orca_orig === undefined) {
-      node.__orca_orig = node.nodeValue;
+      if (isEn) {
+        node.__orca_orig = node.nodeValue;
+      } else {
+        const lowerVal = node.nodeValue.trim().toLowerCase();
+        node.__orca_orig = REVERSE_LOOKUP_MAP[lowerVal] || node.nodeValue;
+      }
     }
     const orig = node.__orca_orig;
     if (!orig || !orig.trim()) continue;
 
     if (isEn) {
-      if (node.nodeValue !== orig) node.nodeValue = orig;
+      const lowerOrig = orig.trim().toLowerCase();
+      const restoredEn = REVERSE_LOOKUP_MAP[lowerOrig] || orig;
+      if (node.nodeValue !== restoredEn) {
+        node.nodeValue = restoredEn;
+      }
     } else {
       const trans = translateDeepText(orig, targetLang);
       if (trans && trans !== node.nodeValue) {
@@ -10551,17 +10579,27 @@ export function walkAndTranslateDOM(rootNode, targetLang) {
   // 2. Attributes Walker (placeholders, titles, aria-labels)
   const elementsWithAttrs = rootNode.querySelectorAll ? rootNode.querySelectorAll('[placeholder], [title], [aria-label]') : [];
   elementsWithAttrs.forEach((el) => {
-    if (el.closest('.header-lang-picker') || el.closest('.brand-title') || el.id === 'orca-header-lang-select' || el.id === 'globalAppLanguageSelect') return;
+    if (el.closest('.left-nav-rail') || el.closest('.header-lang-picker') || el.closest('.brand-title') || el.id === 'orca-header-lang-select' || el.id === 'globalAppLanguageSelect') return;
 
     ['placeholder', 'title', 'aria-label'].forEach((attr) => {
       const origKey = '__orca_orig_' + attr;
       if (el[origKey] === undefined && el.hasAttribute(attr)) {
-        el[origKey] = el.getAttribute(attr);
+        const currentAttr = el.getAttribute(attr);
+        if (isEn) {
+          el[origKey] = currentAttr;
+        } else {
+          const lowerVal = (currentAttr || '').trim().toLowerCase();
+          el[origKey] = REVERSE_LOOKUP_MAP[lowerVal] || currentAttr;
+        }
       }
       const origVal = el[origKey];
       if (origVal && origVal.trim()) {
         if (isEn) {
-          if (el.getAttribute(attr) !== origVal) el.setAttribute(attr, origVal);
+          const lowerOrig = origVal.trim().toLowerCase();
+          const restoredEn = REVERSE_LOOKUP_MAP[lowerOrig] || origVal;
+          if (el.getAttribute(attr) !== restoredEn) {
+            el.setAttribute(attr, restoredEn);
+          }
         } else {
           const transVal = translateDeepText(origVal, targetLang);
           if (transVal && el.getAttribute(attr) !== transVal) {
