@@ -88,7 +88,7 @@ export default function App() {
     origin: { lat: 9.9656, lon: 76.2425, name: 'Cochin Port (Kochi)' },
     destination: { lat: 6.9497, lon: 79.8433, name: 'Port of Colombo (Sri Lanka)' },
   });
-  const [mobileRouteView, setMobileRouteView] = useState('panel'); // 'panel' | 'map'
+  const [mobileRouteView, setMobileRouteView] = useState('split'); // 'split' | 'map'
 
   const handleStartRoutePick = (target) => {
     setRoutePickMode(target);
@@ -100,13 +100,16 @@ export default function App() {
 
   const handleCancelRoutePick = () => {
     setRoutePickMode(null);
+    if (isMobile) {
+      setMobileRouteView('split');
+    }
   };
 
   const handleSelectRoutePoint = ({ lat, lon }) => {
     setPickedRouteLocation({ target: routePickMode, lat, lon, timestamp: Date.now() });
     setRoutePickMode(null);
     if (isMobile) {
-      setMobileRouteView('panel');
+      setMobileRouteView('split');
     }
   };
 
@@ -491,7 +494,7 @@ export default function App() {
                   <button
                     type="button"
                     className="mobile-floating-copilot-btn"
-                    onClick={() => setMobileHomeView('copilot')}
+                    onClick={() => handleSelectTab('chat')}
                     title="Open ORCA AI Copilot"
                   >
                     <Bot size={19} />
@@ -583,26 +586,91 @@ export default function App() {
 
         {/* 2. DYNAMIC ROUTE PLANNER: Responsive Layout with Interactive Map Endpoint Picker */}
         {activeTab === 'routes' && (
-          <>
-            {(!isMobile || mobileRouteView === 'panel') && (
-              <aside className="left-tools-dock" style={{ width: isMobile ? '100%' : '490px' }}>
+          isMobile ? (
+            <div className="mobile-routes-container" style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%', overflow: 'hidden' }}>
+              <div className="dock-size-toolbar" style={{ flexShrink: 0 }}>
+                <div className="dock-toolbar-left">
+                  <span className="dock-badge-title">Dynamic Route Engine</span>
+                </div>
+                <div className="dock-toolbar-right">
+                  <button
+                    type="button"
+                    className="btn-dock-tool mobile-back-btn"
+                    onClick={() => setMobileRouteView(mobileRouteView === 'map' ? 'split' : 'map')}
+                    title={mobileRouteView === 'map' ? 'Switch to Split Route View' : 'Maximize Map to Full Screen'}
+                  >
+                    <Map size={14} />
+                    <span>{mobileRouteView === 'map' ? 'Split View' : 'Full Map'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Map Section (Interactive Leaflet Map: Top 270px in Split View, 100% in Full Map) */}
+              <div
+                className="mobile-route-map-box"
+                style={{
+                  height: mobileRouteView === 'map' ? '100%' : '270px',
+                  width: '100%',
+                  position: 'relative',
+                  flexShrink: 0,
+                  borderBottom: mobileRouteView === 'map' ? 'none' : '2px solid var(--border-medium)',
+                  overflow: 'hidden'
+                }}
+              >
+                <MapStage
+                  focusedRoute={focusedRoute}
+                  focusedPFZ={null}
+                  hideLayersControl={true}
+                  shipLocation={shipLocation}
+                  isStaticMap={true}
+                  mapTargetLocation={mapTargetLocation}
+                  externalWindyMode={externalWindyMode}
+                  externalVectorLayers={externalVectorLayers}
+                  routePickMode={routePickMode}
+                  onCancelRoutePick={handleCancelRoutePick}
+                  onSelectRoutePoint={handleSelectRoutePoint}
+                  routeOrigin={routeEndpoints.origin}
+                  routeDestination={routeEndpoints.destination}
+                  onDragRouteEndpoint={handleDragRouteEndpoint}
+                />
+              </div>
+
+              {/* Route Controls Section (Scrollable below Map in Split View) */}
+              {mobileRouteView !== 'map' && (
+                <div
+                  className="mobile-route-controls-scroll"
+                  style={{
+                    flex: 1,
+                    minHeight: 0,
+                    overflowY: 'auto',
+                    WebkitOverflowScrolling: 'touch',
+                    background: 'var(--bg-app)',
+                    padding: '8px 10px'
+                  }}
+                >
+                  <RoutePlanner
+                    onFocusRoute={(r) => {
+                      setFocusedRoute(r);
+                      setExternalWindyMode(null);
+                    }}
+                    onUpdateShipLocation={setShipLocation}
+                    pickingMode={routePickMode}
+                    onStartPickOnMap={handleStartRoutePick}
+                    pickedMapLocation={pickedRouteLocation}
+                    draggedEndpoint={draggedRouteEndpoint}
+                    onUpdateEndpoints={setRouteEndpoints}
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            // Desktop Layout: Left 490px form dock + Right flex MapStage
+            <>
+              <aside className="left-tools-dock" style={{ width: '490px' }}>
                 <div className="dock-size-toolbar">
                   <div className="dock-toolbar-left">
                     <span className="dock-badge-title">Dynamic Route Engine</span>
                   </div>
-                  {isMobile && (
-                    <div className="dock-toolbar-right">
-                      <button
-                        type="button"
-                        className="btn-dock-tool mobile-back-btn"
-                        onClick={() => setMobileRouteView('map')}
-                        title="View active route on map"
-                      >
-                        <Map size={14} />
-                        <span>View Map</span>
-                      </button>
-                    </div>
-                  )}
                 </div>
                 <div className="dock-content-scroll">
                   <RoutePlanner
@@ -619,20 +687,8 @@ export default function App() {
                   />
                 </div>
               </aside>
-            )}
 
-            {/* Map Column (Desktop always, Mobile when mobileRouteView === 'map') */}
-            {(!isMobile || mobileRouteView === 'map') && (
-              <section className="map-stage-column" style={isMobile ? { width: '100%', height: '100%', position: 'relative' } : {}}>
-                {isMobile && (
-                  <button
-                    type="button"
-                    className="mobile-back-floating-btn"
-                    onClick={() => setMobileRouteView('panel')}
-                  >
-                    ← Back to Route Form
-                  </button>
-                )}
+              <section className="map-stage-column">
                 <MapStage
                   focusedRoute={focusedRoute}
                   focusedPFZ={null}
@@ -650,8 +706,8 @@ export default function App() {
                   onDragRouteEndpoint={handleDragRouteEndpoint}
                 />
               </section>
-            )}
-          </>
+            </>
+          )
         )}
 
         {/* 3. DEDICATED ASK ORCA FULL CHATBOT WORKSPACE (NO Map) */}
@@ -702,7 +758,7 @@ export default function App() {
         <nav className="mobile-bottom-nav">
           <button
             type="button"
-            className={`mobile-tab-btn ${activeTab === 'home' && mobileHomeView === 'map' ? 'active' : ''}`}
+            className={`mobile-tab-btn ${activeTab === 'home' ? 'active' : ''}`}
             onClick={() => {
               handleSelectTab('home');
               setMobileHomeView('map');
@@ -714,14 +770,8 @@ export default function App() {
 
           <button
             type="button"
-            className={`mobile-tab-btn ${activeTab === 'chat' || (activeTab === 'home' && mobileHomeView === 'copilot') ? 'active' : ''}`}
-            onClick={() => {
-              if (activeTab === 'home') {
-                setMobileHomeView('copilot');
-              } else {
-                handleSelectTab('chat');
-              }
-            }}
+            className={`mobile-tab-btn ${activeTab === 'chat' ? 'active' : ''}`}
+            onClick={() => handleSelectTab('chat')}
           >
             <Bot size={19} />
             <span>{t('navChat', 'Ask ORCA')}</span>

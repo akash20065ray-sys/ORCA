@@ -223,7 +223,7 @@ export default function AskOrcaChat({
       if (recognitionRef.current) {
         try {
           recognitionRef.current.stop();
-        } catch (_) {}
+        } catch (_) { }
       }
     };
   }, []);
@@ -249,7 +249,7 @@ export default function AskOrcaChat({
       if (recognitionRef.current) {
         try {
           recognitionRef.current.stop();
-        } catch (_) {}
+        } catch (_) { }
       }
       setIsListening(false);
     } else {
@@ -416,8 +416,8 @@ export default function AskOrcaChat({
     utterance.pitch = 0.95;
 
     // Prioritize explicit message language > user's selected language > detected script fallback
-    let resolvedLang = (msgLang && msgLang !== 'auto') 
-      ? msgLang 
+    let resolvedLang = (msgLang && msgLang !== 'auto')
+      ? msgLang
       : (selectedLang && selectedLang !== 'auto' ? selectedLang : null);
 
     if (!resolvedLang) {
@@ -452,9 +452,9 @@ export default function AskOrcaChat({
     const voices = window.speechSynthesis.getVoices();
     if (voices && voices.length > 0) {
       const matched = voices.find((v) => v.lang === bcpTag) ||
-                      voices.find((v) => v.lang.replace('_', '-').toLowerCase() === bcpTag.toLowerCase()) ||
-                      voices.find((v) => v.lang.toLowerCase().startsWith(resolvedLang.toLowerCase())) ||
-                      (resolvedLang === 'en' ? voices.find((v) => v.lang.includes('en-IN') || v.lang.startsWith('en')) : null);
+        voices.find((v) => v.lang.replace('_', '-').toLowerCase() === bcpTag.toLowerCase()) ||
+        voices.find((v) => v.lang.toLowerCase().startsWith(resolvedLang.toLowerCase())) ||
+        (resolvedLang === 'en' ? voices.find((v) => v.lang.includes('en-IN') || v.lang.startsWith('en')) : null);
       if (matched) {
         utterance.voice = matched;
       }
@@ -652,22 +652,22 @@ export default function AskOrcaChat({
       const latToSend = matchedPort
         ? matchedPort.lat
         : selectedMapTarget
-        ? selectedMapTarget.lat
-        : shipLocation
-        ? shipLocation.lat
-        : null;
+          ? selectedMapTarget.lat
+          : shipLocation
+            ? shipLocation.lat
+            : null;
       const lonToSend = matchedPort
         ? matchedPort.lon
         : selectedMapTarget
-        ? selectedMapTarget.lon
-        : shipLocation
-        ? shipLocation.lon
-        : null;
+          ? selectedMapTarget.lon
+          : shipLocation
+            ? shipLocation.lon
+            : null;
       const locNameToSend = matchedPort
         ? matchedPort.name
         : selectedMapTarget
-        ? `Lat ${selectedMapTarget.lat.toFixed(4)}, Lon ${selectedMapTarget.lon.toFixed(4)}`
-        : shipLocation?.name || currentSession?.lastLocation || null;
+          ? `Lat ${selectedMapTarget.lat.toFixed(4)}, Lon ${selectedMapTarget.lon.toFixed(4)}`
+          : shipLocation?.name || currentSession?.lastLocation || null;
 
       const chatHistoryToSend = messages.slice(-6).map((m) => ({
         role: m.sender === 'user' ? 'user' : 'assistant',
@@ -702,15 +702,15 @@ export default function AskOrcaChat({
       // Real-Time Autonomous Map Synchronization on Intelligence Response:
       if (onMapAction) {
         const isPfzQuery = data.intent === 'potential_fishing_zone' ||
-                           data.intent === 'chlorophyll_sst_correlation' ||
-                           /pfz|fish|tuna|mackerel|sardine|catch|chlorophyll|hotspot|मछली|टूना|மீன்|சூரை|മീൻ|ചൂര|చేపలు|మాছ|માછલી|मासे|ಮೀನು/i.test(query);
+          data.intent === 'chlorophyll_sst_correlation' ||
+          /pfz|fish|tuna|mackerel|sardine|catch|chlorophyll|hotspot|मछली|टूना|மீன்|சூரை|മീൻ|ചൂര|చేపలు|మాছ|માછલી|मासे|ಮೀನು/i.test(query);
 
         const isRouteQuery = data.intent === 'marine_routing' ||
-                             /route|navigate|navigation|waypoint|from .* to|मार्ग|வழி|റൂട്ട്|మార్గం|পথ|રૂટ/i.test(query);
+          /route|navigate|navigation|waypoint|from .* to|मार्ग|வழி|റൂട്ട്|మార్గం|পথ|રૂટ/i.test(query);
 
         const isWeatherQuery = data.intent === 'ocean_condition_telemetry' ||
-                               data.intent === 'weather_inquiry' ||
-                               /wave|swell|sea state|wind|gust|लहर|तरंग|मौसम|அலை|வானிலை|തിര|കാലാവസ്ഥ|అలలు|వాతావరణం|ঢেউ|હવામાન|लाटा/i.test(query);
+          data.intent === 'weather_inquiry' ||
+          /wave|swell|sea state|wind|gust|लहर|तरंग|मौसम|அலை|வானிலை|തിര|കാലാവസ്ഥ|అలలు|వాతావరణం|ঢেউ|હવામાન|लाटा/i.test(query);
 
         if (isPfzQuery) {
           const advisories = data.pfz_advisories && data.pfz_advisories.length > 0 ? data.pfz_advisories : null;
@@ -803,8 +803,8 @@ export default function AskOrcaChat({
               messages: [...s.messages, orcaMsg],
               lastLocation:
                 data.target_location &&
-                data.intent !== 'greeting' &&
-                data.intent !== 'out_of_domain'
+                  data.intent !== 'greeting' &&
+                  data.intent !== 'out_of_domain'
                   ? data.target_location
                   : s.lastLocation,
             };
@@ -1075,7 +1075,7 @@ export default function AskOrcaChat({
                 setIsAutoSpeechEnabled(next);
                 try {
                   localStorage.setItem(AUTO_SPEECH_STORAGE_KEY, String(next));
-                } catch (_) {}
+                } catch (_) { }
                 if (!next) {
                   if (window.speechSynthesis) {
                     window.speechSynthesis.cancel();
@@ -1202,7 +1202,7 @@ export default function AskOrcaChat({
                                   title="Click to expand image"
                                 />
                                 <div style={{ fontSize: '11px', color: '#15803d', marginTop: '3px', fontWeight: 600 }}>
-                                  📎 {msg.attachment.name} ({Math.round((msg.attachment.size || 0)/1024)} KB)
+                                  📎 {msg.attachment.name} ({Math.round((msg.attachment.size || 0) / 1024)} KB)
                                 </div>
                               </div>
                             ) : (
@@ -1210,7 +1210,7 @@ export default function AskOrcaChat({
                                 <FileText size={18} />
                                 <div>
                                   <div style={{ fontWeight: 600 }}>{msg.attachment.name}</div>
-                                  <div style={{ fontSize: '10px', color: '#15803d' }}>{Math.round((msg.attachment.size || 0)/1024)} KB · Ingested Document</div>
+                                  <div style={{ fontSize: '10px', color: '#15803d' }}>{Math.round((msg.attachment.size || 0) / 1024)} KB · Ingested Document</div>
                                 </div>
                               </div>
                             )}
@@ -1596,8 +1596,8 @@ export default function AskOrcaChat({
                   selectedLang === 'mr'
                     ? `माझ्या स्थानाजवळील संभाव्य मासेमारी क्षेत्र (PFZ) आणि टूना हॉटस्पॉट दाखवा (${targetName})`
                     : selectedLang === 'hi'
-                    ? `निकटतम संभावित मत्स्य पालन क्षेत्र (PFZ) और टूना हॉटस्पॉट दिखाएं (${targetName})`
-                    : `Show nearest potential fishing zones (PFZ) and tuna hotspots for ${targetName}`
+                      ? `निकटतम संभावित मत्स्य पालन क्षेत्र (PFZ) और टूना हॉटस्पॉट दिखाएं (${targetName})`
+                      : `Show nearest potential fishing zones (PFZ) and tuna hotspots for ${targetName}`
                 );
               }}
               title="Calculate and display INCOIS PFZ hotspots from active location on map"
@@ -1784,8 +1784,8 @@ export default function AskOrcaChat({
               placeholder={
                 isListening
                   ? (selectedLang === 'mr'
-                      ? '🎙️ ऐकत आहे... मराठीत बोला... (थांबवण्यासाठी पुन्हा माईक दाबा)'
-                      : selectedLang === 'hi'
+                    ? '🎙️ ऐकत आहे... मराठीत बोला... (थांबवण्यासाठी पुन्हा माईक दाबा)'
+                    : selectedLang === 'hi'
                       ? '🎙️ सुन रहा हूँ... हिन्दी में बोलें... (रोकने के लिए माइक दबाएँ)'
                       : '🎙️ Listening... speak clearly now... (click mic or stop when done)')
                   : t('chatPlaceholder', 'Ask any ocean, marine, weather or project question in any language...')
