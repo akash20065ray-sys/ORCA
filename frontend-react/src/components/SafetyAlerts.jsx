@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import {
   Shield,
   ShieldCheck,
@@ -118,6 +119,7 @@ const IMD_PORT_SIGNALS = [
 ];
 
 export default function SafetyAlerts() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('advisories'); // 'advisories' | 'signals' | 'assessment' | 'colregs'
   const [alerts, setAlerts] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState('all');
@@ -219,7 +221,7 @@ export default function SafetyAlerts() {
         </div>
         <div>
           <h3 className="panel-title" style={{ fontSize: '18px', fontWeight: '800', color: '#f1f5f9', margin: 0 }}>
-            Maritime Safety, Disaster Alerts & Regulatory Matrix
+            {t('navSafety', 'Maritime Safety & Alerts')}
           </h3>
           <span className="panel-sub" style={{ fontSize: '12px', color: '#94a3b8' }}>
             IMD Cyclone Tracking · INCOIS Kallakkadal High Waves · IMD Port Signals 1–11 · COLREGS 1972
@@ -247,7 +249,7 @@ export default function SafetyAlerts() {
           }}
         >
           <ShieldAlert size={16} />
-          <span>Active Hazard Bulletins ({alerts.length})</span>
+          <span>{t('activeAdvisories', 'Active Hazard Bulletins')} ({alerts.length})</span>
         </button>
 
         <button
@@ -268,7 +270,7 @@ export default function SafetyAlerts() {
           }}
         >
           <Radio size={16} />
-          <span>IMD Port Warning Signals (1–11)</span>
+          <span>{t('portSignals', 'IMD Port Warning Signals (1–11)')}</span>
         </button>
 
         <button
@@ -289,7 +291,7 @@ export default function SafetyAlerts() {
           }}
         >
           <Compass size={16} />
-          <span>Vessel Safety Score & Douglas Sea State</span>
+          <span>{t('seaState', 'Vessel Safety Score & Douglas Sea State')}</span>
         </button>
 
         <button

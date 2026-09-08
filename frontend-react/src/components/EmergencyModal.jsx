@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { ShieldAlert, X, Radio, CheckCircle2, Loader2, Download, Minimize2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { exportSOSReceiptPDF } from '../utils/pdfExport';
 
 export default function EmergencyModal({ isOpen, onClose, onTransmitSuccess, existingReceipt }) {
+  const { t } = useLanguage();
   const [isTransmitting, setIsTransmitting] = useState(false);
   const [receipt, setReceipt] = useState(existingReceipt || null);
   const [error, setError] = useState(null);
@@ -105,8 +107,8 @@ export default function EmergencyModal({ isOpen, onClose, onTransmitSuccess, exi
           <div className="header-title-wrap">
             <ShieldAlert size={24} className="emergency-icon-pulse" style={{ color: '#ef4444' }} />
             <div>
-              <h3 className="modal-title" style={{ color: '#f8fafc' }}>GMDSS Emergency Distress Beacon</h3>
-              <p className="modal-sub" style={{ color: '#94a3b8' }}>Direct Maritime Rescue Coordination Centre (MRCC Kochi) Relay</p>
+              <h3 className="modal-title" style={{ color: '#f8fafc' }}>{t('emergencyTitle', 'GMDSS Emergency Distress Beacon')}</h3>
+              <p className="modal-sub" style={{ color: '#94a3b8' }}>{t('emergencySub', 'Direct Maritime Rescue Coordination Centre (MRCC Kochi) Relay')}</p>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -211,7 +213,7 @@ SEA STATE: MODERATE SWELL 1.4m · WIND 16 KT`}
 
         <div className="modal-footer" style={{ borderTop: '1px solid #334155', display: 'flex', justifyContent: 'space-between' }}>
           <button type="button" className="btn-modal-cancel" onClick={onClose}>
-            {receipt ? 'Dock to Top (Keep Active)' : 'Cancel / Close'}
+            {receipt ? (t('close', 'Dock to Top (Keep Active)')) : (t('cancel', 'Cancel / Close'))}
           </button>
           {!receipt ? (
             <button
@@ -234,7 +236,7 @@ SEA STATE: MODERATE SWELL 1.4m · WIND 16 KT`}
               ) : (
                 <>
                   <Radio size={16} />
-                  <span>Transmit Distress Beacon to Coast Guard MRCC</span>
+                  <span>{t('sendSOS', 'Transmit Distress Beacon to Coast Guard MRCC')}</span>
                 </>
               )}
             </button>

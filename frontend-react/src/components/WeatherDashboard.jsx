@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useLanguage } from '../context/LanguageContext';
 import {
   CloudSun,
   Wind,
@@ -43,6 +44,7 @@ const WEATHER_PORTS = [
 ];
 
 export default function WeatherDashboard() {
+  const { t } = useLanguage();
   const [selectedPort, setSelectedPort] = useState('kochi');
   const [activeCoords, setActiveCoords] = useState({ lat: 9.9656, lon: 76.2425 });
   const [isUsingGps, setIsUsingGps] = useState(false);
@@ -349,7 +351,7 @@ export default function WeatherDashboard() {
           </div>
           <div>
             <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#f8fafc', letterSpacing: '-0.3px' }}>
-              Marine Meteorological & Disaster Observatory
+              {t('weatherTitle', 'Marine Meteorological & Disaster Observatory')}
             </h2>
             <span style={{ fontSize: '12px', color: '#94a3b8' }}>
               Real-Time Open-Meteo Waves, IMD Cyclone Tracking & High-Resolution Satellite Assimilation

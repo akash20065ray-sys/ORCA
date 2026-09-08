@@ -30,6 +30,7 @@ import {
   X,
 } from 'lucide-react';
 import { exportChatBriefingPDF } from '../utils/pdfExport';
+import { useLanguage } from '../context/LanguageContext';
 
 const VERNACULAR_LANGUAGES = [
   { code: 'auto', label: 'Auto Detect', native: '🌐 Auto', speechLang: 'hi-IN' },
@@ -161,7 +162,16 @@ export default function AskOrcaChat({
     return sessions[0]?.id || 'session-default';
   });
 
-  const [selectedLang, setSelectedLang] = useState('auto');
+  const { currentLang, setLanguage: setGlobalLang, languages: appLanguages, t } = useLanguage();
+  const [selectedLang, setSelectedLang] = useState(currentLang || 'en');
+
+  // Synchronize local selectedLang with global currentLang from LanguageContext
+  useEffect(() => {
+    if (currentLang && currentLang !== selectedLang) {
+      setSelectedLang(currentLang);
+    }
+  }, [currentLang]);
+
   const [inputQuery, setInputQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState('');
@@ -887,22 +897,22 @@ export default function AskOrcaChat({
 
           <div className="chat-top-actions">
             {/* Language Selector */}
-            <div className="chat-lang-pill-wrap" title="Select response & voice language (मराठी, English, हिन्दी, etc.)">
+            <div className="chat-lang-pill-wrap" title={t('selectLanguage', 'Select response & voice language')}>
               <Globe size={13} className="lang-globe-icon" />
               <select
+                id="orca-chat-lang-select"
                 className="chat-lang-select"
                 value={selectedLang}
-                onChange={(e) => setSelectedLang(e.target.value)}
+                onChange={(e) => {
+                  setSelectedLang(e.target.value);
+                  setGlobalLang(e.target.value);
+                }}
               >
-                <option value="auto">🌐 Auto</option>
-                <option value="mr">मराठी (Marathi)</option>
-                <option value="en">English</option>
-                <option value="hi">हिन्दी (Hindi)</option>
-                <option value="ta">தமிழ் (Tamil)</option>
-                <option value="ml">മലയാളം (Malayalam)</option>
-                <option value="te">తెలుగు (Telugu)</option>
-                <option value="bn">বাংলা (Bengali)</option>
-                <option value="gu">ગુજરાતી (Gujarati)</option>
+                {appLanguages.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.flag || '🌐'} {lang.native} ({lang.label})
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -1336,7 +1346,7 @@ export default function AskOrcaChat({
               }}
               title="Activate Waves stream overlay on map"
             >
-              🌊 {selectedLang === 'mr' ? 'लाटा' : selectedLang === 'hi' ? 'लहरें' : 'Waves'}
+              🌊 {t('chipWaves', 'Waves')}
             </button>
             <button
               type="button"
@@ -1347,7 +1357,7 @@ export default function AskOrcaChat({
               }}
               title="Activate Wind stream overlay on map"
             >
-              💨 {selectedLang === 'mr' ? 'वारा' : selectedLang === 'hi' ? 'हवा' : 'Wind'}
+              💨 {t('chipWind', 'Wind')}
             </button>
             <button
               type="button"
@@ -1358,7 +1368,7 @@ export default function AskOrcaChat({
               }}
               title="Activate Ocean Currents stream overlay on map"
             >
-              🌀 {selectedLang === 'mr' ? 'प्रवाह' : selectedLang === 'hi' ? 'धाराएं' : 'Currents'}
+              🌀 {t('chipCurrents', 'Currents')}
             </button>
             <button
               type="button"
@@ -1369,7 +1379,7 @@ export default function AskOrcaChat({
               }}
               title="Activate Sea Surface Temperature (SST) heatmap on map"
             >
-              🌡️ {selectedLang === 'mr' ? 'तापमान (SST)' : selectedLang === 'hi' ? 'तापमान (SST)' : 'SST'}
+              🌡️ {t('chipSST', 'SST Fronts')}
             </button>
             <button
               type="button"
@@ -1427,7 +1437,7 @@ export default function AskOrcaChat({
               }}
               title="Calculate and display INCOIS PFZ hotspots from active location on map"
             >
-              🐟 {selectedLang === 'mr' ? 'मासेमारी क्षेत्र (PFZ)' : selectedLang === 'hi' ? 'मत्स्य क्षेत्र (PFZ)' : 'PFZ Hotspots'}
+              🐟 {t('chipPFZ', 'PFZ Hotspots')}
             </button>
             <button
               type="button"
@@ -1440,7 +1450,7 @@ export default function AskOrcaChat({
               }}
               title="Toggle active marine GIS map layers, bathymetry & buoys"
             >
-              🗺️ {selectedLang === 'mr' ? 'नकाशा स्तर' : selectedLang === 'hi' ? 'मानचित्र परतें' : 'Map Layers'}
+              🗺️ {t('chipLayers', 'Map Layers')}
             </button>
           </div>
 
@@ -1557,12 +1567,8 @@ export default function AskOrcaChat({
               className={`chat-textarea ${isListening ? 'recording-active' : ''}`}
               placeholder={
                 isListening
-                  ? (selectedLang === 'mr'
-                      ? '🎙️ ऐकत आहे... मराठीत बोला... (पूर्ण झाल्यावर सबमिट बाणावर क्लिक करा)'
-                      : '🎙️ Listening... speak now in any language... (click submit arrow when done)')
-                  : (selectedLang === 'mr'
-                      ? 'मराठीत कोणताही सागरी, हवामान किंवा प्रकल्पाचा प्रश्न विचारा...'
-                      : 'Ask any ocean, marine, weather or project question in any language (मराठी, हिन्दी, English...)...')
+                  ? t('chatListening', '🎙️ Listening... speak now in any language...')
+                  : t('chatPlaceholder', 'Ask any ocean, marine, weather or project question in any language...')
               }
               value={inputQuery}
               onChange={(e) => setInputQuery(e.target.value)}

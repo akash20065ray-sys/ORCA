@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import {
   Bell,
   AlertTriangle,
@@ -20,6 +21,7 @@ export default function AlertNotificationModal({
   onViewOnMap,
   onNavigateSafety,
 }) {
+  const { t } = useLanguage();
   const [alerts, setAlerts] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all'); // 'all' | 'high_wave' | 'cyclone' | 'squall'
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -178,7 +180,7 @@ export default function AlertNotificationModal({
             </div>
             <div>
               <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#f1f5f9' }}>
-                Active Maritime Advisories & Port Signals
+                {t('activeAdvisories', 'Active Maritime Advisories & Port Signals')}
               </h3>
               <span style={{ fontSize: '11px', color: '#94a3b8' }}>
                 IMD Cyclone Tracking & INCOIS High Wave Observatory
@@ -248,7 +250,7 @@ export default function AlertNotificationModal({
               cursor: 'pointer',
             }}
           >
-            All Alerts ({alerts.length})
+            {t('navSafety', 'All Alerts')} ({alerts.length})
           </button>
           <button
             type="button"
@@ -264,7 +266,7 @@ export default function AlertNotificationModal({
               cursor: 'pointer',
             }}
           >
-            🌪️ Cyclone / Gale
+            🌪️ {t('cycloneAlert', 'Cyclone / Gale')}
           </button>
           <button
             type="button"
@@ -280,7 +282,7 @@ export default function AlertNotificationModal({
               cursor: 'pointer',
             }}
           >
-            🌊 High Waves / Swell
+            🌊 {t('highWaveAlert', 'High Waves / Swell')}
           </button>
           <button
             type="button"
@@ -296,7 +298,7 @@ export default function AlertNotificationModal({
               cursor: 'pointer',
             }}
           >
-            ⚡ Damini Lightning
+            ⚡ {t('daminiLightning', 'Damini Lightning')}
           </button>
         </div>
 
@@ -465,7 +467,7 @@ export default function AlertNotificationModal({
               gap: '6px',
             }}
           >
-            <span>Open Safety Matrix & Port Signals</span>
+            <span>{t('portSignals', 'Open Safety Matrix & Port Signals')}</span>
             <ExternalLink size={13} />
           </button>
         </div>

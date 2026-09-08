@@ -22,8 +22,10 @@ import {
   Download,
 } from 'lucide-react';
 import { exportSOSReceiptPDF } from './utils/pdfExport';
+import { useLanguage } from './context/LanguageContext';
 
 export default function App() {
+  const { t, currentLang } = useLanguage();
   // Navigation: 'home' | 'chat' | 'routes' | 'pfz' | 'weather' | 'safety'
   const [activeTab, setActiveTab] = useState('home');
   const [isHomePanelOpen, setIsHomePanelOpen] = useState(true);
@@ -385,60 +387,60 @@ export default function App() {
               type="button"
               className={`rail-item ${activeTab === 'home' ? 'active' : ''}`}
               onClick={() => handleSelectTab('home')}
-              title="Home (Map on Left + ORCA AI on Right Split View)"
+              title={t('navHome', 'Home')}
             >
               <Map size={20} />
-              <span className="rail-label">Home</span>
+              <span className="rail-label">{t('navHome', 'Home')}</span>
             </button>
 
             <button
               type="button"
               className={`rail-item ${activeTab === 'chat' ? 'active' : ''}`}
               onClick={() => handleSelectTab('chat')}
-              title="Ask ORCA (Dedicated Full AI Chatbot & History)"
+              title={t('navChat', 'Ask ORCA')}
             >
               <Bot size={20} />
-              <span className="rail-label">Ask ORCA</span>
+              <span className="rail-label">{t('navChat', 'Ask ORCA')}</span>
             </button>
 
             <button
               type="button"
               className={`rail-item ${activeTab === 'routes' ? 'active' : ''}`}
               onClick={() => handleSelectTab('routes')}
-              title="Dynamic Route Planner (Left Controls, Right Static Map)"
+              title={t('navRoutes', 'Routes')}
             >
               <Compass size={20} />
-              <span className="rail-label">Routes</span>
+              <span className="rail-label">{t('navRoutes', 'Routes')}</span>
             </button>
 
             <button
               type="button"
               className={`rail-item ${activeTab === 'pfz' ? 'active' : ''}`}
               onClick={() => handleSelectTab('pfz')}
-              title="INCOIS PFZ Fishery Advisor (Dedicated Dashboard)"
+              title={t('navPFZ', 'PFZ')}
             >
               <Fish size={20} />
-              <span className="rail-label">PFZ</span>
+              <span className="rail-label">{t('navPFZ', 'PFZ')}</span>
             </button>
 
             <button
               type="button"
               className={`rail-item ${activeTab === 'weather' ? 'active' : ''}`}
               onClick={() => handleSelectTab('weather')}
-              title="Marine Weather & Telemetry (Dedicated Dashboard)"
+              title={t('navWeather', 'Weather')}
             >
               <CloudSun size={20} />
-              <span className="rail-label">Weather</span>
+              <span className="rail-label">{t('navWeather', 'Weather')}</span>
             </button>
 
             <button
               type="button"
               className={`rail-item ${activeTab === 'safety' ? 'active' : ''}`}
               onClick={() => handleSelectTab('safety')}
-              title="Safety Advisories & COLREGS Matrix (Dedicated Dashboard)"
+              title={t('navSafety', 'Safety')}
             >
               <Shield size={20} />
-              <span className="rail-label">Safety</span>
+              <span className="rail-label">{t('navSafety', 'Safety')}</span>
             </button>
           </nav>
         )}
@@ -498,7 +500,7 @@ export default function App() {
                 >
                   <div className="dock-size-toolbar">
                     <div className="dock-toolbar-left">
-                      <span className="dock-badge-title">ORCA AI Marine Copilot</span>
+                      <span className="dock-badge-title">{t('dockCopilot', 'ORCA AI Marine Copilot')}</span>
                     </div>
                     <div className="dock-toolbar-right">
                       {isMobile ? (
@@ -685,7 +687,7 @@ export default function App() {
             }}
           >
             <Map size={19} />
-            <span>Map</span>
+            <span>{t('dockMap', 'Map')}</span>
           </button>
 
           <button
@@ -700,7 +702,7 @@ export default function App() {
             }}
           >
             <Bot size={19} />
-            <span>Ask ORCA</span>
+            <span>{t('navChat', 'Ask ORCA')}</span>
           </button>
 
           <button
@@ -709,7 +711,7 @@ export default function App() {
             onClick={() => handleSelectTab('routes')}
           >
             <Compass size={19} />
-            <span>Routes</span>
+            <span>{t('navRoutes', 'Routes')}</span>
           </button>
 
           <button
@@ -718,7 +720,7 @@ export default function App() {
             onClick={() => handleSelectTab('pfz')}
           >
             <Fish size={19} />
-            <span>PFZ</span>
+            <span>{t('navPFZ', 'PFZ')}</span>
           </button>
 
           <button
@@ -727,7 +729,7 @@ export default function App() {
             onClick={() => handleSelectTab('weather')}
           >
             <CloudSun size={19} />
-            <span>Weather</span>
+            <span>{t('navWeather', 'Weather')}</span>
           </button>
 
           <button
@@ -736,7 +738,7 @@ export default function App() {
             onClick={() => handleSelectTab('safety')}
           >
             <Shield size={19} />
-            <span>Safety</span>
+            <span>{t('navSafety', 'Safety')}</span>
           </button>
         </nav>
       )}

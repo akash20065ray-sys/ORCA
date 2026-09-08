@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Bell } from 'lucide-react';
+import { Bell, Globe } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Header({
   onOpenEmergency,
   onOpenAlertsModal,
 }) {
   const [alertCount, setAlertCount] = useState(2);
+  const { currentLang, setLanguage, languages, t } = useLanguage();
 
   useEffect(() => {
     // Fetch active alert count from backend API
@@ -36,18 +38,36 @@ export default function Header({
           </svg>
         </div>
         <div className="brand-text">
-          <span className="brand-title">ORCA</span>
-          <span className="brand-sub">Autonomous Ocean Intelligence & Navigation</span>
+          <span className="brand-title">{t('appTitle', 'ORCA')}</span>
+          <span className="brand-sub">{t('appSubtitle', 'Autonomous Ocean Intelligence & Navigation')}</span>
         </div>
       </div>
 
       <div className="header-actions">
+        {/* Global Language Selector (Beside Alert Notification) */}
+        <div className="header-lang-picker" title={t('selectLanguage', 'Select Language')}>
+          <Globe size={15} className="header-lang-icon" />
+          <select
+            id="orca-header-lang-select"
+            className="header-lang-select"
+            value={currentLang}
+            onChange={(e) => setLanguage(e.target.value)}
+            aria-label={t('selectLanguage', 'Select Language')}
+          >
+            {languages.map((lang) => (
+              <option key={lang.code} value={lang.code}>
+                {lang.flag || '🌐'} {lang.native} ({lang.label})
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Alerts Bell */}
         <button
           type="button"
           className="header-icon-btn"
           onClick={onOpenAlertsModal}
-          title="Active Maritime Advisories"
+          title={t('alertsTooltip', 'Active Maritime Advisories')}
         >
           <Bell size={18} />
           {alertCount > 0 && <span className="badge-count">{alertCount}</span>}

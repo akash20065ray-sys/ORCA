@@ -21,6 +21,7 @@ import {
   LifeBuoy
 } from 'lucide-react';
 import { exportRoutePlanPDF } from '../utils/pdfExport';
+import { useLanguage } from '../context/LanguageContext';
 
 const POPULAR_PORTS = [
   { id: 'kochi', name: 'Cochin Port (Kochi)', state: 'Kerala', lat: 9.9656, lon: 76.2425 },
@@ -74,6 +75,7 @@ export default function RoutePlanner({
   draggedEndpoint = null,
   onUpdateEndpoints = null,
 }) {
+  const { t } = useLanguage();
   // Google Maps Style Location Search States (Departure A and Destination B)
   const [originQuery, setOriginQuery] = useState('Cochin Port (Kochi)');
   const [originCoords, setOriginCoords] = useState({ lat: 9.9656, lon: 76.2425, name: 'Cochin Port (Kochi)' });
@@ -466,7 +468,7 @@ export default function RoutePlanner({
         <div className="panel-header-left">
           <Compass size={20} className="panel-header-icon" />
           <div>
-            <h3 className="panel-title">Dynamic Route Optimization</h3>
+            <h3 className="panel-title">{t('routeTitle', 'Dynamic Route Optimization')}</h3>
             <span className="panel-sub">COLREGS Rule 10 & Real-Time Compass Waypoint Steering</span>
           </div>
         </div>

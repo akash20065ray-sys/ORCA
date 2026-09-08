@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useLanguage } from '../context/LanguageContext';
 import {
   Fish,
   Waves,
@@ -125,6 +126,7 @@ export const FLEET_PROFILES = [
 ];
 
 export default function PFZAdvisor({ onFocusPFZ }) {
+  const { t } = useLanguage();
   const [selectedHarbor, setSelectedHarbor] = useState('kochi');
   const [zones, setZones] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -463,8 +465,8 @@ export default function PFZAdvisor({ onFocusPFZ }) {
       <div className="panel-header">
         <Fish size={20} className="panel-header-icon" />
         <div>
-          <h3 className="panel-title">INCOIS Potential Fishing Zones (PFZ)</h3>
-          <span className="panel-sub">Thermal Front & Chlorophyll-a Oceanographic Correlation</span>
+          <h3 className="panel-title">{t('pfzTitle', 'INCOIS Potential Fishing Zones (PFZ)')}</h3>
+          <span className="panel-sub">{t('pfzSub', 'Thermal Front & Chlorophyll-a Oceanographic Correlation')}</span>
         </div>
       </div>
 
