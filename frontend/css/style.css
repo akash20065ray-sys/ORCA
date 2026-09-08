@@ -232,6 +232,48 @@ html, body {
   50% { opacity: 0.4; transform: scale(0.85); }
 }
 
+/* Header Language Picker (Beside Notification Bell) */
+.header-lang-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-card-subtle, #1e293b);
+  border: 1.5px solid var(--border-light, #334155);
+  border-radius: 8px;
+  padding: 4px 8px;
+  transition: all 0.2s ease;
+  height: 34px;
+}
+
+.header-lang-picker:hover,
+.header-lang-picker:focus-within {
+  border-color: var(--blue-accent, #0284c7);
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+}
+
+.header-lang-globe {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.header-lang-select {
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  cursor: pointer;
+  outline: none;
+  padding: 0 2px;
+}
+
+.header-lang-select option {
+  background: #0f172a;
+  color: #f8fafc;
+  font-weight: 500;
+}
+
 /* Header Action Buttons (Notification & Theme Toggle) */
 .header-action-btn {
   width: 34px;

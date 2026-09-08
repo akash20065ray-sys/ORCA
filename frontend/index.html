@@ -49,6 +49,33 @@
           <span class="gps-text">GPS Active</span>
         </div>
 
+        <!-- Global Language Selector (Beside Alert Notification Bell) -->
+        <div class="header-lang-picker" title="Select Language / भाषा चुनें">
+          <span class="header-lang-globe">🌐</span>
+          <select id="globalAppLanguageSelect" class="header-lang-select" onchange="changeGlobalAppLanguage(this.value)" aria-label="Select Language">
+            <option value="en">🌐 English</option>
+            <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
+            <option value="mr">🇮🇳 मराठी (Marathi)</option>
+            <option value="ta">🇮🇳 தமிழ் (Tamil)</option>
+            <option value="ml">🇮🇳 മലയാളം (Malayalam)</option>
+            <option value="te">🇮🇳 తెలుగు (Telugu)</option>
+            <option value="bn">🇮🇳 বাংলা (Bengali)</option>
+            <option value="gu">🇮🇳 ગુજરાતી (Gujarati)</option>
+            <option value="kn">🇮🇳 ಕನ್ನಡ (Kannada)</option>
+            <option value="or">🇮🇳 ଓଡ଼ିଆ (Odia)</option>
+            <option value="kok">🇮🇳 कोंकणी (Konkani)</option>
+            <option value="pa">🇮🇳 ਪੰਜਾਬੀ (Punjabi)</option>
+            <option value="as">🇮🇳 অসমীয়া (Assamese)</option>
+            <option value="ur">🇮🇳 اردو (Urdu)</option>
+            <option value="hinglish">🇮🇳 Hinglish</option>
+            <option value="sa">🇮🇳 संस्कृतम् (Sanskrit)</option>
+            <option value="si">🇱🇰 සිංහල (Sinhala)</option>
+            <option value="ar">🇦🇪 العربية (Arabic)</option>
+            <option value="fr">🇫🇷 Français (French)</option>
+            <option value="pt">🇵🇹 Português (Portuguese)</option>
+          </select>
+        </div>
+
         <!-- Notification Bell with Counter -->
         <button class="header-action-btn notification-btn" title="Alerts & Advisories" onclick="switchView('alerts')">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -834,6 +861,7 @@ SEA STATE: MODERATE SWELL 1.4m · WIND 16 KT</pre>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   
   <!-- Application JS Modules -->
+  <script src="/static/js/translations.js"></script>
   <script src="/static/js/windy_animator.js"></script>
   <script src="/static/js/map.js"></script>
   <script src="/static/js/layers.js"></script>
