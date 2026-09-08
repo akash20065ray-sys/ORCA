@@ -188,6 +188,19 @@ export default function AskOrcaChat({
 
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
+  const speechKeepaliveRef = useRef(null);
+
+  // Cleanup speech synthesis on unmount
+  useEffect(() => {
+    return () => {
+      if (speechKeepaliveRef.current) {
+        clearInterval(speechKeepaliveRef.current);
+      }
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   // Persist sessions
   useEffect(() => {
@@ -306,9 +319,53 @@ export default function AskOrcaChat({
     reader.readAsDataURL(file);
   };
 
+  // Helper to strip markdown and format text cleanly for natural voice output
+  const cleanTextForSpeech = (rawText) => {
+    if (!rawText) return '';
+    let t = rawText;
+    // Strip markdown links: [label](url) -> label
+    t = t.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+    // Strip markdown images: ![alt](url) -> ''
+    t = t.replace(/!\[([^\]]*)\]\([^)]+\)/g, '');
+    // Strip table formatting dashes: |---|---|
+    t = t.replace(/\|[\s-:]+\|/g, ' ');
+    // Replace table pipes with commas for natural pauses
+    t = t.replace(/\|/g, ', ');
+    // Strip bold/italic/code markers
+    t = t.replace(/[*#`_~]/g, '');
+    // Strip bullet points at line starts
+    t = t.replace(/^[\s]*[-+*]\s+/gm, '');
+    // Replace multiple newlines with periods
+    t = t.replace(/\n\s*\n/g, '. ').replace(/\n/g, ', ');
+    // Replace repeated spaces
+    t = t.replace(/\s{2,}/g, ' ').trim();
+    return t;
+  };
+
+  // Detect script from text to ensure authentic native pronunciation
+  const detectScriptLang = (str) => {
+    if (!str) return null;
+    if (/[\u0B80-\u0BFF]/.test(str)) return 'ta'; // Tamil
+    if (/[\u0D00-\u0D7F]/.test(str)) return 'ml'; // Malayalam
+    if (/[\u0C00-\u0C7F]/.test(str)) return 'te'; // Telugu
+    if (/[\u0C80-\u0CFF]/.test(str)) return 'kn'; // Kannada
+    if (/[\u0980-\u09FF]/.test(str)) return 'bn'; // Bengali
+    if (/[\u0A80-\u0AFF]/.test(str)) return 'gu'; // Gujarati
+    if (/[\u0B00-\u0B7F]/.test(str)) return 'or'; // Odia
+    if (/[\u0A00-\u0A7F]/.test(str)) return 'pa'; // Punjabi
+    if (/[\u0600-\u06FF]/.test(str)) return 'ur'; // Urdu
+    if (/[\u0900-\u097F]/.test(str)) return 'hi'; // Hindi / Marathi
+    return null;
+  };
+
   // Text to Speech with Native Regional Speech Synthesis
   const toggleSpeech = (msgId, text, msgLang) => {
     if (!window.speechSynthesis) return;
+
+    if (speechKeepaliveRef.current) {
+      clearInterval(speechKeepaliveRef.current);
+      speechKeepaliveRef.current = null;
+    }
 
     if (speakingMsgId === msgId) {
       window.speechSynthesis.cancel();
@@ -317,12 +374,17 @@ export default function AskOrcaChat({
     }
 
     window.speechSynthesis.cancel();
-    const cleanText = text.replace(/[*#`_]/g, '');
-    const utterance = new SpeechSynthesisUtterance(cleanText);
+    const clean = cleanTextForSpeech(text);
+    if (!clean) return;
+
+    const utterance = new SpeechSynthesisUtterance(clean);
     utterance.rate = 1.0;
     utterance.pitch = 0.95;
 
-    const targetLang = (msgLang && msgLang !== 'auto') ? msgLang : 'en';
+    // Detect script from text or resolve from message / selected language
+    const scriptCode = detectScriptLang(clean);
+    const resolvedLang = scriptCode || ((msgLang && msgLang !== 'auto') ? msgLang : (selectedLang !== 'auto' ? selectedLang : 'en'));
+
     const SPEECH_LANG_MAP = {
       en: 'en-IN',
       hi: 'hi-IN',
@@ -333,21 +395,54 @@ export default function AskOrcaChat({
       gu: 'gu-IN',
       mr: 'mr-IN',
       kn: 'kn-IN',
-      ur: 'ur-PK',
-      pa: 'pa-IN'
+      or: 'or-IN',
+      kok: 'kok-IN',
+      pa: 'pa-IN',
+      as: 'as-IN',
+      ur: 'ur-IN',
+      sa: 'sa-IN',
+      si: 'si-LK',
+      ar: 'ar-SA',
+      fr: 'fr-FR',
+      pt: 'pt-PT',
     };
-    const bcpTag = SPEECH_LANG_MAP[targetLang] || 'en-IN';
+    const bcpTag = SPEECH_LANG_MAP[resolvedLang] || 'en-IN';
     utterance.lang = bcpTag;
 
     // Pick best matching voice
     const voices = window.speechSynthesis.getVoices();
-    const matchedVoice = voices.find((v) => v.lang === bcpTag) || voices.find((v) => v.lang.startsWith(targetLang));
-    if (matchedVoice) {
-      utterance.voice = matchedVoice;
+    if (voices && voices.length > 0) {
+      const matched = voices.find((v) => v.lang === bcpTag) ||
+                      voices.find((v) => v.lang.toLowerCase().startsWith(resolvedLang.toLowerCase())) ||
+                      (resolvedLang === 'en' ? voices.find((v) => v.lang.includes('en-IN') || v.lang.startsWith('en')) : null);
+      if (matched) {
+        utterance.voice = matched;
+      }
     }
 
-    utterance.onend = () => setSpeakingMsgId(null);
-    utterance.onerror = () => setSpeakingMsgId(null);
+    const stopSpeech = () => {
+      if (speechKeepaliveRef.current) {
+        clearInterval(speechKeepaliveRef.current);
+        speechKeepaliveRef.current = null;
+      }
+      setSpeakingMsgId(null);
+    };
+
+    utterance.onend = stopSpeech;
+    utterance.onerror = stopSpeech;
+
+    // Chromium keepalive for long speech synthesis
+    speechKeepaliveRef.current = setInterval(() => {
+      if (!window.speechSynthesis.speaking) {
+        if (speechKeepaliveRef.current) {
+          clearInterval(speechKeepaliveRef.current);
+          speechKeepaliveRef.current = null;
+        }
+      } else {
+        window.speechSynthesis.pause();
+        window.speechSynthesis.resume();
+      }
+    }, 10000);
 
     setSpeakingMsgId(msgId);
     window.speechSynthesis.speak(utterance);
@@ -560,7 +655,9 @@ export default function AskOrcaChat({
 
       const data = await res.json();
       const responseText = data.synthesized_response || 'Ocean intelligence report generated.';
-      const effectiveLanguage = data.detected_language || 'en';
+      const effectiveLanguage = (data.detected_language && data.detected_language !== 'auto')
+        ? data.detected_language
+        : (selectedLang !== 'auto' ? selectedLang : 'en');
 
       // Real-Time Autonomous Map Synchronization on Intelligence Response:
       if (onMapAction) {
@@ -675,6 +772,13 @@ export default function AskOrcaChat({
           return s;
         })
       );
+
+      // 1-Click Voice Auto-Speech: Automatically speak incoming response in native regional voice if enabled
+      if (isAutoSpeechEnabled) {
+        setTimeout(() => {
+          toggleSpeech(orcaMsgId, responseText, effectiveLanguage);
+        }, 250);
+      }
     } catch (err) {
       const errMsg = {
         id: makeUniqueId('err'),
@@ -932,9 +1036,24 @@ export default function AskOrcaChat({
                 try {
                   localStorage.setItem(AUTO_SPEECH_STORAGE_KEY, String(next));
                 } catch (_) {}
-                if (!next && window.speechSynthesis) {
-                  window.speechSynthesis.cancel();
+                if (!next) {
+                  if (window.speechSynthesis) {
+                    window.speechSynthesis.cancel();
+                  }
+                  if (speechKeepaliveRef.current) {
+                    clearInterval(speechKeepaliveRef.current);
+                    speechKeepaliveRef.current = null;
+                  }
                   setSpeakingMsgId(null);
+                } else {
+                  // Instant audio feedback: read aloud the latest assistant message if available
+                  const currentSess = sessions.find((s) => s.id === activeSessionId);
+                  const lastAssistantMsg = currentSess?.messages?.filter((m) => m.sender === 'orca').slice(-1)[0];
+                  if (lastAssistantMsg) {
+                    setTimeout(() => {
+                      toggleSpeech(lastAssistantMsg.id, lastAssistantMsg.text, lastAssistantMsg.language);
+                    }, 150);
+                  }
                 }
               }}
               title={isAutoSpeechEnabled ? 'Voice Auto-Speech is ON (Click to mute)' : 'Voice Auto-Speech is OFF (Click to turn ON)'}
@@ -1020,7 +1139,7 @@ export default function AskOrcaChat({
                             </button>
                             <button
                               type="button"
-                              className="btn-tts"
+                              className={`btn-tts ${speakingMsgId === msg.id ? 'speaking' : ''}`}
                               onClick={() => toggleSpeech(msg.id, msg.text, msg.language)}
                               title={speakingMsgId === msg.id ? 'Stop audio' : 'Read aloud in regional voice'}
                             >
