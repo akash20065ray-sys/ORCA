@@ -37,3 +37,10 @@ ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 .DS_Store
+
+# Documents, Presentations & PDFs (Do not push to GitHub)
+*.pdf
+*.ppt
+*.pptx
+*.key
+
