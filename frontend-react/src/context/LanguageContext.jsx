@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { SUPPORTED_LANGUAGES, TRANSLATIONS, translate } from '../translations/translations';
+import { SUPPORTED_LANGUAGES, TRANSLATIONS, translate, walkAndTranslateDOM } from '../translations/translations';
 
 const LanguageContext = createContext({
   currentLang: 'en',
@@ -32,16 +32,47 @@ export function LanguageProvider({ children }) {
     } catch {
       // ignore
     }
-    // Update document language attribute for accessibility
     if (typeof document !== 'undefined') {
       document.documentElement.lang = codeToSet;
     }
   };
 
   useEffect(() => {
-    if (typeof document !== 'undefined') {
-      document.documentElement.lang = currentLang;
-    }
+    if (typeof document === 'undefined') return;
+    document.documentElement.lang = currentLang;
+
+    // Run deep universal DOM translation pass
+    walkAndTranslateDOM(document.body, currentLang);
+
+    // Setup MutationObserver to continuously translate dynamic React updates
+    let isTranslating = false;
+    let timer = null;
+
+    const observer = new MutationObserver(() => {
+      if (isTranslating) return;
+      if (currentLang === 'en') return;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        isTranslating = true;
+        try {
+          walkAndTranslateDOM(document.body, currentLang);
+        } finally {
+          setTimeout(() => {
+            isTranslating = false;
+          }, 40);
+        }
+      }, 60);
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
   }, [currentLang]);
 
   const t = (key, fallback = '') => {

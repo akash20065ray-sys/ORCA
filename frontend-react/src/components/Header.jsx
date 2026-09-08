@@ -46,8 +46,8 @@ export default function Header({
       <div className="header-actions">
         {/* Global Language Selector (Beside Alert Notification) */}
         <div className="header-lang-picker" title={t('selectLanguage', 'Select Language')}>
-          <Globe size={16} className="header-lang-icon" style={{ color: '#0284c7' }} />
-          <span className="header-lang-label" style={{ fontSize: '11px', fontWeight: '800', color: '#0284c7', letterSpacing: '0.04em' }}>LANG:</span>
+          <Globe size={16} className="header-lang-icon" />
+          <span className="header-lang-label">LANG:</span>
           <select
             id="orca-header-lang-select"
             className="header-lang-select"
