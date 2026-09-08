@@ -2264,8 +2264,8 @@ body {
 }
 
 .btn-tts.speaking {
-  color: var(--color-primary);
-  animation: pulse 1s infinite;
+  color: #059669 !important;
+  animation: voiceSpeakerPulse 1.2s infinite ease-in-out !important;
 }
 
 .bubble-risk-card {

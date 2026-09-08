@@ -1181,9 +1181,13 @@ export default function AskOrcaChat({
                               type="button"
                               className={`btn-tts ${speakingMsgId === msg.id ? 'speaking' : ''}`}
                               onClick={() => toggleSpeech(msg.id, msg.text, msg.language)}
-                              title={speakingMsgId === msg.id ? 'Stop audio' : 'Read aloud in regional voice'}
+                              title={speakingMsgId === msg.id ? 'Speaking... (Click to stop)' : 'Read aloud in regional voice'}
                             >
-                              {speakingMsgId === msg.id ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                              {speakingMsgId === msg.id ? (
+                                <Volume2 size={14} className="voice-speaking-pulse" />
+                              ) : (
+                                <VolumeX size={14} />
+                              )}
                             </button>
                           </div>
                         )}
