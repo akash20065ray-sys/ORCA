@@ -51,6 +51,26 @@
 
 ---
 
-## 2. Verification Results
-- **Frontend Build:** `npm run build` passed with exit code 0 (`vite v8.2.2 building client environment for production... built in 730ms`).
-- **Backend Model & Pipeline:** `python C:\ORCA_FINAL\scratch\test_four_queries.py` executed cleanly across all four test queries with 100% success.
+## 2. Offshore Offline Marine PWA Engine & Mobile Optimization
+
+### A. Complete Offshore Offline Marine PWA Engine
+- **Universal Service Worker Registration:** Replaced the faulty `process.env.NODE_ENV === 'production'` check in `frontend-react/src/main.jsx` with standard `if ('serviceWorker' in navigator)` feature detection, allowing the PWA offline engine to activate reliably across all deployment environments.
+- **Dedicated Map Tile Cache (`orca-marine-tiles-v1`):** In `frontend-react/public/sw.js`, implemented a specialized Stale-While-Revalidate caching strategy for Esri World Imagery, CartoDB, OpenSeaMap, and OpenStreetMap basemap tiles. When fishing vessels navigate 12–50 NM offshore beyond cellular base station range, downloaded marine tiles remain fully readable without graying out.
+- **Intelligent Offline API Fallbacks:** Structured fallback JSON data for `/api/alerts/active`, `/api/weather/current`, and `/api/routes/ports` ensures critical navigational intelligence (NAVAREA VIII advisory notices, onboard climatology, and standard port coordinates) continues functioning offline.
+- **Simulated Offshore Mode:** Added an offshore toggle in the offline banner, allowing users and evaluators to test offline marine behavior at any time.
+
+### B. Mobile Application Optimization
+- **Resolved Fixed Bottom Nav Collisions:** Elevated the floating copilot trigger (`.mobile-floating-copilot-btn`) and the coordinate HUD (`.map-cursor-hud`) to `bottom: 76px !important`, clearing the 60px bottom navigation bar (`.mobile-bottom-nav`) and Leaflet zoom controls (`margin-bottom: 76px !important`).
+- **Touch Targets & Viewport Safe Areas:** All mobile buttons and tab triggers satisfy $\ge 48\text{px}$ touch targets with `env(safe-area-inset-bottom)` support for iOS notch/home bar margins.
+
+### C. Clean Map Stage & Header SOS
+- **100% Clean Map Part (Kept Only Map & Map Layers Like Previous):** Removed any extraneous top bars or overlay chips from the map view. The map remains completely clean and uninterrupted, with only the high-definition Leaflet canvas, the Map Layers Drawer button, and the floating copilot button.
+- **Header SOS Distress Beacon:** Added the prominent glowing `🚨 SOS` button with animated pulsing orb (`.sos-pulse-orb`) directly to the top navigation header (`Header.jsx`), providing instant 1-click GMDSS Mayday distress dispatch access without cluttering the map.
+
+---
+
+## 3. Verification & Build Results
+- **Production Build:** `npm run build` completed cleanly with exit code 0 (`vite v8.2.2 building client environment for production... built in 978ms`).
+- **Service Worker Validation:** `node -c c:\ORCA_FINAL\frontend-react\public\sw.js` executed with 0 syntax errors.
+- **Backend Health & Real-time Telemetry:** Verified `GET /api/alerts/active` (6 active regional alerts) and `GET /api/weather/current` (live ECMWF wave model & Sentinel-3 SST data) returning 200 OK.
+

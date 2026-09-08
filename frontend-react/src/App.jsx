@@ -39,6 +39,8 @@ export default function App() {
   });
   const [mobileHomeView, setMobileHomeView] = useState('map'); // 'map' | 'copilot'
   const [isOffline, setIsOffline] = useState(() => (typeof navigator !== 'undefined' ? !navigator.onLine : false));
+  const [isOfflineSimulated, setIsOfflineSimulated] = useState(false);
+  const effectiveOffline = isOffline || isOfflineSimulated;
 
   // Smooth continuous draggable sliding dock width (for Home split view)
   const [dockWidth, setDockWidth] = useState(() => {
@@ -279,13 +281,25 @@ export default function App() {
         onOpenAlertsModal={() => setIsAlertModalOpen(true)}
       />
 
-      {/* Offshore Marine Mode Banner (Appears when cellular/satellite connection drops) */}
-      {isOffline && (
+      {/* Offshore Marine Mode Banner (Appears when cellular/satellite connection drops or in simulation) */}
+      {effectiveOffline && (
         <div className="orca-offline-status-banner">
-          <WifiOff size={15} />
-          <span>
-            <strong>OFFLINE MARINE MODE:</strong> Cellular/Satellite signal unavailable. Operating on local onboard intelligence & emergency protocols.
-          </span>
+          <div className="offline-banner-left">
+            <WifiOff size={15} />
+            <span>
+              <strong>OFFLINE MARINE MODE:</strong> Cellular/Satellite signal unavailable. Operating on local onboard intelligence & emergency protocols.
+            </span>
+          </div>
+          {isOfflineSimulated && (
+            <button
+              type="button"
+              className="offline-sim-dismiss-btn"
+              onClick={() => setIsOfflineSimulated(false)}
+              title="Return to Online Mode"
+            >
+              Exit Simulation
+            </button>
+          )}
         </div>
       )}
 

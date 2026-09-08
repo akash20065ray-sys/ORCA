@@ -44,6 +44,17 @@ export default function Header({
       </div>
 
       <div className="header-actions">
+        {/* High-Visibility Emergency GMDSS Mayday Trigger Button */}
+        <button
+          type="button"
+          className="header-sos-btn"
+          onClick={onOpenEmergency}
+          title={t('sosDistress', 'Emergency GMDSS Mayday Distress Beacon')}
+        >
+          <span className="sos-pulse-orb" />
+          <span className="sos-text">🚨 SOS</span>
+        </button>
+
         {/* Global Language Selector (Beside Alert Notification) */}
         <div className="header-lang-picker" title={t('selectLanguage', 'Select Language')}>
           <Globe size={16} className="header-lang-icon" />

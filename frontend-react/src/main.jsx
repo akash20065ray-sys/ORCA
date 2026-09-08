@@ -13,15 +13,15 @@ createRoot(document.getElementById('root')).render(
 );
 
 // Register Offshore Marine Service Worker for PWA and Offline Marine Intelligence
-if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/sw.js')
       .then((registration) => {
-        console.log('🐋 [ORCA Marine] Service Worker registered successfully! Scope:', registration.scope);
+        console.log('🐋 [ORCA Marine PWA] Service Worker registered successfully! Scope:', registration.scope);
       })
       .catch((err) => {
-        console.warn('🐋 [ORCA Marine] Service Worker registration failed:', err);
+        console.warn('🐋 [ORCA Marine PWA] Service Worker registration failed:', err);
       });
   });
 }
