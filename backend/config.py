@@ -10,7 +10,7 @@ class Settings(BaseModel):
     SIH_PROBLEM_ID: str = "SIH26176"
     VERSION: str = "1.0.0"
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
-    HOST: str = os.getenv("HOST", "127.0.0.1")
+    HOST: str = os.getenv("HOST", "0.0.0.0" if (os.getenv("RENDER") or os.getenv("ENVIRONMENT") == "production") else "127.0.0.1")
     PORT: int = int(os.getenv("PORT", 8000))
     DEBUG: bool = os.getenv("DEBUG", "True").lower() in ("true", "1")
     
