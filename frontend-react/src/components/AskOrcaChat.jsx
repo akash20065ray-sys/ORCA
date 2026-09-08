@@ -124,6 +124,29 @@ const AUTO_SPEECH_STORAGE_KEY = 'orca_auto_speech_v3';
 
 const makeUniqueId = (prefix) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
+function detectScriptLanguage(text) {
+  if (!text || typeof text !== 'string') return null;
+  const str = text.trim();
+  if (!str) return null;
+  if (/[\u0B80-\u0BFF]/.test(str)) return 'ta'; // Tamil
+  if (/[\u0D00-\u0D7F]/.test(str)) return 'ml'; // Malayalam
+  if (/[\u0C00-\u0C7F]/.test(str)) return 'te'; // Telugu
+  if (/[\u0980-\u09FF]/.test(str)) return 'bn'; // Bengali
+  if (/[\u0A80-\u0AFF]/.test(str)) return 'gu'; // Gujarati
+  if (/[\u0C80-\u0CFF]/.test(str)) return 'kn'; // Kannada
+  if (/[\u0B00-\u0B7F]/.test(str)) return 'or'; // Odia
+  if (/[\u0A00-\u0A7F]/.test(str)) return 'pa'; // Punjabi
+  if (/[\u0600-\u06FF]/.test(str)) return 'ur'; // Urdu
+  if (/[\u0900-\u097F]/.test(str)) {
+    // Marathi specific markers or 'ळ'
+    if (/ळ|आहे|आहेत|नाही|करा|दाखवा|सांगा|मासे|मासेमारी|लाटा|लाटांची|बंदर|हवामान|कसा|काय|क्षेत्र|माहिती|पाहिजे|कधी|पाऊस|वारा|मार्ग|जवळ/.test(str)) {
+      return 'mr';
+    }
+    return 'hi';
+  }
+  return null;
+}
+
 export default function AskOrcaChat({
   onShowOnMap,
   onMapAction,
@@ -287,7 +310,10 @@ export default function AskOrcaChat({
           pt: 'pt-PT'
         };
 
-        const targetSpeechLang = langMap[selectedLang] || 'en-IN';
+        const activeLangCode = (selectedLang && selectedLang !== 'auto')
+          ? selectedLang
+          : ((currentLang && currentLang !== 'auto' && currentLang !== 'en') ? currentLang : 'en');
+        const targetSpeechLang = langMap[activeLangCode] || 'en-IN';
         const recog = new SpeechRecognition();
         recog.continuous = false;
         recog.interimResults = true;
@@ -304,6 +330,10 @@ export default function AskOrcaChat({
             transcript += event.results[i][0].transcript;
           }
           setInputQuery(transcript);
+          const detected = detectScriptLanguage(transcript);
+          if (detected) {
+            setGlobalLang(detected);
+          }
         };
 
         recog.onerror = (e) => {
@@ -674,13 +704,19 @@ export default function AskOrcaChat({
         content: m.text,
       }));
 
+      const detectedQueryLang = detectScriptLanguage(query);
+      if (detectedQueryLang && selectedLang === 'auto') {
+        setGlobalLang(detectedQueryLang);
+      }
+      const langToSend = selectedLang !== 'auto' ? selectedLang : (detectedQueryLang || 'auto');
+
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           query,
           session_id: activeSessionId,
-          language: selectedLang,
+          language: langToSend,
           latitude: latToSend,
           longitude: lonToSend,
           location_name: locNameToSend,
@@ -697,7 +733,11 @@ export default function AskOrcaChat({
       const responseText = data.synthesized_response || 'Ocean intelligence report generated.';
       const effectiveLanguage = (data.detected_language && data.detected_language !== 'auto')
         ? data.detected_language
-        : (selectedLang !== 'auto' ? selectedLang : 'en');
+        : (detectedQueryLang || (selectedLang !== 'auto' ? selectedLang : 'en'));
+
+      if (effectiveLanguage && effectiveLanguage !== 'auto' && (selectedLang === 'auto' || currentLang !== effectiveLanguage)) {
+        setGlobalLang(effectiveLanguage);
+      }
 
       // Real-Time Autonomous Map Synchronization on Intelligence Response:
       if (onMapAction) {
