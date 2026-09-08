@@ -163,11 +163,11 @@ export default function AskOrcaChat({
   });
 
   const { currentLang, setLanguage: setGlobalLang, languages: appLanguages, t } = useLanguage();
-  const [selectedLang, setSelectedLang] = useState(currentLang || 'en');
+  const [selectedLang, setSelectedLang] = useState('auto');
 
-  // Synchronize local selectedLang with global currentLang from LanguageContext
+  // Synchronize local selectedLang with global currentLang only when user selects a non-auto global language
   useEffect(() => {
-    if (currentLang && currentLang !== selectedLang) {
+    if (currentLang && currentLang !== 'en' && selectedLang !== 'auto' && currentLang !== selectedLang) {
       setSelectedLang(currentLang);
     }
   }, [currentLang]);
@@ -1047,18 +1047,22 @@ export default function AskOrcaChat({
 
           <div className="chat-top-actions">
             {/* Language Selector */}
-            <div className="chat-lang-pill-wrap" title={t('selectLanguage', 'Select response & voice language')}>
+            <div className="chat-lang-pill-wrap" title={t('selectLanguage', 'Select response & voice language (Auto Detect enabled by default)')}>
               <Globe size={13} className="lang-globe-icon" />
               <select
                 id="orca-chat-lang-select"
                 className="chat-lang-select"
                 value={selectedLang}
                 onChange={(e) => {
-                  setSelectedLang(e.target.value);
-                  setGlobalLang(e.target.value);
+                  const val = e.target.value;
+                  setSelectedLang(val);
+                  if (val !== 'auto') {
+                    setGlobalLang(val);
+                  }
                 }}
               >
-                {appLanguages.map((lang) => (
+                <option value="auto">🌐 Auto Detect (Multi-Language)</option>
+                {appLanguages.filter((l) => l.code !== 'auto').map((lang) => (
                   <option key={lang.code} value={lang.code}>
                     {lang.flag || '🌐'} {lang.native} ({lang.label})
                   </option>
