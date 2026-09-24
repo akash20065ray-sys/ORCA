@@ -27,7 +27,16 @@ import { useLanguage } from './context/LanguageContext';
 export default function App() {
   const { t, currentLang } = useLanguage();
   // Navigation: 'home' | 'chat' | 'routes' | 'pfz' | 'weather' | 'safety'
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tParam = params.get('tab');
+      if (tParam && ['home', 'chat', 'routes', 'pfz', 'weather', 'safety'].includes(tParam)) {
+        return tParam;
+      }
+    }
+    return 'home';
+  });
   const [isHomePanelOpen, setIsHomePanelOpen] = useState(true);
 
   // Mobile Viewport & Offline State Tracking

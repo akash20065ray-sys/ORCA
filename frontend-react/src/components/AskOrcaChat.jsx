@@ -148,9 +148,15 @@ function detectScriptLanguage(text) {
   return null;
 }
 
-function getChipQuery(chipKey, activeLang = 'mr', targetName = '') {
-  const lang = (activeLang && activeLang !== 'auto' && activeLang !== 'en') ? activeLang : 'mr';
-  const targetLabel = targetName || (lang === 'mr' ? 'रत्नागिरी आणि मालवण' : lang === 'hi' ? 'कोच्चि / रत्नागिरी' : 'active location');
+function getChipQuery(chipKey, activeLang = 'en', targetName = '') {
+  const lang = (activeLang && activeLang !== 'auto') ? activeLang : 'en';
+  const targetLabel = targetName || (
+    lang === 'mr' ? 'रत्नागिरी आणि मालवण' :
+    lang === 'hi' ? 'कोच्चि / रत्नागिरी' :
+    lang === 'ta' ? 'கொச்சி / முனம்பம்' :
+    lang === 'ml' ? 'കൊച്ചി / മുനമ്പം' :
+    'Cochin / active waters'
+  );
 
   const CHIP_QUERIES = {
     waves: {
@@ -221,7 +227,7 @@ function getChipQuery(chipKey, activeLang = 'mr', targetName = '') {
     }
   };
 
-  return CHIP_QUERIES[chipKey]?.[lang] || CHIP_QUERIES[chipKey]?.mr || CHIP_QUERIES[chipKey]?.en;
+  return CHIP_QUERIES[chipKey]?.[lang] || CHIP_QUERIES[chipKey]?.en || CHIP_QUERIES[chipKey]?.hi || '';
 }
 
 export default function AskOrcaChat({
@@ -265,9 +271,9 @@ export default function AskOrcaChat({
   const { currentLang, setLanguage: setGlobalLang, languages: appLanguages, t } = useLanguage();
   const [selectedLang, setSelectedLang] = useState('auto');
 
-  // Synchronize local selectedLang with global currentLang only when user selects a non-auto global language
+  // Synchronize local selectedLang with global currentLang
   useEffect(() => {
-    if (currentLang && currentLang !== 'en' && selectedLang !== 'auto' && currentLang !== selectedLang) {
+    if (currentLang && selectedLang !== 'auto' && currentLang !== selectedLang) {
       setSelectedLang(currentLang);
     }
   }, [currentLang]);
@@ -340,7 +346,8 @@ export default function AskOrcaChat({
   const toggleListening = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      const sampleQueries = (selectedLang && REGIONAL_SUGGESTIONS[selectedLang]) || REGIONAL_SUGGESTIONS.en;
+      const activeSuggestionLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'en');
+      const sampleQueries = REGIONAL_SUGGESTIONS[activeSuggestionLang] || REGIONAL_SUGGESTIONS.en;
       setInputQuery(sampleQueries[0]);
       return;
     }
@@ -389,7 +396,7 @@ export default function AskOrcaChat({
 
         const activeLangCode = (selectedLang && selectedLang !== 'auto')
           ? selectedLang
-          : ((currentLang && currentLang !== 'auto' && currentLang !== 'en') ? currentLang : 'en');
+          : (currentLang || 'en');
         const targetSpeechLang = langMap[activeLangCode] || 'en-IN';
         const recog = new SpeechRecognition();
         recog.continuous = false;
@@ -408,7 +415,7 @@ export default function AskOrcaChat({
           }
           setInputQuery(transcript);
           const detected = detectScriptLanguage(transcript);
-          if (detected) {
+          if (detected && selectedLang === 'auto' && detected !== currentLang) {
             setGlobalLang(detected);
           }
         };
@@ -720,10 +727,12 @@ export default function AskOrcaChat({
 
     const activeLang = (selectedLang && selectedLang !== 'auto')
       ? selectedLang
-      : ((currentLang && currentLang !== 'auto' && currentLang !== 'en') ? currentLang : 'mr');
+      : (currentLang || 'en');
 
     const detectedQueryLang = detectScriptLanguage(query);
-    const resolvedLang = detectedQueryLang || activeLang;
+    const resolvedLang = (selectedLang && selectedLang !== 'auto')
+      ? selectedLang
+      : (detectedQueryLang || activeLang || 'en');
 
     // If query is in Latin script and active language is a native language, translate query text so user message bubble shows in that native language
     let displayQuery = query;
@@ -797,7 +806,7 @@ export default function AskOrcaChat({
         content: m.text,
       }));
 
-      if (detectedQueryLang && selectedLang === 'auto') {
+      if (detectedQueryLang && selectedLang === 'auto' && detectedQueryLang !== currentLang) {
         setGlobalLang(detectedQueryLang);
       }
       const langToSend = resolvedLang;
@@ -825,7 +834,7 @@ export default function AskOrcaChat({
       let responseText = data.synthesized_response || 'Ocean intelligence report generated.';
       const effectiveLanguage = (data.detected_language && data.detected_language !== 'auto')
         ? data.detected_language
-        : (detectedQueryLang || resolvedLang || 'mr');
+        : (detectedQueryLang || resolvedLang || (selectedLang !== 'auto' ? selectedLang : currentLang) || 'en');
 
       // Guarantee 100% native language synthesis in the chatbot answer:
       if (effectiveLanguage && effectiveLanguage !== 'en') {
@@ -835,8 +844,9 @@ export default function AskOrcaChat({
         }
       }
 
-      if (effectiveLanguage && effectiveLanguage !== 'auto' && (selectedLang === 'auto' || currentLang !== effectiveLanguage)) {
-        setGlobalLang(effectiveLanguage);
+      // ONLY sync global language if in auto mode AND user explicitly sent a query in that regional script
+      if (selectedLang === 'auto' && detectedQueryLang && detectedQueryLang !== currentLang) {
+        setGlobalLang(detectedQueryLang);
       }
 
       // Real-Time Autonomous Map Synchronization on Intelligence Response:
@@ -1657,7 +1667,7 @@ export default function AskOrcaChat({
               className="quick-chip-pill"
               onClick={() => {
                 onMapAction?.({ type: 'weather', mode: 'waves' });
-                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'mr');
+                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'en');
                 handleSend(getChipQuery('waves', currentActiveLang));
               }}
               title="Activate Waves stream overlay on map"
@@ -1669,7 +1679,7 @@ export default function AskOrcaChat({
               className="quick-chip-pill"
               onClick={() => {
                 onMapAction?.({ type: 'weather', mode: 'wind' });
-                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'mr');
+                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'en');
                 handleSend(getChipQuery('wind', currentActiveLang));
               }}
               title="Activate Wind stream overlay on map"
@@ -1681,7 +1691,7 @@ export default function AskOrcaChat({
               className="quick-chip-pill"
               onClick={() => {
                 onMapAction?.({ type: 'weather', mode: 'currents' });
-                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'mr');
+                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'en');
                 handleSend(getChipQuery('currents', currentActiveLang));
               }}
               title="Activate Ocean Currents stream overlay on map"
@@ -1693,7 +1703,7 @@ export default function AskOrcaChat({
               className="quick-chip-pill"
               onClick={() => {
                 onMapAction?.({ type: 'weather', mode: 'sst' });
-                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'mr');
+                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'en');
                 handleSend(getChipQuery('sst', currentActiveLang));
               }}
               title="Activate Sea Surface Temperature (SST) heatmap on map"
@@ -1746,7 +1756,7 @@ export default function AskOrcaChat({
                       });
                     });
                 }
-                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'mr');
+                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'en');
                 handleSend(getChipQuery('pfz', currentActiveLang, targetName));
               }}
               title="Calculate and display INCOIS PFZ hotspots from active location on map"
@@ -1760,7 +1770,7 @@ export default function AskOrcaChat({
                 if (onMapAction) {
                   onMapAction({ type: 'toggle_layers' });
                 }
-                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'mr');
+                const currentActiveLang = (selectedLang && selectedLang !== 'auto') ? selectedLang : (currentLang || 'en');
                 handleSend(getChipQuery('layers', currentActiveLang));
               }}
               title="Toggle active marine GIS map layers, bathymetry & buoys"

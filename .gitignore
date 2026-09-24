@@ -44,3 +44,8 @@ $RECYCLE.BIN/
 *.pptx
 *.key
 
+# Explicitly allow official VIT EDI Review Presentation & Script
+!ORCA_VIT_EDI_Presentation.pptx
+!ORCA_VIT_EDI_Presentation.pdf
+!ORCA_VIT_EDI_5_Member_Script.pdf
+

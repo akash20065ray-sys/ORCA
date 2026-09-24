@@ -1694,16 +1694,25 @@ class ResponseSynthesisAgent:
     def _build_out_of_domain_response(self, query: str, language: str = "en", language_name: str = "English") -> str:
         # 1. Primary: If cloud AI provider is available, formulate a brilliant, comprehensive, direct answer
         if llm_client.is_available():
-            sys_prompt = (
-                "You are ORCA (Ocean Resource Conservation and Awareness), India's premier AI copilot and universal intelligent assistant.\n"
-                "The user is asking a question. As an elite, highly professional AI copilot, answer their question thoroughly, accurately, courteously, and intelligently in depth.\n"
-                f"Target Language: {language_name} ({language}).\n"
-                "MANDATORY LANGUAGE RULE:\n"
-                "Write your entire response exclusively in the native script of the Target Language (Devanagari for Marathi/Hindi, Tamil for Tamil, etc.). "
-                "Do not use transliterated Latin characters. Maintain an authoritative, helpful, executive tone."
-            )
+            if language == "en":
+                sys_prompt = (
+                    "You are ORCA (Ocean Resource Conservation and Awareness), India's premier AI copilot and universal intelligent assistant.\n"
+                    "The user is asking a question. As an elite, highly professional AI copilot, answer their question thoroughly, accurately, courteously, and intelligently in depth in English.\n"
+                    "Include a brief ORCA Guardrail Notice noting that while ORCA is engineered for Marine Ecosystem Reasoning, we provide helpful intelligence across general knowledge domains."
+                )
+            else:
+                sys_prompt = (
+                    "You are ORCA (Ocean Resource Conservation and Awareness), India's premier AI copilot and universal intelligent assistant.\n"
+                    "The user is asking a question. As an elite, highly professional AI copilot, answer their question thoroughly, accurately, courteously, and intelligently in depth.\n"
+                    f"Target Language: {language_name} ({language}).\n"
+                    "MANDATORY LANGUAGE RULE:\n"
+                    f"Write your entire response exclusively in the native script of {language_name}. "
+                    "Do not use transliterated Latin characters. Maintain an authoritative, helpful, executive tone."
+                )
             res = llm_client.generate_text(sys_prompt, query, target_language_name=language_name)
             if res and len(res) > 30:
+                if language == "en" and "guardrail" not in res.lower():
+                    res += "\n\n🛡️ **ORCA Guardrail Notice**: While ORCA is engineered for Marine Ecosystem Reasoning, we provide helpful intelligence across general knowledge domains."
                 return res.strip()
 
         # 2. Local Grounded Intelligence Engine (zero refusals)
@@ -1740,6 +1749,7 @@ class ResponseSynthesisAgent:
                     "Cricket is India's preeminent national sport governed by the BCCI. The Indian national team has achieved legendary global triumphs, including the 1983 and 2011 ICC ODI World Cups, and the 2007 and 2024 ICC T20 World Cups under iconic captains like Kapil Dev, MS Dhoni, and Rohit Sharma. The Indian Premier League (IPL) stands as the world's most competitive and watched T20 league.\n\n"
                     "🌊 **Maritime & Aerodynamic Connection**:\n"
                     "Coastal stadiums like Wankhede Stadium in Mumbai (Arabian Sea shoreline) and MA Chidambaram Stadium in Chennai (Bay of Bengal coast) experience prominent sea breeze circulations during evening sessions. The moisture-laden marine airflow creates atmospheric density gradients that significantly increase conventional and reverse swing for pace bowlers!\n\n"
+                    "🛡️ **ORCA Guardrail Notice**: While ORCA primary mission is Marine Ecosystem Reasoning and coastal navigation safety, we provide authoritative intelligence across general knowledge inquiries.\n\n"
                     "*Would you like more details on cricket records, tactical seam bowling, or other sports?*"
                 )
 
