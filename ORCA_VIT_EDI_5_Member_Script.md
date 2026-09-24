@@ -1,16 +1,16 @@
 # ORCA — VIT EDI Mid-sem Review Presentation Script (MSE - 50 Marks)
 ## Division A | EDI Group No: 1 | Project Guide: Dr. Bhagwan Thorat
-**Total Presentation Duration: 11–12 Minutes (~2 to 2.5 minutes per speaker)**
-**Presentation Slides: 21 Slides matching official academic flow and MSE evaluation rubric**
+**Total Presentation Duration: 11–12 Minutes (~2 to 2.5 minutes per speaker)**  
+**Presentation Slides: 24 Slides matching the exact official VIT academic presentation template**
 
 ---
 
 ### Team Members & Speaking Order
-1. **Speaker 1: Akash Kumar (Team Lead)** — *Slide 1: Title Slide, Slide 2: Index / Agenda, Slide 3: Problem Statement & Realities, Slide 4: Literature Review & Gaps (Time: ~2m 15s)*
-2. **Speaker 2: Sanskar Bhargude (Marine Data & Telemetry)** — *Slide 5: Proposed Solution & Objectives, Slide 6: Scientific Methodology & Formulations, Slide 7: System Architecture & 8-Agent Pipeline (Time: ~2m 15s)*
-3. **Speaker 3: Ghansham Agaldare (Scientific Engines & Safety)** — *Slide 8: Tools & Technology Stack, Slide 9: System Overview (4 Subsystems), Slide 10: Project Phases & Timeline, Slide 11: Impacts, Economic Benefits & Sustainability (Time: ~2m 30s)*
-4. **Speaker 4: Hari Birare (PFZ Analytics & Dual-Routing)** — *Slide 12: Group Responsibilities, Slide 13: Screenshots Part 1 (Code & Pytest), Slide 14: Screenshots Part 2 (Ocean GIS & HUD), Slide 15: Screenshots Part 3 (Safety Engine & Route Plan), Slide 16: Screenshots Part 4 (Marathi Voice & GMDSS PDF) (Time: ~2m 45s)*
-5. **Speaker 5: Krishna Aher (Frontend PWA & Voice Engine)** — *Slide 17: Feasibility Benchmarks (34/34 Passing Tests), Slide 18: Future Scope & Scaling, Slide 19: Project Conclusion & Synthesis, Slide 20: Academic References, Slide 21: Thank You & Open Q&A Defense (Time: ~2m 15s)*
+1. **Speaker 1: Akash Kumar (Team Lead & System Orchestration)** — *Slide 1: Title Slide, Slide 2: Index / Agenda, Slide 3: Problem Statement & Introduction, Slide 4: Literature Review Part 1 (Time: ~2m 15s)*
+2. **Speaker 2: Sanskar Bhargude (Marine Data & Telemetry Integration)** — *Slide 5: Literature Review Part 2, Slide 6: Literature Review Part 3, Slide 7: System Overview, Slide 8: Proposed Solution & Methodology: Data Ingestion (Time: ~2m 15s)*
+3. **Speaker 3: Ghansham Agaldare (Scientific Engines & Safety Algorithm)** — *Slide 9: Methodology: Multi-Agent Orchestration, Slide 10: Methodology: Risk Assessment & Sea Safety, Slide 11: Methodology: PFZ Analytics & Dual-Routing, Slide 12: Methodology: Vernacular Voice & Offshore Deployment (Time: ~2m 30s)*
+4. **Speaker 4: Hari Birare (PFZ Analytics & Dual-Routing)** — *Slide 13: System Architecture, Slide 14: Project Phases & Execution Timeline, Slide 15: Technology Stack & Maritime Standards, Slide 16: Screenshot 1: Command Center & AI Copilot, Slide 17: Screenshot 2: Dynamic Route Engine & Passage Plan, Slide 18: Screenshot 3: Potential Fishing Zone Advisor (Time: ~2m 45s)*
+5. **Speaker 5: Krishna Aher (Frontend PWA & Multilingual Voice Engine)** — *Slide 19: Screenshot 4: Met-Ocean Weather & Radar, Slide 20: Impacts and Benefits, Slide 21: Future-Scope & National Maritime Scaling, Slide 22: Project Conclusion & Synthesis, Slide 23: Key References, Slide 24: Thank You & Open Defense (Time: ~2m 15s)*
 
 ---
 
@@ -25,231 +25,251 @@ I am Akash Kumar, presenting on behalf of EDI Group Number 1, Division A.
 
 Our project is titled **ORCA: Marine EcOsystem Reasoning with Collaborative Agents** — a grounded multi-agent decision-support and ocean intelligence platform for coastal navigation and sustainable fisheries. 
 
-This project addresses Problem ID **SIH26176** under the Smart India Hackathon 2026. Today, we are presenting our mid-semester progress evaluated across all 50 marks of the MSE assessment rubric."
+This project addresses Problem ID **SIH26176** under the Smart India Hackathon. Today, we are presenting our mid-semester progress evaluated across all 50 marks of the MSE assessment rubric."
 
 ---
 
-### [Slide 2: Index / Agenda & Assessment Roadmap]
-"Moving to Slide 2, here is our presentation roadmap:
-* We begin with our **Problem Statement and Ground Realities**, followed by our comprehensive **Literature Review of 6 peer-reviewed papers**.
-* Next, we present our **Proposed Solution & Objectives**, rigorous **Scientific Methodology**, **4-Layer System Architecture**, **Technology Stack**, and **System Overview of 4 subsystems**.
-* We then cover our **8 Project Phases**, **Impacts, Economic Benefits & Sustainability**, and our **Group Formation and Responsibilities**.
-* Finally, we demonstrate our system with **real verified screenshots of our code, Leaflet Ocean GIS, deterministic safety engine, and vernacular voice engine**, supported by **34 out of 34 passing test benchmarks**, our **Future Scope**, and **Conclusion**."
+### [Slide 2: Index / Agenda & Presentation Roadmap]
+"Moving to Slide 2, here is our presentation agenda:
+* We begin with our **Problem Statement and Ground Realities**, followed by our comprehensive **Literature Review across three focused comparative slides**.
+* Next, we present our **Proposed Solution & Scientific Methodology**, covering Data Ingestion, Multi-Agent Orchestration, Risk Engines, PFZ Analytics, and Vernacular Deployment.
+* We then detail our **4-Layer System Architecture**, **8 Project Phases**, **Technology Stack & Maritime Standards**, and **Impacts and Benefits**.
+* Finally, we demonstrate our system with **four live, uncropped screenshots of our verified operational platform**, followed by **Future-Scope**, **Conclusion**, and **Key References**."
 
 ---
 
-### [Slide 3: Parameter 1 — Problem Statement & 3 Ground Realities (10 Marks)]
-"On Slide 3, addressing our **10-mark parameter on Problem Definition, Related Work, and Complexity**:
+### [Slide 3: Problem Statement & Introduction (3 Ground Realities)]
+"On Slide 3, addressing our core **Problem Statement and Ground Realities**:
 
-India has a 7,516-kilometer coastline supporting over 4 million artisanal fishermen who face three harsh ground realities every day:
-1. **First, Crippling Fuel Expenditure:** Artisanal skiffs spend up to 60% of their operational earnings on diesel fuel alone, roaming 6 to 10 hours blindly searching for fish schools across open waters without live telemetry.
+India possesses a 7,516-kilometer coastline supporting over 4 million artisanal fishermen who face three crippling ground realities every single voyage:
+1. **First, Severe Fuel Drain:** Artisanal skiffs spend up to 60% of their voyage earnings on diesel fuel alone, roaming 6 to 10 hours blindly searching for fish schools across open waters without live telemetry.
 2. **Second, Literacy & Vernacular Communication Barriers:** Official ocean feeds from INCOIS and IMD are published in complex English scientific formats. Traditional skippers on rocking wooden crafts cannot read intricate tables, and touchscreens fail when hands are wet with sea spray. Hands-free voice interaction in their mother tongue is essential.
-3. **Third, Sea Safety & International Border Hazards:** Sudden monsoon squalls cause small crafts to capsize without prior localized notice, while drift currents push boats across the International Maritime Boundary Line (IMBL), causing foreign arrests. Crucially, cellular coverage cuts off 10 to 15 nautical miles from shore.
+3. **Third, Sea Safety & International Maritime Boundary Line (IMBL) Hazards:** Sudden monsoon squalls cause small crafts to capsize without prior localized notice, while drift currents push boats across the IMBL, leading to international maritime arrests. Crucially, cellular coverage cuts off 10 to 15 nautical miles from shore.
 
-**Regarding Related Work:** Existing portals provide raw, siloed feeds with 24 to 48-hour delays, lack vessel-specific sail/no-sail safety advisories, and crash completely when disconnected from cellular internet.
-
-**The Technical Complexity** lies in harmonizing heterogeneous multi-satellite data in real time, decoupling generative language models from physical safety mathematics to achieve zero hallucination, and executing spatial ray-casting geofencing entirely offline up to 50 nautical miles out at sea."
+**What is ORCA?** ORCA bridges this critical gap as an intelligent, voice-first marine copilot that converts raw satellite and oceanographic rasters into clear, actionable spoken advice, completely offline up to 50 nautical miles offshore."
 
 ---
 
-### [Slide 4: Parameter 2 — Literature Review & Research Gaps (12 Marks - Part A)]
-"On Slide 4, we present our comprehensive Literature Survey analyzing 6 peer-reviewed works:
-1. **IEEE ECIS (2025):** Explored multi-agent weather routing using deep RL, but relied on idealized ocean simulations with high computational latency and lacked multi-source live telemetry and regional voice UI. *(ORCA provides sub-850ms execution and native Indic voice).*
-2. **Elsevier Ocean Engineering (2025):** Presented satellite PFZ prediction using SST and Chlorophyll-a, but operated as an offline batch pipeline with 24 to 48-hour latency and lacked real-time weather safety scoring or navigable courses. *(ORCA calculates real-time dual routes with dynamic compass bearings).*
-3. **IJCNN (2025):** Researched agentic LLM orchestration in cyber-physical systems, but proved susceptible to stochastic drift and numerical hallucinations. *(ORCA enforces decoupled, compiled Python safety mathematics).*
-4. **Computers & Geosciences (2024):** Implemented spatial ray-casting for marine boundaries, but focused strictly on static boundary geometry without dynamic wave-state risk penalties. *(ORCA computes dynamic 0–100 Sea Safety Scores).*
-5. **Frontiers in Marine Science (2024):** Evaluated SMS and community radio broadcasts, which are passive one-way channels lacking interactive query dialogue. *(ORCA provides 100% offline PWA dialogue and voice synthesis).*
-6. **JMSE MDPI (2024):** Modeled hull stability, but remained too complex for boat skippers without automated translation into actionable verdicts. *(ORCA provides instant vessel-specific verdicts).*
+### [Slide 4: Literature Review Part 1 — Routing Optimization & Satellite PFZ]
+"On Slide 4, we begin our comprehensive Literature Survey analyzing peer-reviewed foundational works:
+1. **IEEE ECIS (2025):** Explored multi-agent weather routing using Deep Reinforcement Learning. However, it relied heavily on idealized ocean simulations with high computational latency and lacked multi-source live telemetry and regional Indic voice UI.  
+   *ORCA Differentiation:* We provide sub-850ms execution on live satellite data coupled with native Indic voice interaction.
+2. **Elsevier Ocean Engineering (2025):** Evaluated satellite PFZ prediction using Sea Surface Temperature and Chlorophyll-a. However, it operated as an offline batch pipeline with 24 to 48-hour latency, lacking real-time weather safety scoring or navigable compass courses.  
+   *ORCA Differentiation:* We calculate real-time dual routes with dynamic 16-point cardinal compass bearings and live safety scoring.
 
-**The Research Gap is clear:** No existing system unifies multi-satellite feeds, deterministic safety scoring, vernacular voice dialogue, and offline deep-sea resilience. That is the exact gap ORCA bridges.
-
-Now, I hand over to **Sanskar Bhargude** to discuss our Proposed Solution, Scientific Methodology, and System Architecture."
+Now, I hand over to **Sanskar Bhargude** to continue our Literature Review, System Overview, and Data Methodology."
 
 ---
 
-## 🎙️ SPEAKER 2: Sanskar Bhargude (Marine Data & Telemetry)
-**Slides Covered:** Slide 5, Slide 6, Slide 7  
+## 🎙️ SPEAKER 2: Sanskar Bhargude (Marine Data & Telemetry Integration)
+**Slides Covered:** Slide 5, Slide 6, Slide 7, Slide 8  
 **Time Allocation:** ~2 minutes 15 seconds  
 
-### [Slide 5: Parameter 2 & 5 — Proposed Solution & Foundational Objectives (12 Marks)]
-"Thank you Akash. Respected panel, I am Sanskar Bhargude, presenting our **Proposed Solution, Scientific Methodology, and System Architecture**.
+### [Slide 5: Literature Review Part 2 — Agentic Orchestration & Spatial Geofencing]
+"Thank you Akash. Respected panel, I am Sanskar Bhargude.
 
-On Slide 5, we outline our proposed solution and three foundational objectives:
-* **Our Proposed Solution** is ORCA — an intelligent, voice-first marine copilot that converts raw satellite and oceanographic rasters into clear, actionable spoken advice: *'Steer 258° West-Southwest for 11 nautical miles to reach tuna feeding zones.'*
-* **Objective 1 is Satellite PFZ Mapping:** We ingest NOAA CoastWatch GHRSST Level-4 sea surface temperature grids and ISRO Oceansat-3 Chlorophyll-a rasters, detecting thermal gradient fronts where pelagic fish congregate, and providing skippers with dynamic 16-point cardinal compass bearings.
-* **Objective 2 is Vernacular Voice Interaction:** We eliminate literacy barriers by enabling low-literacy artisanal fishers to interact hands-free in their mother tongue — across Marathi, Hindi, Tamil, Malayalam, Bengali, Telugu, and Gujarati — using on-device browser Web Speech API with zero per-minute cloud API fees.
-* **Objective 3 is Zero-Hallucination Safety:** We enforce strict vessel-specific wave limits (canoes under 1.8m, motorized crafts under 2.5m, trawlers under 3.5m), sound urgent 12 NM border sirens before crossing the IMBL, and cache data to run 100% offline up to 50 nautical miles beyond cellular towers."
-
----
-
-### [Slide 6: Parameter 7 — Scientific Methodology & Mathematical Formulations]
-"On Slide 6, addressing our **Scientific and Mathematical Methodology**:
-Our system architecture rests on three mathematically grounded formulations:
-1. **Data Normalization & Freshness Ledger:** All ingested multi-source observations are strictly mapped to Pydantic v2 domain schemas. The freshness validator classifies observations into LIVE (under 3 hours), NEAR-REAL-TIME (3 to 12 hours), and DELAYED (over 12 hours). Any delayed telemetry triggers an explicit **+8 uncertainty risk penalty** in subsequent safety calculations.
-2. **Deterministic Multi-Factor Safety Matrix (0 to 100):** We compute an objective sea safety score using our deterministic formula:
-   $$\text{Score} = w_{\text{wave}} \cdot S_{\text{wave}} + w_{\text{wind}} \cdot S_{\text{wind}} + w_{\text{haz}} \cdot S_{\text{haz}} + w_{\text{geo}} \cdot S_{\text{geo}} + P_{\text{fresh}}$$
-   Where weights are allocated as Wave & Swell (35%), Surface Wind (25%), Hazard Alerts (25%), and Geofence Proximity (15%). This yields an objective operational verdict: 0 to 25 is Safe to Sail, 26 to 47 is Safe with Caution, 48 to 67 is High Risk, and 68 to 100 is strictly Prohibited. Crucially, this score is compiled directly in Python — the generative AI cannot modify or hallucinate this rating.
-3. **Dual-Route & Spatial Geofencing:** We execute sub-5 millisecond ray-casting point-in-polygon containment checks. The engine calculates Route Alpha direct coastal channel and Route Bravo seaward sanctuary bypass with an enforced 15 NM buffer around Marine Protected Areas, backed by CMFRI economic harvest projections."
+On Slide 5, we examine the next two critical research areas:
+3. **IJCNN (2025):** Researched agentic LLM orchestration in cyber-physical systems. While effective for dialogue, autonomous LLMs proved susceptible to stochastic drift and numerical hallucinations when making safety-critical decisions.  
+   *ORCA Differentiation:* We enforce decoupled, compiled Python safety mathematics where generative AI cannot modify or hallucinate risk ratings.
+4. **Computers & Geosciences (2024):** Implemented spatial ray-casting for marine territorial boundaries. However, it focused strictly on static boundary geometry without dynamic wave-state risk penalties.  
+   *ORCA Differentiation:* We compute dynamic 0 to 100 Sea Safety Scores integrated with real-time met-ocean hazard vectors."
 
 ---
 
-### [Slide 7: Parameter 6 — System Architecture: 4-Layer Stack & 8 Collaborative Agents]
-"On Slide 7, you see our 4-layer system architecture:
-1. **Client & Interface Layer:** A React 19 Progressive Web App running Leaflet GIS ocean maps, browser Web Speech API, and offline Service Worker tile caching.
-2. **API Gateway & Orchestrator:** An asynchronous FastAPI ASGI gateway coordinating our multi-agent pipeline under 850 milliseconds.
-3. **The 8 Collaborative Agents Pipeline:**
-   * *Agent 1 (Planning Agent):* Deconstructs voice queries into structured JSON execution DAGs.
-   * *Agent 2 (Data Retrieval Agent):* Coordinates parallel asynchronous HTTPX fetching across external data connectors.
-   * *Agent 3 (Ocean Analytics Agent):* Detects SST thermal gradients ($\Delta T \ge 0.5^\circ\text{C/km}$) and Chlorophyll fronts.
-   * *Agent 4 (Weather Intelligence Agent):* Maps wave and wind vectors onto the international Beaufort (0–12) and Douglas (0–9) scales.
-   * *Agent 5 (Alert & Notification Agent):* Correlates active IMD cyclone bulletins and port danger signals 1 through 11.
-   * *Agent 6 (Risk Assessment Agent):* Executes the deterministic 0 to 100 Sea Safety Score formula.
-   * *Agent 7 (Geospatial Analysis & Dual-Routing Agent):* PostGIS ray-casting for IMBL border alarms and MPA sanctuary bypass.
-   * *Agent 8 (Response Synthesis Agent):* Produces grounded vernacular text and Indic voice synthesis with explicit data provenance citations.
-4. **Deterministic Scientific Engines & Data Connectors:** Compiled mathematical verification coupled with live spatial data feeds.
+### [Slide 6: Literature Review Part 3 — Coastal Broadcasts & Vessel Stability Dynamics]
+"On Slide 6, we conclude our Literature Review:
+5. **Frontiers in Marine Science (2024):** Evaluated SMS and community radio broadcasts for artisanal fishers. These are passive, one-way channels lacking interactive query dialogue and failing when vessels sail beyond cell towers.  
+   *ORCA Differentiation:* ORCA provides bidirectional dialogue, native Indic voice synthesis, and 100% offline PWA caching.
+6. **JMSE MDPI (2024):** Modeled vessel hull stability under rough sea states. While mathematically sound, the models remained too theoretical for boat skippers without automated translation into clear operational verdicts.  
+   *ORCA Differentiation:* ORCA translates complex hydrodynamics into simple, actionable verdicts: Safe, Caution, or Prohibited."
 
-Now, I invite **Ghansham Agaldare** to explain our Tools, Tech Stack, System Overview, Project Phases, and Sustainability metrics."
+---
+
+### [Slide 7: System Overview — Four Functional Subsystems]
+"On Slide 7, we present our complete System Overview composed of four coordinated subsystems:
+1. **Data Ingestion & Freshness Subsystem:** Ingests heterogeneous satellite rasters, buoy feeds, and weather forecasts, validating them against strict Pydantic v2 schemas and applying our 12-hour freshness ledger.
+2. **Multi-Agent Orchestration Subsystem:** Employs FastAPI and our Planning Agent to deconstruct voice prompts and dynamically coordinate our 8 collaborative agents with sub-5 millisecond deterministic fallback.
+3. **Scientific & Spatial Subsystem:** Executes compiled deterministic physics — calculating the 0 to 100 Sea Safety Score, ray-casting geofencing for the 12 NM IMBL siren, and satellite thermal front detection.
+4. **Deployment & Marine HUD Subsystem:** Delivers a complete Marine-Tech HUD with interactive Leaflet maps, live met-ocean telemetry, hands-free Indic voice copilot, and 50 NM deep-sea offline PWA autonomy."
+
+---
+
+### [Slide 8: Proposed Solution & Methodology: Data Ingestion & Preprocessing]
+"On Slide 8, addressing our scientific data ingestion and preprocessing pipeline:
+* **Heterogeneous Feeds:** We ingest NOAA CoastWatch GHRSST Level-4 sea surface temperature grids (0.05° resolution), ISRO Oceansat-3 OCM-3 Chlorophyll-a rasters, Open-Meteo marine wave and swell models, and INCOIS National Data Buoy Programme telemetry.
+* **Pydantic v2 Domain Normalization:** All incoming observations are strictly validated and mapped to structured schemas, filtering out spatial anomalies and sensor dropouts.
+* **12-Hour Freshness Ledger:** Observations are categorized into LIVE (under 3h), NEAR-REAL-TIME (3–12h), and DELAYED (>12h). Any delayed telemetry triggers an explicit **+8 uncertainty risk penalty** in subsequent safety calculations, guaranteeing conservative seamanship decisions.
+
+Now, I invite **Ghansham Agaldare** to explain our Multi-Agent Orchestration, Risk Engine, PFZ Analytics, and Vernacular Deployment."
 
 ---
 
 ## 🎙️ SPEAKER 3: Ghansham Agaldare (Scientific Engines & Safety Algorithm)
-**Slides Covered:** Slide 8, Slide 9, Slide 10, Slide 11  
+**Slides Covered:** Slide 9, Slide 10, Slide 11, Slide 12  
 **Time Allocation:** ~2 minutes 30 seconds  
 
-### [Slide 8: Parameter 8 — Tools, Technology & Maritime Domain Stack]
-"Thank you Sanskar. Respected panel, I am Ghansham Agaldare, covering our **Technology Stack, System Overview, Project Phases, and Sustainability**.
+### [Slide 9: Methodology: Multi-Agent Orchestration & Decision Flow]
+"Thank you Sanskar. Respected panel, I am Ghansham Agaldare.
 
-On Slide 8, our system is built upon four robust technology pillars:
-* **Data & Spatial GIS:** NOAA CoastWatch GHRSST Level-4 (0.05° resolution), ISRO OCM-3 Chlorophyll-a satellite feeds, Open-Meteo Marine API, INCOIS National Data Buoy Programme, PostGIS and Shapely for sub-5 millisecond polygonal ray-casting, and GEBCO bathymetry.
-* **Backend & Multi-Agent:** Python 3.13 runtime, FastAPI high-speed asynchronous ASGI framework, Uvicorn server, LangGraph multi-agent state machine, Anthropic Claude 3.5 Sonnet for intent parsing, and automated Pytest test runner.
-* **Maritime Scientific Standards:** World Meteorological Organization Douglas Sea State (0 to 9), Beaufort Wind Force (0 to 12), Great-Circle geodesic navigation, and IMO GMDSS automated emergency distress protocols.
-* **Frontend & Deployment:** React 19 Single Page App, Leaflet.js interactive ocean canvas, browser Web Speech API, Service Worker Stale-While-Revalidate tile cache, jsPDF client-side generator, and Docker containerization."
-
----
-
-### [Slide 9: System Overview — Four Functional Subsystems]
-"On Slide 9, we summarize our four functional subsystems:
-1. **Data Subsystem:** Ingests heterogeneous satellite rasters, buoy feeds, and weather forecasts, validating them against strict Pydantic v2 schemas and applying our 12-hour freshness ledger.
-2. **Orchestration Subsystem:** Employs FastAPI and our Planning Agent to deconstruct voice prompts and dynamically coordinate our 8 collaborative agents with sub-5 millisecond deterministic fallback if cloud APIs are offline.
-3. **Scientific & Spatial Subsystem:** Executes compiled deterministic physics — calculating the 0 to 100 Sea Safety Score, ray-casting geofencing for the 12 NM IMBL siren, and satellite thermal front detection.
-4. **Deployment & Interface Subsystem:** Delivers a complete Marine-Tech HUD with interactive Leaflet maps, live met-ocean banners, hands-free Indic voice copilot, and 50 NM deep-sea offline PWA autonomy."
+On Slide 9, we outline our Multi-Agent Orchestration and Decision Flow:
+* **FastAPI ASGI Gateway:** Receives client requests and triggers the orchestration pipeline with an average response time under 850 milliseconds.
+* **LangGraph State Machine:** Coordinates an 8-agent execution Directed Acyclic Graph (DAG), parsing user intent, parallelizing asynchronous data retrieval, and synthesizing validated navigation advisories.
+* **Deterministic Fallback Engine:** If any external cloud API or LLM endpoint experiences latency or downtime, the system falls back within sub-5 milliseconds to local compiled physics models, ensuring skippers are never left without safety guidance at sea."
 
 ---
 
-### [Slide 10: Project Phases & Execution Timeline]
-"On Slide 10, we summarize our 8 project development phases:
-* **Phases 1 through 7 are 100% COMPLETED and verified in software:** Ingestion & Preprocessing, Spatial Index & Port Registry (35+ Indian ports), Scientific Engines, 8-Agent Pipeline & Orchestrator, Interactive Leaflet GIS HUD, Multilingual Voice & Dialect Locking, and Offshore PWA with client-side PDF dispatch.
-* **Phase 8 is actively IN PROGRESS:** Vessel hardware integration with NMEA-2000 marine bridge sensors and conducting in-situ harbor sea trials with the artisanal fishing community at Cochin fisheries harbour."
+### [Slide 10: Methodology: Risk Assessment & Sea Safety Engine]
+"On Slide 10, addressing our **Deterministic Maritime Risk Assessment**:
+
+We compute an objective 0 to 100 Sea Safety Score using our compiled deterministic formula:
+$$\text{Score} = w_{\text{wave}} \cdot S_{\text{wave}} + w_{\text{wind}} \cdot S_{\text{wind}} + w_{\text{haz}} \cdot S_{\text{haz}} + w_{\text{geo}} \cdot S_{\text{geo}} + P_{\text{fresh}}$$
+
+Where weights are calibrated to maritime standards:
+* **Wave & Swell (35%):** World Meteorological Organization (WMO) Douglas Sea State (0 to 9).
+* **Surface Wind (25%):** Beaufort Wind Force scale (0 to 12).
+* **Hazard Bulletins (25%):** IMD cyclone alerts and port danger warning signals 1 through 11.
+* **Geofence Proximity (15%):** Distance to international borders and reefs.
+* **Freshness Penalty:** Additional penalty for stale satellite observations.
+
+This yields an objective verdict: **0–25 Safe to Sail**, **26–47 Safe with Caution**, **48–67 High Risk**, and **68–100 Strictly Prohibited**. Non-motorized canoes are restricted at 1.8m swell, motorized skiffs at 2.5m, and mechanized trawlers at 3.5m. Crucially, the LLM cannot alter this score — ensuring **zero safety hallucination**."
 
 ---
 
-### [Slide 11: Parameter 3 — Cost, Resources, Environmental Relevance & Sustainability (8 Marks)]
-"On Slide 11, addressing our **8-mark criteria on Cost, Resources, Environmental Relevance, and Sustainability**:
-* **Cost & Resource Efficiency:** ORCA is 100% free for fishermen. It operates inside mobile browsers on standard smartphones without requiring expensive specialized marine chartplotters. Browser-native Web Speech API eliminates recurring per-minute cloud speech charges, while our asynchronous FastAPI backend serves over 1,000 concurrent vessels on a lightweight 2-vCPU cloud instance.
-* **Environmental Relevance:** By routing vessels directly to satellite-confirmed fish aggregations, ORCA cuts diesel consumption by **35%**, saving 18 to 24 liters of diesel per voyage and abating over **140 kilograms of CO2 per boat each month**. Furthermore, Route Bravo actively steers vessels away from sensitive coral reefs and Marine Protected Areas like the Gulf of Mannar and Gahirmatha turtle sanctuaries.
-* **Economic Sustainability:** Putting **₹1,800 to ₹2,400 daily net savings back into artisanal coastal households** directly strengthens coastal livelihood, fulfilling India's **Pradhan Mantri Matsya Sampada Yojana (PMMSY)** and **United Nations SDG 14 (Life Below Water)**.
+### [Slide 11: Methodology: PFZ Analytics & Navigable Dual-Routing]
+"On Slide 11, we cover our Potential Fishing Zone analytics and dual-routing algorithm:
+* **Thermal Gradient Edge Detection:** We calculate horizontal spatial gradients across sea surface temperature grids:
+  $$\Delta T = \sqrt{\left(\frac{\partial T}{\partial x}\right)^2 + \left(\frac{\partial T}{\partial y}\right)^2} \ge 0.5^\circ\text{C/km}$$
+  Regions where thermal fronts intersect chlorophyll-a concentrations mark prime upwelling zones where pelagic species like Yellowfin Tuna congregate.
+* **16-Point Cardinal Bearings:** Advisories translate coordinates into intuitive maritime bearings, such as *'Steer 258° West-Southwest for 11 nautical miles'*.
+* **Dual-Route Planning:** PostGIS spatial ray-casting calculates **Route Alpha** (direct coastal channel) and **Route Bravo** (seaward bypass maintaining a 15 NM buffer around Marine Protected Areas), coupled with CMFRI harvest economic projections."
 
-Now, I welcome **Hari Birare** to present our Group Responsibilities and walk you through the verified screenshots of our live functioning system."
+---
+
+### [Slide 12: Methodology: Vernacular Voice & Offshore Deployment]
+"On Slide 12, we detail our Vernacular Voice and Offline Deployment architecture:
+* **Hands-Free Indic Voice:** Uses browser-native Web Speech API supporting 12+ coastal dialects including Marathi, Hindi, Tamil, Malayalam, Telugu, and Gujarati. This completely eliminates literacy barriers and avoids expensive cloud speech API charges.
+* **100% Offline Autonomy:** A Progressive Web App Service Worker with Stale-While-Revalidate tile caching provides full navigation, safety scoring, and map interaction up to 50 nautical miles offshore beyond cellular tower range.
+* **GMDSS Distress Dispatch:** In emergencies, the system instantly compiles an official IMO GMDSS-compliant distress dispatch PDF client-side, complete with cryptographic tokens, GPS coordinates, crew count, and Coast Guard MRCC emergency contacts.
+
+Now, I welcome **Hari Birare** to walk you through our System Architecture, Timeline, Technology Stack, and live system screenshots."
 
 ---
 
 ## 🎙️ SPEAKER 4: Hari Birare (PFZ Analytics & Dual-Routing)
-**Slides Covered:** Slide 12, Slide 13, Slide 14, Slide 15, Slide 16  
+**Slides Covered:** Slide 13, Slide 14, Slide 15, Slide 16, Slide 17, Slide 18  
 **Time Allocation:** ~2 minutes 45 seconds  
 
-### [Slide 12: Parameter 4 — Group Formation & Identification of Individual Responsibilities (10 Marks)]
-"Thank you Ghansham. Respected teachers, I am Hari Birare, covering **Group Formation and our verified System Demonstration**.
+### [Slide 13: System Architecture — 4-Layer Stack & 8 Collaborative Agents]
+"Thank you Ghansham. Respected teachers, I am Hari Birare.
 
-On Slide 12, addressing our **10-mark parameter for Teamwork and Project Management**:
-1. **Akash Kumar (Team Lead & System Orchestration):** Architected the FastAPI hub, LangGraph multi-agent execution pipeline, asynchronous HTTPX parallel data routing, and 34/34 passing automated test suite.
-2. **Sanskar Bhargude (Marine Data & Telemetry Integration):** Implemented multi-satellite ingestion from NOAA SST L4 and ISRO OCM-3, Pydantic v2 schemas, and the 12-hour data freshness ledger.
-3. **Ghansham Agaldare (Scientific Engines & Safety Algorithm):** Formulated our deterministic 0 to 100 Sea Safety Score, Douglas and Beaufort scale calibrations, and 0% AI hallucination decoupling.
-4. **I, Hari Birare (PFZ Analytics & Navigable Dual-Routing):** Developed thermal gradient edge detection ($\Delta T \ge 0.5^\circ\text{C/km}$), PostGIS ray-casting geofencing, Route Alpha and Bravo passage planner, and CMFRI harvest economics.
-5. **Krishna Aher (Frontend PWA & Multilingual Voice Engine):** Developed the React 19 interface, browser-native Web Speech API in 12+ Indic coastal dialects, and the 50 NM offline Service Worker tile cache."
-
----
-
-### [Slide 13: System Demonstration — Code Architecture & Pytest Suite (Part 1)]
-"Slides 13 through 16 present verified screenshots from our functioning production application:
-* On Slide 13 (Left), you see our **FastAPI backend codebase in VS Code**, showcasing the asynchronous multi-agent orchestrator executing parallel domain analytics.
-* On Slide 13 (Right), you see our **Pytest automated test runner executing in terminal**, showing 10 complex end-to-end multi-agent SIH scenarios passing with **100% green status in 30.1 seconds**.
-* Below, you can see our live cURL test against `http://127.0.0.1:8000/api/chat` completing in just **482 milliseconds** with full data citations from NOAA, ECMWF, and INCOIS."
+On Slide 13, you see our complete 4-Layer System Architecture:
+1. **Client & Presentation Layer:** React 19 PWA, Leaflet GIS ocean maps, and browser Web Speech API.
+2. **API Gateway & Orchestration Layer:** FastAPI ASGI hub coordinating our multi-agent pipeline.
+3. **The 8 Collaborative Agents:** Planning Agent, Data Retrieval Agent, Ocean Analytics Agent, Weather Intelligence Agent, Alert & Notification Agent, Risk Assessment Agent, Geospatial Analysis Agent, and Response Synthesis Agent.
+4. **Deterministic Scientific Engines & Data Connectors:** Compiled mathematical validation coupled with live satellite and buoy telemetry feeds."
 
 ---
 
-### [Slide 14: System Demonstration — Leaflet Ocean GIS Canvas & Telemetry HUD (Part 2)]
-"On Slide 14, you see our **Interactive Marine-Tech Interface**:
-* On the Left is our **hardware-accelerated Leaflet GIS canvas**, showing the yellow vessel departure marker at Cochin Port, our blue Potential Fishing Zone hotspot at 28.4°C SST, the red restricted Marine Protected Area, and the green Route Bravo seaward bypass arc.
-* On the Right is our **Live Met-Ocean Telemetry Banner**, displaying live sea state of 1.4m swell (Douglas Scale 3), 14.2 knots surface wind (Beaufort Force 4), 28.4°C sea surface temperature validated by NOAA and ISRO, 1011.8 hPa pressure, and an hourly 12-hour forecast timeline for departure window planning."
+### [Slide 14: Project Phases & Execution Timeline]
+"On Slide 14, we present our 8 project development phases:
+* **Phases 1 through 7 are 100% COMPLETED and verified in software:** Ingestion & Preprocessing, Spatial Index & Port Registry covering 35+ Indian ports, Scientific Engines, 8-Agent Pipeline, Interactive Leaflet GIS HUD, Multilingual Voice Engine, and Offshore PWA with client-side PDF dispatch.
+* **Phase 8 is actively IN PROGRESS:** Vessel hardware integration with NMEA-2000 marine bridge sensors and conducting in-situ harbor sea trials with artisanal fishermen at Cochin fisheries harbour."
 
 ---
 
-### [Slide 15: System Demonstration — Deterministic Safety Engine & Dual-Route Plan (Part 3)]
-"On Slide 15, you see our **Deterministic Safety Engine and Passage Plan Comparison**:
-* On the Left is our **Multi-Factor Maritime Safety Assessment**, displaying an overall risk score of **32.7 out of 100 (Moderate Risk)** with the operational verdict: *'Safe with Operational Caution — Mechanized trawlers and motorized crafts permitted; non-motorized canoes prohibited due to 1.8m swell.'*
-* On the Right is our **Passage Plan Comparison**: Route Alpha direct channel (142.4 NM, 114L diesel, passes within 2.4 NM of sanctuary) versus Route Bravo deep-water bypass (164.2 NM, 131L diesel, 100% clear of all sanctuaries). A dedicated button downloads the official passage plan PDF instantly."
+### [Slide 15: Technology Stack & Maritime Standards]
+"On Slide 15, our technological foundation spans four key areas:
+* **Data & Spatial GIS:** NOAA CoastWatch GHRSST L4, ISRO Oceansat-3 OCM-3, Open-Meteo Marine, INCOIS Buoys, PostGIS, and Shapely spatial geometry.
+* **Backend & Agentic:** Python 3.13 runtime, FastAPI asynchronous ASGI framework, Uvicorn, LangGraph multi-agent state machine, and automated Pytest test runner.
+* **Maritime Scientific Standards:** WMO Douglas Sea State (0–9), Beaufort Wind Force (0–12), Great-Circle geodesic navigation, and IMO GMDSS emergency distress protocols.
+* **Frontend & PWA:** React 19 Single Page App, Leaflet.js interactive canvas, browser Web Speech API, Service Worker tile caching, and jsPDF client-side generation."
 
 ---
 
-### [Slide 16: System Demonstration — Multilingual Voice & GMDSS Distress Dispatch PDF (Part 4)]
-"On Slide 16, you see our **Multilingual Voice Engine and Emergency Dispatch**:
-* On the Left is our **Marathi Localized Voice Copilot**, which speaks directly to the skipper in authentic coastal Marathi: *'Munambam harbor se 257.9° WSW disha me jao, 11 nautical miles dur Yellowfin Tuna upwelling zone hai'*, estimating an authentic **+84% Net ROI** based on CMFRI dockside auction prices.
-* On the Right is our **official GMDSS Maritime Distress Dispatch Record PDF**, generated entirely client-side with an encrypted distress token (`ORCA-MAYDAY-2026-9921-KOCHI`), GPS coordinates, crew count, sea state conditions, and automated SAR dispatch contacts linked to the Indian Coast Guard MRCC.
+### [Slide 16: Screenshot 1 — Command Center & AI Copilot]
+"Moving to our live system demonstration across Slides 16 through 19, showing **real, uncropped screenshots** of our working platform:
 
-Now, I invite **Krishna Aher** to present our Feasibility Benchmarks, Future Scope, and Conclusion."
+On Slide 16, you see our **Command Center & AI Copilot**:
+* The top met-ocean telemetry bar shows live Cochin harbor observations: 1.4m swell, 14.2 kt wind, 28.4°C SST, and 1011.8 hPa pressure.
+* The left panel displays our **AI Marine Copilot** communicating in natural language with verified data provenance tags from NOAA and ECMWF.
+* The hardware-accelerated Leaflet map shows the vessel's current position, port boundary markers, and navigable ocean zones."
 
 ---
 
-## 🎙️ SPEAKER 5: Krishna Aher (Frontend PWA & Voice Engine)
-**Slides Covered:** Slide 17, Slide 18, Slide 19, Slide 20, Slide 21  
+### [Slide 17: Screenshot 2 — Dynamic Route Engine & Passage Plan]
+"On Slide 17, you see our **Dynamic Route Engine & Passage Plan Comparison**:
+* The engine renders **Route Alpha** (direct coastal path, 142.4 NM, 114 liters diesel) versus **Route Bravo** (seaward bypass, 164.2 NM, 131 liters diesel).
+* Route Bravo actively maintains a safe **15 nautical mile buffer around the restricted Marine Protected Area**, highlighted in red on the map.
+* Skippers can compare diesel consumption, travel time, and safety clearance, and download the official passage plan PDF with a single click."
+
+---
+
+### [Slide 18: Screenshot 3 — Potential Fishing Zone Advisor]
+"On Slide 18, you see our **Potential Fishing Zone (PFZ) Advisor**:
+* Satellite thermal gradient fronts are mapped with precision, highlighting prime pelagic feeding zones with an estimated **+84% Net ROI** based on CMFRI dockside fish auction prices.
+* The panel provides the exact course to steer: **257.9° West-Southwest at 11.2 nautical miles**.
+* The map displays bathymetric depth contours and sea surface temperature contours, guiding skippers directly to high-yield waters without fuel waste.
+
+Now, I hand over to **Krishna Aher** to present our Weather & Radar screenshot, Impacts & Benefits, Future Scope, and Conclusion."
+
+---
+
+## 🎙️ SPEAKER 5: Krishna Aher (Frontend PWA & Multilingual Voice Engine)
+**Slides Covered:** Slide 19, Slide 20, Slide 21, Slide 22, Slide 23, Slide 24  
 **Time Allocation:** ~2 minutes 15 seconds  
 
-### [Slide 17: Feasibility Validation & Empirical Benchmarks]
+### [Slide 19: Screenshot 4 — Met-Ocean Weather & Radar]
 "Thank you Hari. Respected guide Dr. Bhagwan Thorat Sir and distinguished review panel, I am Krishna Aher, concluding our presentation.
 
-On Slide 17, we present our empirical performance benchmarks:
-* **34 out of 34 Automated Tests Passing:** 100% pass rate across our comprehensive regression suite covering live satellite feeds, buoy telemetry, mathematical risk matrices, and multilingual voice parsing.
-* **Sub-850 Millisecond Latency:** Our asynchronous multi-agent pipeline completes round-trip execution in 482 to 840 milliseconds.
-* **0.0% Safety Hallucination Rate:** Decoupling language generation from our Python physics calculations completely eliminates fabricated sea metrics.
-* **50 Nautical Miles Offline Range:** Our PWA Stale-While-Revalidate caching enables complete chart navigation and advisory retrieval with 0% cellular internet.
-
-We have field-validated these benchmarks against live data in Cochin, Mumbai, Chennai, and Mangalore, including ray-casting simulations for the 12 NM IMBL border alarm."
+On Slide 19, you see our fourth live screenshot — the **Met-Ocean Weather & Radar Dashboard**:
+* Shows real-time precipitation radar, wind vector arrows, and swell wave heights across the Arabian Sea.
+* Displays an hourly 12-hour forecast timeline enabling skippers to identify safe departure windows before squalls develop.
+* Integrates automated IMD port warning signals and high-seas weather alerts, updating in real time."
 
 ---
 
-### [Slide 18: Future Scope & National Maritime Scaling]
-"On Slide 18, we outline our future scope and scaling roadmap:
-1. **On-Board AIS & NMEA Hardware Integration:** Direct serial NMEA-0183/2000 hardware ingestion from vessel GPS and AIS transponders directly into the local ORCA engine.
-2. **Satellite IoT Downlink via NavIC & Iridium SBD:** Integration with ISRO NavIC messaging receivers to enable bidirectional distress messaging and PFZ advisory sync beyond 50 nautical miles offshore.
-3. **Multi-Vessel Peer-to-Peer Mesh Networking:** Enabling artisanal fleets to exchange localized sea state and schooling observations without cellular dependence.
-4. **On-Device Edge Small Language Models:** Packaging quantized SLMs like Gemma-2B or Llama-3-1B INT4 for fully autonomous on-vessel speech intent parsing on rugged marine touchscreens.
+### [Slide 20: Impacts and Benefits — Economic, Environmental & Social]
+"On Slide 20, addressing our comprehensive **Impacts and Benefits**:
+* **Economic Impacts:** ORCA cuts diesel consumption by **35%**, saving 18 to 24 liters of diesel per voyage. This translates to **₹1,800 to ₹2,400 daily net savings** directly back into artisanal fishing households.
+* **Environmental Sustainability:** Saves over **140 kilograms of CO2 per boat each month**. Furthermore, Route Bravo enforces a mandatory 15 NM buffer around sensitive coral reefs and Marine Protected Areas like the Gulf of Mannar and Gahirmatha turtle sanctuaries.
+* **Seamanship Safety & Social Inclusion:** The 12 NM international boundary siren prevents dangerous border crossings and arrests. Hands-free Indic voice eliminates literacy barriers, giving traditional fishers equal access to satellite intelligence.
+* **National Policy Alignment:** Directly aligns with India's **Pradhan Mantri Matsya Sampada Yojana (PMMSY)** and **UN SDG 14 (Life Below Water)**."
+
+---
+
+### [Slide 21: Future-Scope & National Maritime Scaling]
+"On Slide 21, we present our Future Scope and scaling roadmap:
+1. **On-Board NMEA-2000 Hardware Integration:** Direct serial hardware ingestion from vessel GPS, depth sounders, and AIS transponders into the local ORCA engine.
+2. **Satellite IoT Downlink via NavIC & Iridium SBD:** Integration with ISRO NavIC messaging receivers to enable bidirectional distress messaging and advisory sync beyond 50 nautical miles offshore.
+3. **Multi-Vessel Peer-to-Peer Mesh Networking:** Enabling artisanal fleets to exchange localized sea state and fish schooling observations boat-to-boat without cellular dependence.
+4. **On-Device Edge Small Language Models:** Packaging quantized SLMs (Gemma-2B INT4) for fully autonomous on-vessel speech intent parsing on rugged marine touchscreens.
 5. **Automated Coast Guard SAR Triage:** Direct API linking with the Indian Coast Guard Maritime Rescue Coordination Centre (MRCC) for automated drift-path modeling and instantaneous emergency dispatch."
 
 ---
 
-### [Slide 19: Project Conclusion & Synthesis]
-"On Slide 19, we summarize our project conclusion:
-* **Successful Unification:** ORCA unifies heterogeneous satellite observations (NOAA GHRSST, ISRO OCM-3), marine meteorology (Open-Meteo), and government bulletins (INCOIS, IMD) within an 8-agent collaborative architecture, completely eliminating maritime data fragmentation.
-* **Zero-Hallucination Guarantee:** The system guarantees zero hallucinations in mission-critical navigation through deterministic scientific engines: multi-factor risk scoring (0–100), ISRO-calibrated PFZ detection with dynamic 16-point compass bearings, and PostGIS obstacle-avoiding dual routing, executing under 850 milliseconds.
-* **Field-Ready Interface:** Features strict multilingual dialect locking (Marathi, Hindi, Tamil), direct client-side GMDSS distress PDF dispatch, and offline tile caching for seamless navigation up to 50 nautical miles offshore."
+### [Slide 22: Project Conclusion & Synthesis]
+"On Slide 22, we summarize our project conclusion:
+* **Data Unification:** ORCA successfully unifies heterogeneous satellite observations (NOAA GHRSST, ISRO OCM-3), marine meteorology (Open-Meteo), and government bulletins (INCOIS, IMD) within an 8-agent collaborative architecture, eliminating maritime data fragmentation.
+* **Zero-Hallucination Guarantee:** The platform guarantees zero hallucinations in mission-critical navigation through deterministic scientific engines: multi-factor risk scoring (0–100), ISRO-calibrated PFZ detection with dynamic 16-point compass bearings, and PostGIS obstacle-avoiding dual routing, executing under 850 milliseconds.
+* **Field-Ready Deployment:** Features strict multilingual dialect locking (Marathi, Hindi, Tamil), direct client-side GMDSS distress PDF dispatch, and offline tile caching for seamless navigation up to 50 nautical miles offshore."
 
 ---
 
-### [Slide 20: Key Academic & Government References]
-"On Slide 20, we list our foundational academic and government references:
-1. INCOIS Ministry of Earth Sciences Technical Reports (2024).
-2. World Meteorological Organization (WMO) Manual on Marine Meteorological Services (2023).
-3. International Maritime Organization (IMO) GMDSS Manual (8th Edition, 2022).
-4. IEEE Transactions on Neural Networks and Learning Systems (2025).
-5. Elsevier Ocean Engineering Journal on Weather Routing (2024).
-6. Remote Sensing of Environment (2023).
-7. IMD Standard Operating Procedures for Cyclone Warning Services (2024).
-8. Central Marine Fisheries Research Institute (CMFRI) Harvest Economics (2025)."
+### [Slide 23: Key Academic & Government References]
+"On Slide 23, we acknowledge our foundational academic and government references:
+1. **INCOIS, Ministry of Earth Sciences (2024):** Technical Reports on Potential Fishing Zone Validation and Ocean State Forecasting Services.
+2. **World Meteorological Organization (WMO) (2023):** Manual on Marine Meteorological Services, WMO-No. 558 (Douglas Sea State Scale).
+3. **International Maritime Organization (IMO) (2022):** GMDSS Manual, 8th Edition, Automated Maritime Distress Communication Protocols.
+4. **IEEE Transactions on Neural Networks and Learning Systems (2025):** Dynamic Decision-Support in Multi-Agent Cyber-Physical Architectures.
+5. **Elsevier Ocean Engineering (2024):** Multi-Objective Weather Routing and Hydrodynamic Fuel Optimization for Marine Vessels.
+6. **Remote Sensing of Environment (2023):** High-Resolution Satellite SST and Chlorophyll-a Front Detection for Pelagic Fishery Mapping.
+7. **India Meteorological Department (IMD) (2024):** Standard Operating Procedures for Cyclone Warning and Port Danger Signals 1–11.
+8. **Central Marine Fisheries Research Institute (CMFRI) (2025):** Marine Fisheries Census & Fuel Expenditure Economics in Indian Artisanal Sectors."
 
 ---
 
-### [Slide 21: Thank You & Open Review Discussion]
-"On Slide 21, on behalf of our entire team — Akash, Sanskar, Ghansham, Hari, and myself — we express our deepest gratitude to our project guide **Dr. Bhagwan Thorat Sir** and the Department of Computer Engineering at Vishwakarma Institute of Technology, Pune, for their invaluable guidance throughout this project.
+### [Slide 24: Thank You & Open Review Discussion]
+"On Slide 24, on behalf of our entire team — Akash, Sanskar, Ghansham, Hari, and myself — we express our deepest gratitude to our project guide **Dr. Bhagwan Thorat Sir** and the Department of Computer Engineering at Vishwakarma Institute of Technology, Pune, for their invaluable mentorship throughout this project.
 
 We have demonstrated a working, scientifically grounded, and field-ready platform that empowers India's artisanal fishing communities while safeguarding marine ecosystems.
 
